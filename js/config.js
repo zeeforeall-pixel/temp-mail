@@ -47,7 +47,7 @@ export const LS_SEEN_MESSAGES = 'tm_seen_messages';
 
 // ── Domain blacklist (skipped during bulk creation only) ──
 
-export const BULK_BLACKLIST = ['neorastorepl.my.id', 'openmyfile.id'];
+export const BULK_BLACKLIST = ['moymoy.me', 'openfile.id'];
 
 // ── Word lists for human-readable prefix generation ──
 // Two large word pools: adjectives and nouns. Combined with a random
