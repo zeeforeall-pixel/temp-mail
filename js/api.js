@@ -322,7 +322,7 @@ export async function tryCreateInbox(prefix, domain, tokenIdx) {
   if (!isDomainAvailable(domain)) {
     // Try a different domain from the pool
     const available = domains.filter(
-      (d) => !BULK_BLACKLIST.includes(d.domain) && isDomainAvailable(d.domain)
+      (d) => !BULK_BLACKLIST.some(b => d.domain.includes(b)) && isDomainAvailable(d.domain)
     );
     if (available.length > 0) {
       domain = available[Math.floor(Math.random() * available.length)].domain;
@@ -376,7 +376,7 @@ export async function bulkCreateInboxes(count, onProgress) {
   // Pre-generate unique prefixes and domain assignments
   const prefixes = Array.from({ length: count }, () => genHumanPrefix());
   const availableDomains = domains.filter(
-    (d) => !BULK_BLACKLIST.includes(d.domain) && isDomainAvailable(d.domain)
+    (d) => !BULK_BLACKLIST.some(b => d.domain.includes(b)) && isDomainAvailable(d.domain)
   );
   const domList = availableDomains.length > 0 ? availableDomains : domains;
   const domainsForJobs = Array.from({ length: count }, () =>
