@@ -366,7 +366,7 @@ export async function tryCreateInbox(prefix, domain, tokenIdx) {
  * Requests are dispatched in waves to avoid burst detection.
  * Each wave has a random size and inter-wave delay.
  */
-export async function bulkCreateInboxes(count, onProgress) {
+export async function bulkCreateInboxes(count, onProgress, targetDomain) {
   // Reset dedup set and circuit breakers for a fresh batch
   resetPrefixDedup();
   tokenQuarantine.clear();
@@ -375,13 +375,18 @@ export async function bulkCreateInboxes(count, onProgress) {
 
   // Pre-generate unique prefixes and domain assignments
   const prefixes = Array.from({ length: count }, () => genHumanPrefix());
-  const availableDomains = domains.filter(
-    (d) => !BULK_BLACKLIST.some(b => d.domain.includes(b)) && isDomainAvailable(d.domain)
-  );
-  const domList = availableDomains.length > 0 ? availableDomains : domains;
-  const domainsForJobs = Array.from({ length: count }, () =>
-    domList[Math.floor(Math.random() * domList.length)]?.domain
-  );
+  let domainsForJobs;
+  if (targetDomain && domains.some(d => d.domain === targetDomain)) {
+    domainsForJobs = Array.from({ length: count }, () => targetDomain);
+  } else {
+    const availableDomains = domains.filter(
+      (d) => !BULK_BLACKLIST.some(b => d.domain.includes(b)) && isDomainAvailable(d.domain)
+    );
+    const domList = availableDomains.length > 0 ? availableDomains : domains;
+    domainsForJobs = Array.from({ length: count }, () =>
+      domList[Math.floor(Math.random() * domList.length)]?.domain
+    );
+  }
 
   // Shuffle job order to avoid predictable sequences
   const jobIndices = Array.from({ length: count }, (_, i) => i);

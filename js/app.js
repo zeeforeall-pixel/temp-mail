@@ -61,6 +61,7 @@ import {
   closeModal,
   closeAllModals,
   setHistoryFilter,
+  renderBulkDomains,
   startExpiryTicker,
   formatExpiry,
   escapeHtml,
@@ -201,7 +202,7 @@ async function handleCustomInbox(prefix, domain) {
   }
 }
 
-async function handleBulkCreate(count) {
+async function handleBulkCreate(count, domain) {
   const $bulkBtn = $('bulkBtn');
   const $bulkProgress = $('bulkProgress');
   const $bulkBar = $('bulkBar');
@@ -223,7 +224,7 @@ async function handleBulkCreate(count) {
   }
 
   try {
-    const results = await bulkCreateInboxes(count, updateProgress);
+    const results = await bulkCreateInboxes(count, updateProgress, domain);
     for (const inbox of results) {
       addHistoryEntry(inbox);
     }
@@ -302,6 +303,7 @@ function wireEvents() {
 
   $('bulkBtn').addEventListener('click', () => {
     $('bulkCountInput').value = '15';
+    renderBulkDomains();
     openModal('bulkModal');
     setTimeout(() => $('bulkCountInput').focus(), 100);
   });
@@ -316,9 +318,12 @@ function wireEvents() {
   });
   $('bulkModalGo').addEventListener('click', () => {
     const c = parseInt($('bulkCountInput').value, 10);
+    const bulkDomainEl = document.getElementById('bulkDomainSelector');
+    const selectedBulkDomain = bulkDomainEl?.dataset?.domain;
+    const bulkDomain = selectedBulkDomain && selectedBulkDomain !== '__random__' ? selectedBulkDomain : null;
     if (c > 0) {
       closeModal('bulkModal');
-      handleBulkCreate(Math.min(c, MAX_BULK_COUNT));
+      handleBulkCreate(Math.min(c, MAX_BULK_COUNT), bulkDomain);
     }
   });
   $('bulkCountInput').addEventListener('keydown', (e) => {

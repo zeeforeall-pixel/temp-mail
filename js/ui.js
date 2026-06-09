@@ -220,6 +220,31 @@ export function renderDomains() {
   });
 }
 
+
+export function renderBulkDomains() {
+  const $sel = document.getElementById("bulkDomainSelector");
+  if (!$sel) return;
+  $sel.innerHTML = "";
+  const all = [
+    { domain: "__random__", label: "Random" },
+    ...domains.map((d) => ({ domain: d.domain, label: d.label || ("@" + d.domain) })),
+  ];
+  if (!$sel.dataset.domain) $sel.dataset.domain = "__random__";
+  all.forEach((d) => {
+    const el = document.createElement("span");
+    el.className = "domain-chip" + (d.domain === $sel.dataset.domain ? " active" : "");
+    el.dataset.domain = d.domain;
+    if (d.domain === "__random__") { el.innerHTML = ICONS.dice + " Random"; }
+    else { el.textContent = d.label; }
+    el.addEventListener("click", () => {
+      $sel.querySelectorAll(".domain-chip").forEach((c) => c.classList.remove("active"));
+      el.classList.add("active");
+      $sel.dataset.domain = d.domain;
+    });
+    $sel.appendChild(el);
+  });
+}
+
 // ── Render: Messages ──
 
 let _lastMsgIds = '';
