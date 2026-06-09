@@ -1,0 +1,113 @@
+/* ═══════════════════════════════════════════
+   Theme — CSS custom properties & dark mode
+   ═══════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: italic;
+  font-weight: 700;
+  src: local('IBM Plex Mono Bold Italic'), local('IBMPlexMono-BoldItalic');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'VT323';
+  src: local('VT323');
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: 40 30% 96%;
+  --surface: 40 25% 94%;
+  --surface2: 40 20% 88%;
+  --border: 40 15% 76%;
+  --border-h: 25 60% 50%;
+  --text: 40 25% 10%;
+  --text2: 40 12% 42%;
+  --primary: 25 70% 45%;
+  --primary-glow: 25 70% 45% / 0.15;
+  --success: 150 45% 38%;
+  --danger: 0 70% 50%;
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --brutal: 3px;
+}
+
+html.dark {
+  --bg: 220 18% 10%;
+  --surface: 220 14% 14%;
+  --surface2: 220 10% 18%;
+  --border: 220 8% 24%;
+  --border-h: 30 75% 55%;
+  --text: 40 8% 86%;
+  --text2: 40 5% 50%;
+  --primary: 30 80% 55%;
+  --primary-glow: 30 80% 55% / 0.15;
+  --success: 150 40% 35%;
+  --danger: 0 70% 55%;
+}
+
+html {
+  font-size: 17px;
+}
+
+/* ── Skeleton loading shimmer ── */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--surface2)) 25%,
+    hsl(var(--surface)) 50%,
+    hsl(var(--surface2)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-line {
+  height: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-line.long {
+  width: 90%;
+}
+
+/* ── Expiry countdown ── */
+
+.expiry-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: 'VT323', monospace;
+  color: hsl(var(--text2));
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-sm);
+  background: hsl(var(--surface2));
+}
+
+.expiry-badge.warning {
+  color: hsl(var(--danger));
+  border-color: hsl(var(--danger));
+  background: hsl(0 70% 50% / 0.1);
+}

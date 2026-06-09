@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Development artifacts
+.fallow/
+.netlify/
+
+# Planning docs
+PLAN.md

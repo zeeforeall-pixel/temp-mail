@@ -1,0 +1,157 @@
+/* ═══════════════════════════════════════════
+   Layout — Body, container, header, cards
+   ═══════════════════════════════════════════ */
+
+body {
+  font-family: 'IBM Plex Mono', 'Space Grotesk', system-ui, monospace;
+  background: hsl(var(--bg));
+  color: hsl(var(--text));
+  letter-spacing: 0.02em;
+  min-height: 100vh;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='none'/%3E%3Crect width='1' height='1' x='10' y='10' fill='currentColor' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 20px 20px;
+  background-color: hsl(var(--bg));
+}
+
+.container {
+  width: 100%;
+  max-width: 720px;
+}
+
+/* ── Header ── */
+
+header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+header h1 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 2.2rem;
+  font-weight: 700;
+  font-style: italic;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(25 95% 60%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+header p {
+  color: hsl(var(--text2));
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Cards ── */
+
+.card {
+  contain: layout style;
+  background: hsl(var(--surface));
+  border: 3px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 6px 6px 0 hsl(var(--border));
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.card:hover {
+  border-color: hsl(var(--border-h));
+  box-shadow: 4px 4px 0 hsl(var(--border));
+  transform: translate(2px, 2px);
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: hsl(var(--text2));
+  margin-bottom: 1rem;
+}
+
+/* ── Inbox row ── */
+
+.inbox-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  contain: layout;
+}
+
+.inbox-row .addr {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  background: hsl(var(--surface2));
+  border: 2px solid hsl(var(--border));
+  border-radius: var(--radius-sm);
+  font-family: 'VT323', 'SF Mono', 'Fira Code', monospace;
+  font-size: 1.15rem;
+  color: hsl(var(--text));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.inbox-row .addr:hover {
+  border-color: hsl(var(--primary));
+}
+
+/* ── Message list ── */
+
+.msg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  content-visibility: auto;
+  contain-intrinsic-size: 200px;
+}
+
+.msg-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: hsl(var(--text2));
+  font-size: 0.85rem;
+}
+
+.msg-empty svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 0.75rem;
+  opacity: 0.25;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 500px) {
+  body {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+    box-shadow: 4px 4px 0 hsl(var(--border));
+  }
+
+  .inbox-row {
+    flex-wrap: wrap;
+  }
+
+  .inbox-row .addr {
+    width: 100%;
+  }
+
+  .inbox-row .btn {
+    flex: 1;
+  }
+}
