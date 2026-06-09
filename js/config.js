@@ -214,6 +214,10 @@ export function genHumanPrefix() {
     for (let j = 0; j < suffixLen; j++) {
       suffix += SUFFIX_CHARS[Math.floor(Math.random() * SUFFIX_CHARS.length)];
     }
+    if (!/\d/.test(suffix)) {
+      const pos = Math.floor(Math.random() * suffix.length);
+      suffix = suffix.slice(0, pos) + Math.floor(Math.random() * 10) + suffix.slice(pos + 1);
+    }
     const prefix = `${adj}.${noun}.${suffix}`;
     if (!usedPrefixes.has(prefix)) {
       usedPrefixes.add(prefix);
