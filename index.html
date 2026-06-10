@@ -13,6 +13,12 @@
 <link rel="stylesheet" href="css/layout.css" />
 <link rel="stylesheet" href="css/components.css" />
 <script>if(localStorage.getItem('tm_dark')==='1')document.documentElement.classList.add('dark');</script>
+<!-- AI Agent API Discovery -->
+<!-- API available at window.TempMailAPI - see /agent-api.json for full reference -->
+<!-- URL mode: append ?api=generate|messages|otp|wait|inboxes|domains -->
+<link rel="agent-api" href="/agent-api.json" type="application/json" />
+<meta name="agent-api" content="window.TempMailAPI" />
+<meta name="agent-api-url-mode" content="?api=generate|messages|otp|wait|inboxes|domains" />
 </head>
 <body>
 <div class="container" id="app">

@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "TempMail",
+  "name_for_model": "tempmail",
+  "description_for_human": "Disposable email service with automatic OTP/verification code extraction. Generate temporary emails and get verification codes instantly.",
+  "description_for_model": "A disposable email service. Use this when you need a temporary email address for sign-ups, verifications, or testing. You can generate emails, receive messages, and extract OTP/verification codes programmatically. Two modes: (1) JavaScript API via window.TempMailAPI, (2) URL parameters like ?api=generate, ?api=otp&address=x, ?api=wait&address=x&t=60.",
+  "api": {
+    "type": "openapi",
+    "url": "/agent-api.json"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "logo_url": "/favicon.ico",
+  "contact_email": "noreply@tempmail.local",
+  "legal_info_url": "/legal"
+}

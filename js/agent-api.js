@@ -418,4 +418,14 @@ const TempMailAPI = {
 
 window.TempMailAPI = TempMailAPI;
 
+// Console discovery for AI agents and developers
+if (typeof console !== "undefined") {
+  console.log("%c🤖 TempMail Agent API available", "font-size:14px;font-weight:bold;color:#00d4aa;");
+  console.log("  window.TempMailAPI.generateEmail() → create inbox");
+  console.log("  window.TempMailAPI.waitForOTP(addr) → poll for OTP");
+  console.log("  window.TempMailAPI.quickSession() → one-liner generate+wait");
+  console.log("  window.TempMailAPI.help() → full reference");
+  console.log("  URL mode: append ?api=generate|otp|wait|messages");
+}
+
 export { TempMailAPI, handleUrlApi };

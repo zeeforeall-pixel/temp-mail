@@ -1,0 +1,95 @@
+{
+  "name": "TempMail Agent API",
+  "description": "Programmatic API for AI agents to generate disposable emails and extract OTP codes",
+  "version": "1.0",
+  "javascript_api": {
+    "global": "window.TempMailAPI",
+    "functions": {
+      "generateEmail": {
+        "params": ["prefix?", "domain?"],
+        "returns": "{address, expires_at}",
+        "description": "Create new inbox without UI interaction"
+      },
+      "getMessages": {
+        "params": ["address?"],
+        "returns": "messages[] with otp and verify_link extracted",
+        "description": "Fetch messages, defaults to current inbox"
+      },
+      "waitForOTP": {
+        "params": ["address?", "timeoutMs?"],
+        "returns": "{otp, link, from, subject}",
+        "description": "Poll until OTP arrives (default 60s timeout)"
+      },
+      "waitForEmail": {
+        "params": ["address?", "timeoutMs?"],
+        "returns": "full message with otp extracted",
+        "description": "Wait for next email to arrive"
+      },
+      "quickSession": {
+        "params": ["prefix?", "domain?"],
+        "returns": "session object with .waitForOTP(), .getMessages()",
+        "description": "One-liner: generate email + helper methods"
+      },
+      "getLatestOTP": {
+        "params": ["address?"],
+        "returns": "{otp, link, from, subject} or null",
+        "description": "Get OTP from already-loaded messages (synchronous)"
+      },
+      "getAllInboxes": {
+        "params": [],
+        "returns": "inbox history array",
+        "description": "List all created inboxes"
+      },
+      "getCurrentEmail": {
+        "params": [],
+        "returns": "{address, expires_at} or null",
+        "description": "Get current active inbox"
+      },
+      "getDomains": {
+        "params": [],
+        "returns": "available email domains",
+        "description": "List domains"
+      },
+      "copyEmail": {
+        "params": [],
+        "returns": "email address string",
+        "description": "Copy current email to clipboard"
+      }
+    }
+  },
+  "url_api": {
+    "base": "append to any page URL",
+    "endpoints": {
+      "?api=generate": {
+        "params": ["prefix?", "domain?"],
+        "returns": "JSON {address, expires_at}"
+      },
+      "?api=messages": {
+        "params": ["address?"],
+        "returns": "JSON messages array"
+      },
+      "?api=otp": {
+        "params": ["address?"],
+        "returns": "JSON {otp, link, from, subject}"
+      },
+      "?api=wait": {
+        "params": ["address?", "t=60"],
+        "returns": "JSON OTP (blocks up to t seconds)"
+      },
+      "?api=inboxes": {
+        "params": [],
+        "returns": "JSON inbox list"
+      },
+      "?api=domains": {
+        "params": [],
+        "returns": "JSON domains"
+      }
+    }
+  },
+  "quick_start": "const session = await window.TempMailAPI.quickSession(); const otp = await session.waitForOTP();",
+  "examples": {
+    "generate_and_wait": "const email = await window.TempMailAPI.generateEmail(); /* use email.address to sign up */ const otp = await window.TempMailAPI.waitForOTP(email.address); console.log(otp.otp);",
+    "fetch_messages": "const msgs = await window.TempMailAPI.getMessages('user@domain.com'); msgs.forEach(m => console.log(m.subject, m.otp));",
+    "url_mode": "https://example.com/?api=wait&address=user@domain.com&t=30 → blocks 30s, returns JSON OTP"
+  }
+}
