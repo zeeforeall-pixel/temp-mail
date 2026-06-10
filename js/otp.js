@@ -277,7 +277,7 @@ function addCandidate(candidates, val, priority, context) {
   if (/\//.test(cleanVal) || /\.\w{2,4}$/.test(cleanVal)) return;
 
   // Hyphenated code: 123-456, A1B-2C3
-  if (/^[A-Z0-9]{3,5}-[A-Z0-9]{3,5}$/i.test(cleanVal)) {
+  if (/^[A-Z0-9]{3,5}-[A-Z0-9]{3,5}$/i.test(cleanVal) && /\d/.test(cleanVal)) {
     candidates.push({ val: cleanVal.toUpperCase(), priority, context });
     return;
   }
@@ -304,7 +304,8 @@ function addCandidate(candidates, val, priority, context) {
     if (
       len >= 4 &&
       len <= 8 &&
-      !/^(CODE|VERIFY|EMAIL|INBOX|USER|LOGIN|AUTH|TOKEN|PASS|HERE|CLICK|LINK|OPEN|GO|YES|NO|OK|SIGN|VIEW|READ|MORE|THIS|THAT|NEXT|BACK|HOME|HELP|SEND|POST|FROM|REPLY|DATE|TIME|NAME|TYPE|SIZE|PAGE|LIST|SHOW|LOAD|EDIT|COPY|MOVE|SAVE|DONE|EXIT|STOP|START|PLAY|PAUSE|NEW|OLD)$/i.test(cleanVal)
+      !/^(CODE|VERIFY|EMAIL|INBOX|USER|LOGIN|AUTH|TOKEN|PASS|HERE|CLICK|LINK|OPEN|GO|YES|NO|OK|SIGN|VIEW|READ|MORE|THIS|THAT|NEXT|BACK|HOME|HELP|SEND|POST|FROM|REPLY|DATE|TIME|NAME|TYPE|SIZE|PAGE|LIST|SHOW|LOAD|EDIT|COPY|MOVE|SAVE|DONE|EXIT|STOP|START|PLAY|PAUSE|NEW|OLD|SENT|RECV|ONCE|ONLY|ALSO|EACH|SUCH|VERY|JUST|THAN|THEN|INTO|OVER|AFTER|BEFORE|BETWEEN|WITHOUT|WITHIN|AROUND|ALONG|ACROSS|THROUGH|AGAINST|AMONG|BEHIND|BELOW|BENEATH|BESIDE|BEYOND|DURING|EXCEPT|INSIDE|NEAR|OUTSIDE|SINCE|TOWARD|UNDER|UNTIL|UPON)$/i.test(cleanVal) &&
+      !NON_OTP_KEYWORDS.test(cleanVal)
     ) {
       candidates.push({ val: cleanVal, priority, context });
     }
@@ -418,6 +419,12 @@ function scanKeywordProximity(plainText) {
     );
     const afterKw = plainText.slice(absIdx, absIdx + 120);
     const words = afterKw.split(/[^A-Za-z0-9-]+/);
+
+    // Skip if surrounding text is dominated by non-OTP context
+    if (NON_OTP_KEYWORDS.test(surrounding)) {
+      searchFrom = absIdx + kwMatch[0].length;
+      continue;
+    }
 
     for (const w of words) {
       if (/^[A-Z0-9-]{3,12}$/i.test(w)) {
