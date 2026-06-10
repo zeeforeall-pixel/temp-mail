@@ -20,6 +20,7 @@
     <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> TempMail</h1>
     <div style="display:flex;align-items:center;justify-content:center;gap:0.75rem;">
       <p>Disposable email</p>
+      <button class="btn btn-ghost" id="apiBtn" title="Agent API documentation" style="padding:0.35rem 0.6rem;font-size:0.8rem;gap:0.3rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:16px;height:16px;"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg> API</button>
       <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
@@ -201,6 +202,84 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<!-- API Docs Modal -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-head">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+        Agent API
+      </h3>
+      <button class="modal-close" id="apiModalClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="font-size:0.82rem;">
+      <p style="margin-bottom:0.6rem;opacity:0.8;">Programmatic API for AI agents and browser automation. Available on <code style="background:hsl(var(--accent)/0.1);padding:0.1rem 0.3rem;border-radius:4px;">window.TempMailAPI</code></p>
+
+      <div style="margin-bottom:0.75rem;">
+        <div style="font-weight:600;margin-bottom:0.3rem;">Quick Start</div>
+        <pre style="background:hsl(var(--accent)/0.06);padding:0.5rem;border-radius:6px;overflow-x:auto;font-size:0.78rem;line-height:1.5;"><code>const api = window.TempMailAPI;
+
+// Generate email + wait for OTP in one flow
+const session = await api.quickSession();
+console.log('Email:', session.address);
+const otp = await session.waitForOTP();
+console.log('OTP:', otp.otp);</code></pre>
+      </div>
+
+      <div style="margin-bottom:0.75rem;">
+        <div style="font-weight:600;margin-bottom:0.3rem;">Functions</div>
+        <table style="width:100%;font-size:0.78rem;border-collapse:collapse;">
+          <tr style="border-bottom:1px solid hsl(var(--border));">
+            <td style="padding:0.25rem 0;font-family:monospace;color:hsl(var(--accent));">generateEmail(prefix?, domain?)</td>
+            <td style="padding:0.25rem 0 0.25rem 0.5rem;">Create inbox → <code>{address, expires_at}</code></td>
+          </tr>
+          <tr style="border-bottom:1px solid hsl(var(--border));">
+            <td style="padding:0.25rem 0;font-family:monospace;color:hsl(var(--accent));">getMessages(address?)</td>
+            <td style="padding:0.25rem 0 0.25rem 0.5rem;">Fetch messages with OTP extracted</td>
+          </tr>
+          <tr style="border-bottom:1px solid hsl(var(--border));">
+            <td style="padding:0.25rem 0;font-family:monospace;color:hsl(var(--accent));">waitForOTP(address?, ms?)</td>
+            <td style="padding:0.25rem 0 0.25rem 0.5rem;">Poll until OTP arrives (default 60s)</td>
+          </tr>
+          <tr style="border-bottom:1px solid hsl(var(--border));">
+            <td style="padding:0.25rem 0;font-family:monospace;color:hsl(var(--accent));">waitForEmail(address?, ms?)</td>
+            <td style="padding:0.25rem 0 0.25rem 0.5rem;">Wait for next email + extract OTP</td>
+          </tr>
+          <tr style="border-bottom:1px solid hsl(var(--border));">
+            <td style="padding:0.25rem 0;font-family:monospace;color:hsl(var(--accent));">quickSession(prefix?, domain?)</td>
+            <td style="padding:0.25rem 0 0.25rem 0.5rem;">Generate email + helper methods</td>
+          </tr>
+          <tr style="border-bottom:1px solid hsl(var(--border));">
+            <td style="padding:0.25rem 0;font-family:monospace;color:hsl(var(--accent));">getLatestOTP(address?)</td>
+            <td style="padding:0.25rem 0 0.25rem 0.5rem;">Get OTP from loaded messages (sync)</td>
+          </tr>
+          <tr style="border-bottom:1px solid hsl(var(--border));">
+            <td style="padding:0.25rem 0;font-family:monospace;color:hsl(var(--accent));">getAllInboxes()</td>
+            <td style="padding:0.25rem 0 0.25rem 0.5rem;">List all inbox history</td>
+          </tr>
+          <tr>
+            <td style="padding:0.25rem 0;font-family:monospace;color:hsl(var(--accent));">copyEmail()</td>
+            <td style="padding:0.25rem 0 0.25rem 0.5rem;">Copy current email to clipboard</td>
+          </tr>
+        </table>
+      </div>
+
+      <div>
+        <div style="font-weight:600;margin-bottom:0.3rem;">URL API Mode</div>
+        <p style="margin-bottom:0.3rem;opacity:0.7;">Append to URL for headless JSON responses:</p>
+        <pre style="background:hsl(var(--accent)/0.06);padding:0.5rem;border-radius:6px;overflow-x:auto;font-size:0.78rem;line-height:1.6;"><code>?api=generate[&amp;prefix=x][&amp;domain=y]
+?api=messages[&amp;address=x]
+?api=otp[&amp;address=x]
+?api=wait[&amp;address=x][&amp;t=60]
+?api=inboxes
+?api=domains</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script type="module" src="js/app.js"></script>
 </body>

@@ -67,6 +67,8 @@ import {
   escapeHtml,
 } from './ui.js';
 
+import { handleUrlApi } from './agent-api.js';
+
 // ── Inbox selection ──
 
 let channel = null;
@@ -252,6 +254,11 @@ function handleReset() {
 // ── Wire event listeners ──
 
 function wireEvents() {
+  $('apiBtn').addEventListener('click', () => openModal('apiModal'));
+  $('apiModalClose').addEventListener('click', () => closeModal('apiModal'));
+  $('apiModal').addEventListener('click', (e) => {
+    if (e.target === $('apiModal')) closeModal('apiModal');
+  });
   $('copyBtn').addEventListener('click', () => {
     if (currentInbox) copyText(currentInbox.address);
   });
@@ -388,6 +395,8 @@ async function init() {
   initHistory();
   initSelectedDomain();
   initSeenMessages();
+
+  if (await handleUrlApi()) return;
 
   initThemeToggle();
   initKeyboardShortcuts();
