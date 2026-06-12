@@ -276,6 +276,12 @@ function addCandidate(candidates, val, priority, context) {
   // Filter out things that look like URL fragments
   if (/\//.test(cleanVal) || /\.\w{2,4}$/.test(cleanVal)) return;
 
+  // Filter out CSS dimensions and measurement units (400px, 100%, 2em, etc.)
+  if (/^\d+(px|em|rem|pt|vh|vw|vmin|vmax|ch|ex|cm|mm|in|pc|dpi|dpcm|dppx|deg|rad|grad|turn|ms|s|hz|khz|fr|q)$/i.test(cleanVal)) return;
+
+  // Filter out resolution/format markers (1080p, 720p, 4k, etc.)
+  if (/^\d+[pk]$/i.test(cleanVal)) return;
+
   // Hyphenated code: 123-456, A1B-2C3
   if (/^[A-Z0-9]{3,5}-[A-Z0-9]{3,5}$/i.test(cleanVal) && /\d/.test(cleanVal)) {
     candidates.push({ val: cleanVal.toUpperCase(), priority, context });
