@@ -1,16 +1,21 @@
-# Temp Mail
+# TempMail
 
-A disposable email client with real-time message delivery, automatic OTP extraction, and multi-inbox management. Built with vanilla JavaScript and Supabase Realtime.
+Disposable email client with real-time message delivery, automatic OTP extraction, and multi-inbox management.
 
 ## Features
 
 - **Instant inbox generation** with human-readable addresses
-- **Real-time email delivery** via Supabase Realtime subscriptions
+- **50ms polling** for near-instant message delivery
+- **Real-time email delivery** via Supabase Realtime WebSocket subscriptions
 - **OTP auto-detection** extracts verification codes from incoming messages
+- **Verification link detection** identifies confirm/activate URLs
 - **Multi-inbox support** to manage several temporary addresses at once
+- **Bulk inbox creation** with stealth pipeline (token rotation, circuit breakers)
 - **Persistent history** with message counts stored in localStorage
-- **Dark mode** toggle with system preference detection
-- **Keyboard shortcuts** for common actions (R to refresh, C to copy address)
+- **Dark mode** toggle
+- **Keyboard shortcuts** — `R` to refresh, `C` to copy address, `Esc` to close modals
+- **Programmatic Agent API** for headless automation and AI agents
+- **URL-based API** for scriptable JSON responses
 
 ## Tech Stack
 
@@ -25,57 +30,74 @@ A disposable email client with real-time message delivery, automatic OTP extract
 temp-mail/
 ├── index.html
 ├── css/
-│   ├── theme.css
-│   ├── components.css
-│   └── layout.css
+│   ├── theme.css          # CSS variables, dark mode
+│   ├── components.css     # Buttons, modals, toasts, chips
+│   └── layout.css         # Body, container, cards
 ├── js/
-│   ├── app.js
-│   ├── api.js
-│   ├── state.js
-│   ├── ui.js
-│   ├── otp.js
-│   ├── sanitizer.js
-│   └── config.js
+│   ├── config.js          # Constants, Supabase config, word lists
+│   ├── state.js           # App state, localStorage persistence
+│   ├── api.js             # Supabase client, inbox/message API calls
+│   ├── otp.js             # OTP + verification link extraction
+│   ├── sanitizer.js       # HTML email sanitizer (XSS prevention)
+│   ├── ui.js              # DOM rendering, events, theme, keyboard shortcuts
+│   ├── agent-api.js       # Programmatic API for automation (window.TempMailAPI)
+│   └── app.js             # Init, wiring, polling, realtime subscriptions
+├── test/
+│   └── otp.test.mjs       # OTP extraction test suite (79 tests)
+├── agent-api.json         # API discovery manifest for AI agents
+├── .well-known/
+│   └── ai-plugin.json     # ChatGPT plugin manifest
 └── package.json
 ```
 
 ## Getting Started
 
-1. Clone the repository:
-
 ```bash
 git clone https://github.com/zeeforeall-pixel/temp-mail.git
 cd temp-mail
-```
-
-2. Install dependencies:
-
-```bash
 npm install
+npm test
 ```
 
-3. Configure Supabase credentials in `js/config.js`. Your Supabase project needs the required tables and RLS policies set up.
+## Agent API
 
-4. Run locally:
+### Browser Console / Automation
+
+```js
+const api = window.TempMailAPI;
+
+// Generate email + wait for OTP in one flow
+const session = await api.quickSession();
+console.log('Email:', session.address);
+const otp = await session.waitForOTP();
+console.log('OTP:', otp.otp);
+```
+
+### URL API Mode (headless/scriptable)
+
+Append to URL for JSON responses:
+
+| Endpoint | Description |
+|---|---|
+| `?api=generate` | Generate new email → JSON |
+| `?api=messages&address=x` | Get messages → JSON |
+| `?api=otp&address=x` | Get OTP → JSON |
+| `?api=wait&address=x&t=60` | Wait up to 60s for OTP → JSON |
+| `?api=inboxes` | List all inboxes → JSON |
+| `?api=domains` | List domains → JSON |
+
+## Testing
 
 ```bash
-npm start
+npm test
 ```
 
 ## Deployment
 
-Deploy to Netlify:
-
 ```bash
-npm run deploy
+npx netlify deploy --prod
 ```
-
-## Development Notes
-
-- All application state is persisted to localStorage
-- No build tooling — uses native ES modules for simplicity
-- The OTP extractor (`js/otp.js`) and HTML sanitizer (`js/sanitizer.js`) are standalone modules that can be tested independently
 
 ## License
 
-MIT
+ISC

@@ -1,9 +1,5 @@
-# macOS
+node_modules/
 .DS_Store
-
-# Development artifacts
 .fallow/
 .netlify/
-
-# Planning docs
-PLAN.md
+*.log

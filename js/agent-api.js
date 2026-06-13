@@ -39,7 +39,7 @@ import { genHumanPrefix } from './config.js';
 import { extractOTP, extractVerifyLink, extractVerification } from './otp.js';
 
 const DEFAULT_OTP_TIMEOUT_MS = 60_000;
-const POLL_MS = 500;
+const POLL_MS = 50;
 
 let _subscribedAddresses = new Set();
 let _realtimeChannels = new Map();

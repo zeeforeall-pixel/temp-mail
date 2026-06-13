@@ -38,7 +38,7 @@
 
 // ── Keyword patterns (multilingual) ──
 
-const OTP_KEYWORDS = /\b(verification code|verification|one.time password|otp|security code|login code|confirmation code|sign.in code|magic code|access code|two.factor|2fa|mfa|passcode|passkey|activate|register|log.?in|kode verifikasi|kode|pin|verify|confirm|token|secret|código|código de verificación|código de seguridad|verificación|confirmação|código de acesso|verificar|verifizierung|bestätigungscode|bestätigen|einmalpasswort|code de vérification|code de sécurité|vérifier|confirmer|验证码|確認コード|確認|인증|인증 코드|확인|подтверждение|код подтверждения|код)\b/i;
+const OTP_KEYWORDS = /\b(verification code|verification|one.time password|otp|security code|login code|confirmation code|sign.in code|magic code|access code|two.factor|2fa|mfa|passcode|passkey|activate|register|log.?in|kode verifikasi|kode|pin|code|verify|confirm|token|secret|código|código de verificación|código de seguridad|verificación|confirmação|código de acesso|verificar|verifizierung|bestätigungscode|bestätigen|einmalpasswort|code de vérification|code de sécurité|vérifier|confirmer|验证码|確認コード|確認|인증|인증 코드|확인|подтверждение|код подтверждения|код)\b/i;
 
 const NON_OTP_KEYWORDS = /\b(order|ref|reference|invoice|tracking|ticket|total|price|rp|usd|amount|balance|phone|tel|fax|zip|postal|version|qty|quantity|subtotal|discount|product|serial|pat|unit|shipping|item|expressway|santa|san|drive|street|st\.|avenue|ave|blvd|boulevard|lane|ln|way|road|corp|corporation|inc|ltd|rights|reserved|copyright|nvidia|amd|intel|google|microsoft|apple|amazon|®|©|™|january|february|march|april|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec|monday|tuesday|wednesday|thursday|friday|saturday|sunday|born|birth|age|since|founded|established|created on|registered on|updated|modified|published|received|sent|delivered|expired|deadline|scheduled|appointment|meeting|conference|birthday|anniversary|holiday|christmas|thanksgiving|easter|account no|transaction|receipt|statement|balance|payment|transfer|deposit|withdrawal|subscription|membership|policy|claim|settlement|warranty|license|permit|certificate|registration|passport|ssn|social security|tax|vat|gst|registration no)\b/i;
 
@@ -79,6 +79,33 @@ const NON_VERIFY_URL_PATTERNS = [
 ];
 
 // ── Helpers ──
+
+/**
+ * Extract text content from a DOM element with spaces inserted
+ * between block-level elements to prevent word concatenation.
+ */
+const BLOCK_TAGS = new Set([
+  'DIV','P','BR','HR','H1','H2','H3','H4','H5','H6',
+  'LI','TR','TD','TH','TBODY','THEAD','TFOOT','TABLE',
+  'BLOCKQUOTE','SECTION','ARTICLE','HEADER','FOOTER','NAV',
+  'UL','OL','DL','DT','DD','FIGURE','FIGCAPTION','PRE',
+]);
+
+function getTextWithSpacing(el) {
+  let result = '';
+  for (const node of el.childNodes) {
+    if (node.nodeType === 3) {
+      result += node.textContent;
+    } else if (node.nodeType === 1) {
+      const tag = node.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') continue;
+      if (BLOCK_TAGS.has(tag)) result += ' ';
+      result += getTextWithSpacing(node);
+      if (BLOCK_TAGS.has(tag)) result += ' ';
+    }
+  }
+  return result;
+}
 
 /**
  * Check if a numeric string is unlikely to be an OTP.
@@ -130,10 +157,10 @@ function isNonOtpNumber(val) {
   // (moved to isNonOtpByContext to avoid killing legitimate 4-digit OTPs)
 
   // Sequential ascending: 1234, 12345, 123456, 1234567, 12345678
-  if (len >= 4 && /^12345?6?7?8?9?0?$/.test(val)) return true;
+  if (len >= 4 && len <= 5 && /^12345?6?7?8?9?0?$/.test(val)) return true;
 
   // Sequential descending: 9876, 98765, etc.
-  if (len >= 4) {
+  if (len >= 4 && len <= 5) {
     let descending = true;
     for (let i = 1; i < len; i++) {
       if (parseInt(val[i], 10) !== parseInt(val[i - 1], 10) - 1) {
@@ -160,14 +187,17 @@ function isNonOtpByContext(val, context) {
   if (!context) return false;
   const lower = context.toLowerCase();
 
-  // Date context: month name within 30 chars of the number
+  // Date context: month name near the number in the same sentence
   if (/\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/i.test(context)) {
-    // Check if the number is near the month word
     const monthMatch = context.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/i);
     if (monthMatch) {
       const monthIdx = context.toLowerCase().indexOf(monthMatch[0].toLowerCase());
       const numIdx = context.indexOf(val);
-      if (numIdx !== -1 && Math.abs(numIdx - monthIdx) < 40) return true;
+      if (numIdx !== -1 && Math.abs(numIdx - monthIdx) < 30) {
+        // Only reject if no sentence break (period + space) between them
+        const between = context.slice(Math.min(monthIdx, numIdx), Math.max(monthIdx, numIdx));
+        if (!/\.[\s]/.test(between)) return true;
+      }
     }
   }
 
@@ -193,10 +223,13 @@ function isNonOtpByContext(val, context) {
     return true;
   }
 
-  // Currency/amount context
-  if (/[\$€£¥]\s*\d|[\d]\s*[\$€£¥]|(\d+(\.\d+)?)\s*(usd|eur|gbp|jpy|idr|rp)/i.test(context)) {
-    return true;
-  }
+  // Currency/amount context — only reject if THIS number is near currency
+  try {
+    const esc = val.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (new RegExp('[\\$€£¥]\\s*' + esc + '|' + esc + '\\s*[\\$€£¥]|' + esc + '\\s*(usd|eur|gbp|jpy|idr|rp)', 'i').test(context)) {
+      return true;
+    }
+  } catch { /* ignore regex errors */ }
 
   // Percentage context
   if (/\d+%|percent|percentage/i.test(context)) {
@@ -310,7 +343,7 @@ function addCandidate(candidates, val, priority, context) {
     if (
       len >= 4 &&
       len <= 8 &&
-      !/^(CODE|VERIFY|EMAIL|INBOX|USER|LOGIN|AUTH|TOKEN|PASS|HERE|CLICK|LINK|OPEN|GO|YES|NO|OK|SIGN|VIEW|READ|MORE|THIS|THAT|NEXT|BACK|HOME|HELP|SEND|POST|FROM|REPLY|DATE|TIME|NAME|TYPE|SIZE|PAGE|LIST|SHOW|LOAD|EDIT|COPY|MOVE|SAVE|DONE|EXIT|STOP|START|PLAY|PAUSE|NEW|OLD|SENT|RECV|ONCE|ONLY|ALSO|EACH|SUCH|VERY|JUST|THAN|THEN|INTO|OVER|AFTER|BEFORE|BETWEEN|WITHOUT|WITHIN|AROUND|ALONG|ACROSS|THROUGH|AGAINST|AMONG|BEHIND|BELOW|BENEATH|BESIDE|BEYOND|DURING|EXCEPT|INSIDE|NEAR|OUTSIDE|SINCE|TOWARD|UNDER|UNTIL|UPON)$/i.test(cleanVal) &&
+      !/^(CODE|VERIFY|EMAIL|INBOX|USER|LOGIN|AUTH|TOKEN|PASS|HERE|CLICK|LINK|OPEN|GO|YES|NO|OK|SIGN|VIEW|READ|MORE|THIS|THAT|NEXT|BACK|HOME|HELP|SEND|POST|FROM|REPLY|DATE|TIME|NAME|TYPE|SIZE|PAGE|LIST|SHOW|LOAD|EDIT|COPY|MOVE|SAVE|DONE|EXIT|STOP|START|PLAY|PAUSE|NEW|OLD|SENT|RECV|ONCE|ONLY|ALSO|EACH|SUCH|VERY|JUST|THAN|THEN|INTO|OVER|AFTER|BEFORE|BETWEEN|WITHOUT|WITHIN|AROUND|ALONG|ACROSS|THROUGH|AGAINST|AMONG|BEHIND|BELOW|BENEATH|BESIDE|BEYOND|DURING|EXCEPT|INSIDE|NEAR|OUTSIDE|SINCE|TOWARD|UNDER|UNTIL|UPON|BROWSER|DEVICE|SYSTEM|ACCOUNT|PROFILE|SECURITY|MESSAGE|NOTICE|REQUEST|ACCESS|SERVICE|SUPPORT|WELCOME|THANKS|HELLO|WORLD|ABOUT|ALERT|NOTIFY|UPDATE|CHANGE|RESET|SETUP|TABLE|IMAGE|PHOTO|VIDEO|AUDIO|MEDIA|STYLE|COLOR|FONT|TEXT|BODY|HEAD|FOOT|MENU|FORM|INPUT|FIELD|LABEL|BUTTON|PANEL|FRAME|BLOCK|ROW|CELL|DATA|FILE|FOLDER|PATH|HOST|PORT|PROXY|SERVER|CLIENT|DOMAIN|NETWORK|SITE|WEB|APP|MOBILE|PHONE|TABLET|DESKTOP|SCREEN|WINDOW|PANEL|ICON|LOGO|BANNER|HEADER|SIDEBAR|CONTENT|SECTION|ARTICLE|COMMENT|REVIEW|STATUS|REPORT|ERROR|WARNING|SUCCESS|FAILURE|RESULT|SEARCH|FILTER|SORT|GROUP|INDEX|COUNT|TOTAL|AVERAGE|MIN|MAX|RANGE|LIMIT|OFFSET|CURSOR|RECORD|ENTRY|ITEM|THING|STUFF|PLACE|LOCAL|GLOBAL|PUBLIC|PRIVATE|SHARED|SECURE|SAFETY|TRUST|TRUTH|VALUE|PRICE|COST|FEE|RATE|TAX|BILL|RENT|LOAN|DEBT|CASH|BANK|FUND|STOCK|SHARE|TRADE|DEAL|SALE|SHOP|STORE|MARKET|GOODS|BRAND|MODEL|PART|PIECE|TOOL|WORK|TASK|JOBS|ROLE|TEAM|STAFF|CHIEF|LEADER|MANAGER|DIRECT|OFFICE|ROOM|AREA|ZONE|CITY|STATE|COUNTRY|NATION|REGION|NORTH|SOUTH|EAST|WEST|LAND|WATER|AIR|FIRE|LIGHT|DARK|SOUND|POWER|FORCE|SPEED|LEVEL|GRADE|CLASS|SCHOOL|COURSE|STUDY|LEARN|TRAIN|TEACH|BOOK|NOTES|PAPER|PRINT|WRITE|SPEAK|TALK|CALL|MEET|JOIN|LEAVE|STAY|WAIT|HOLD|KEEP|GIVE|TAKE|MAKE|BUILD|CREATE|DESIGN|PLAN|TEST|CHECK|FIX|SOLVE|FIND|LOOK|WATCH|HEAR|FEEL|THINK|KNOW|WANT|NEED|HAVE|USED|FREE|FULL|EMPTY|CLEAR|FINAL|FIRST|LAST|MAIN|REAL|TRUE|FALSE|GOOD|BEST|BETTER|WORSE|WORST|HIGH|LOW|LONG|SHORT|WIDE|TALL|THIN|THICK|FAST|SLOW|EARLY|LATE|HARD|SOFT|EASY|HEAVY|LIGHT|WARM|COOL|WET|DRY|CLEAN|FRESH|PLAIN|SIMPLE|BASIC|COMPLEX|SPECIAL|COMMON|NORMAL|REGULAR|STANDARD|PROPER|CORRECT|EXACT|CLOSE|OTHER|ANOTHER|WHICH|WHILE|WHERE|WHEN|WHAT|WHY|HOW|WHO)$/i.test(cleanVal) &&
       !NON_OTP_KEYWORDS.test(cleanVal)
     ) {
       candidates.push({ val: cleanVal, priority, context });
@@ -426,28 +459,28 @@ function scanKeywordProximity(plainText) {
     const afterKw = plainText.slice(absIdx, absIdx + 120);
     const words = afterKw.split(/[^A-Za-z0-9-]+/);
 
-    // Skip if surrounding text is dominated by non-OTP context
-    if (NON_OTP_KEYWORDS.test(surrounding)) {
-      searchFrom = absIdx + kwMatch[0].length;
-      continue;
-    }
-
     for (const w of words) {
       if (/^[A-Z0-9-]{3,12}$/i.test(w)) {
         addCandidate(candidates, w, 2, surrounding);
       }
     }
 
-    // Also check for spaced digits near keywords
+    // Also check for spaced single digits/chars near keywords
+    // e.g., "8 4 7 2 9 1" or "A 5 G 2"
     const spacedMatch = afterKw.match(
-      /([\s\u00a0]*[0-9A-Za-z]){4,12}[\s\u00a0]*/
+      /(?:^|[^\w])([0-9A-Za-z](?:[\s\u00a0][0-9A-Za-z]){3,11})(?:[^\w]|$)/
     );
     if (spacedMatch) {
-      const merged = spacedMatch[0].replace(/[\s\u00a0]/g, '');
-      if (merged.length >= 4 && merged.length <= 12) {
-        const digitRatio = (merged.match(/\d/g) || []).length / merged.length;
-        if (digitRatio >= 0.3) {
-          addCandidate(candidates, merged, 2, surrounding);
+      const raw = spacedMatch[1];
+      // Verify each token is a single character (not a word)
+      const parts = raw.split(/[\s\u00a0]+/).filter(Boolean);
+      if (parts.every((p) => p.length === 1)) {
+        const merged = parts.join('');
+        if (merged.length >= 4 && merged.length <= 12) {
+          const digitRatio = (merged.match(/\d/g) || []).length / merged.length;
+          if (digitRatio >= 0.3) {
+            addCandidate(candidates, merged, 2, surrounding);
+          }
         }
       }
     }
@@ -481,7 +514,11 @@ function scanFallback(strippedText, existingCandidates) {
         .slice(Math.max(0, wordIdx - 50), wordIdx)
         .trim();
       if (/[#$]\s*$/.test(before) || NON_OTP_KEYWORDS.test(before)) continue;
-      addCandidate(candidates, w, 3, w);
+      const wideContext = strippedText.slice(
+        Math.max(0, wordIdx - 30),
+        Math.min(strippedText.length, wordIdx + w.length + 30)
+      );
+      addCandidate(candidates, w, 3, wideContext);
     }
   }
   return candidates;
@@ -514,6 +551,8 @@ function extractVerifyLinkFromDoc(doc) {
   const links = doc.querySelectorAll('a[href]');
   const linkCandidates = [];
 
+  const BLOCKED_LINK_DOMAINS = /sendgrid|mailchimp|mandrill|postmark|ses\.amazonaws|mailgun|sparkpost|constantcontact|exacttarget|sfmc|marketo|hubspot|pardot|eloqua|klaviyo|brevo|sendinblue|mixpanel|segment|amplitude|intercom|zendesk|freshdesk/i;
+
   for (const a of links) {
     const href = a.getAttribute('href')?.trim();
     if (!href) continue;
@@ -523,6 +562,14 @@ function extractVerifyLinkFromDoc(doc) {
 
     // Must be a valid absolute URL
     if (!/^https?:\/\//i.test(href)) continue;
+
+    // Reject known ESP/tracking domains early
+    try {
+      const u = new URL(href);
+      if (BLOCKED_LINK_DOMAINS.test(u.hostname)) continue;
+    } catch {
+      continue;
+    }
 
     if (!isVerificationLink(href)) continue;
 
@@ -622,9 +669,9 @@ export function extractOTP(text) {
   // Phase 1b: Split-digit detection
   allCandidates.push(...scanSplitDigits(doc));
 
-  // Extract plain text and strip URLs to prevent false positives
+  // Extract plain text with spacing between block elements, strip URLs
   const rawText = doc.body
-    ? doc.body.textContent.replace(/\s+/g, ' ').trim()
+    ? getTextWithSpacing(doc.body).replace(/\s+/g, ' ').trim()
     : '';
   const strippedText = stripUrls(rawText);
 
@@ -681,7 +728,7 @@ export function extractVerification(text) {
   allCandidates.push(...scanSplitDigits(doc));
 
   const rawText = doc.body
-    ? doc.body.textContent.replace(/\s+/g, ' ').trim()
+    ? getTextWithSpacing(doc.body).replace(/\s+/g, ' ').trim()
     : '';
   const strippedText = stripUrls(rawText);
 
