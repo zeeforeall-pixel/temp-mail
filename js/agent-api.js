@@ -104,10 +104,10 @@ async function getMessages(address) {
     from: m.sender_address || m.from_address,
     subject: m.subject,
     received_at: m.received_at,
-    body_text: m.body_text,
-    body_html: m.body_html,
-    otp: extractVerification(m.body_html || m.body_text || '').otp,
-    verify_link: extractVerification(m.body_html || m.body_text || '').link,
+    body_text: m.text_body,
+    body_html: m.html_body,
+    otp: extractVerification(m.html_body || m.text_body || '').otp,
+    verify_link: extractVerification(m.html_body || m.text_body || '').link,
   }));
 }
 
@@ -120,7 +120,7 @@ async function waitForOTP(address, timeoutMs) {
 
   const existing = await apiFetchMessages(addr);
   for (const m of existing) {
-    const v = extractVerification(m.body_html || m.body_text || '');
+    const v = extractVerification(m.html_body || m.text_body || '');
     if (v.otp || v.link) {
       return {
         otp: v.otp,
@@ -142,7 +142,7 @@ async function waitForOTP(address, timeoutMs) {
     }, timeout);
 
     const unsub = onMessage(addr, (msg) => {
-      const v = extractVerification(msg.body_html || msg.body_text || '');
+      const v = extractVerification(msg.html_body || msg.text_body || '');
       if (v.otp || v.link) {
         clearTimeout(timer);
         unsub();
@@ -175,7 +175,7 @@ async function waitForEmail(address, timeoutMs) {
     const unsub = onMessage(addr, (msg) => {
       clearTimeout(timer);
       unsub();
-      const v = extractVerification(msg.body_html || msg.body_text || '');
+      const v = extractVerification(msg.html_body || msg.text_body || '');
       resolve({
         id: msg.id,
         from: msg.sender_address || msg.from_address,
@@ -183,8 +183,8 @@ async function waitForEmail(address, timeoutMs) {
         received_at: msg.received_at,
         otp: v.otp,
         verify_link: v.link,
-        body_text: msg.body_text,
-        body_html: msg.body_html,
+        body_text: msg.text_body,
+        body_html: msg.html_body,
       });
     });
   });
@@ -206,7 +206,7 @@ function getLatestOTP(address) {
   if (!addr) return null;
   const msgs = stateMessages.filter((m) => m.inbox_address === addr);
   for (const m of msgs) {
-    const v = extractVerification(m.body_html || m.body_text || '');
+    const v = extractVerification(m.html_body || m.text_body || '');
     if (v.otp || v.link) {
       return {
         otp: v.otp,
