@@ -4,5 +4,10 @@
   "private": true,
   "scripts": {
     "build": "echo 'static site - no build needed'"
+  },
+  "dependencies": {
+    "patchright": "^1.60.2",
+    "playwright": "^1.60.0",
+    "playwright-ghost": "^0.18.0"
   }
 }
