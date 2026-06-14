@@ -3,3 +3,4 @@ node_modules/
 .fallow/
 .netlify/
 *.log
+.vercel
