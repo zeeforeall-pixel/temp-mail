@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "echo 'static site - no build needed'"
+    "build": "echo 'static site - no build needed'",
+    "postinstall": "node scripts/ghost-postinstall.mjs",
+    "ghost": "node scripts/ghost-run.mjs"
   },
   "dependencies": {
     "patchright": "^1.60.2",

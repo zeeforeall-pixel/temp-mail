@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+import { writeFileSync, existsSync } from "fs";
+import { join, dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+
+const scriptsDir = dirname(fileURLToPath(import.meta.url));
+const projectDir = resolve(scriptsDir, "..");
+const pwDir = join(projectDir, "node_modules", "playwright");
+
+if (!existsSync(pwDir)) {
+  console.log("playwright not installed, skipping ghost patch");
+  process.exit(0);
+}
+
+const esmPatch = '// Patched by ghost-init: auto-apply anti-detection plugins to playwright\nimport { chromium as ghostChromium, firefox as ghostFirefox, webkit as ghostWebkit } from "playwright-ghost/patchright";\nimport plugins from "playwright-ghost/plugins";\nimport patchright from "patchright";\n\nconst DEFAULT_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36";\n\nconst defaultPlugins = [\n  ...plugins.recommended(),\n  plugins.polyfill.userAgent({ userAgent: DEFAULT_UA }),\n];\n\nfunction wrapBrowserType(ghostBt) {\n  return new Proxy(ghostBt, {\n    get(target, prop) {\n      const val = target[prop];\n      if (typeof val === "function" && ["launch", "connect", "connectOverCDP", "launchPersistentContext", "launchServer"].includes(prop)) {\n        return async function(...args) {\n          const opts = args[0] || {};\n          if (!opts.plugins) opts.plugins = defaultPlugins;\n          args[0] = opts;\n          return val.apply(target, args);\n        };\n      }\n      return typeof val === "function" ? val.bind(target) : val;\n    },\n  });\n}\n\nexport const chromium = wrapBrowserType(ghostChromium);\nexport const firefox = wrapBrowserType(ghostFirefox);\nexport const webkit = wrapBrowserType(ghostWebkit);\nexport const selectors = patchright.selectors;\nexport const devices = patchright.devices;\nexport const errors = patchright.errors;\nexport const request = patchright.request;\nexport const _electron = patchright._electron;\nexport const _android = patchright._android;\n\nconst playwright = {\n  chromium, firefox, webkit, selectors, devices, errors, request,\n  _electron, _android,\n};\nexport default playwright;\n';
+
+const cjsPatch = '// Patched by ghost-init: auto-apply anti-detection plugins to playwright\nconst patchright = require("patchright");\n\nlet ghostModule = null;\nlet pluginsModule = null;\nlet defaultPlugins = null;\n\nasync function init() {\n  if (!ghostModule) {\n    ghostModule = await import("playwright-ghost/patchright");\n    pluginsModule = await import("playwright-ghost/plugins");\n    const plugins = pluginsModule.default;\n    defaultPlugins = [\n      ...plugins.recommended(),\n      plugins.polyfill.userAgent({ userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" }),\n    ];\n  }\n}\n\nfunction wrapBrowserType(getGhostBt) {\n  return new Proxy({}, {\n    get(target, prop) {\n      const ghostBt = getGhostBt();\n      if (!ghostBt) return undefined;\n      const val = ghostBt[prop];\n      if (typeof val === "function" && ["launch", "connect", "connectOverCDP", "launchPersistentContext", "launchServer"].includes(prop)) {\n        return async function(...args) {\n          await init();\n          const opts = args[0] || {};\n          if (!opts.plugins) opts.plugins = defaultPlugins;\n          args[0] = opts;\n          return val.apply(ghostBt, args);\n        };\n      }\n      if (typeof val === "function") return val.bind(ghostBt);\n      return val;\n    },\n  });\n}\n\nmodule.exports = {\n  chromium: wrapBrowserType(() => ghostModule?.chromium),\n  firefox: wrapBrowserType(() => ghostModule?.firefox),\n  webkit: wrapBrowserType(() => ghostModule?.webkit),\n  get selectors() { return patchright.selectors; },\n  get devices() { return patchright.devices; },\n  get errors() { return patchright.errors; },\n  get request() { return patchright.request; },\n  get _electron() { return patchright._electron; },\n  get _android() { return patchright._android; },\n};\n';
+
+writeFileSync(join(pwDir, "index.mjs"), esmPatch);
+writeFileSync(join(pwDir, "index.js"), cjsPatch);
+console.log("ghost: playwright patched with anti-detection plugins");
