@@ -8,6 +8,8 @@
     "ghost": "node scripts/ghost-run.mjs"
   },
   "dependencies": {
+    "fingerprint-generator": "^2.1.82",
+    "fingerprint-injector": "^2.1.82",
     "patchright": "^1.60.2",
     "playwright": "^1.60.0",
     "playwright-ghost": "^0.18.0"
