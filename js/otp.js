@@ -284,7 +284,11 @@ function isVerificationLink(url) {
       if (
         (lk === 'token' || lk === 'code' || lk === 'hash' ||
          lk === 'key' || lk === 'id' || lk === 't' ||
-         lk === 'confirm' || lk === 'verify') &&
+         lk === 'confirm' || lk === 'verify' ||
+         lk === 'link' || lk === 'url' || lk === 'redirect' ||
+         lk === 'callback' || lk === 'return_url' || lk === 'next' ||
+         lk === 'continue' || lk === 'nonce' || lk === 'sig' ||
+         lk === 'ticket' || lk === 'cid' || lk === 'ref') &&
         value && value.length >= 8
       ) {
         return true;
@@ -574,7 +578,7 @@ function extractVerifyLinkFromDoc(doc) {
     if (!isVerificationLink(href)) continue;
 
     // Score the link based on context
-    let score = 0;
+    let score = 1; // base score: passed verification gate
     const linkText = (a.textContent || '').trim().toLowerCase();
 
     // Boost: link text contains verification keywords
@@ -637,7 +641,71 @@ function extractVerifyLinkFromDoc(doc) {
     }
   }
 
-  if (linkCandidates.length === 0) return null;
+  if (linkCandidates.length === 0) {
+    // Fallback: scan plain text for URLs (handles emails without <a> tags)
+    const rawText = doc.body
+      ? getTextWithSpacing(doc.body).replace(/\s+/g, ' ').trim()
+      : (doc.documentElement?.textContent || '');
+    const urlRegex = /https?:\/\/[^\s<>"'\)\]]+/gi;
+    const textUrls = rawText.match(urlRegex) || [];
+    for (const rawUrl of textUrls) {
+      const url = rawUrl.replace(/[.,;:!?)]+$/, '');
+      try {
+        const u = new URL(url);
+        if (BLOCKED_LINK_DOMAINS.test(u.hostname)) continue;
+        const urlText = u.pathname + u.search;
+        let blocked = false;
+        for (const pattern of NON_VERIFY_URL_PATTERNS) {
+          if (pattern.test(urlText)) { blocked = true; break; }
+        }
+        if (blocked) continue;
+        if (isVerificationLink(url)) {
+          linkCandidates.push({ url, score: 1 });
+        }
+      } catch {
+        continue;
+      }
+    }
+    if (linkCandidates.length === 0) {
+      // Last resort: accept any link with a token-like path segment (16+ chars of hex/alphanumeric)
+      const tokenPathRe = /\/[a-f0-9-]{16,}|\/[a-zA-Z0-9_-]{20,}/;
+      for (const a of links) {
+        const href = a.getAttribute('href')?.trim();
+        if (!href || !/^https?:\/\//i.test(href)) continue;
+        try {
+          const u = new URL(href);
+          if (BLOCKED_LINK_DOMAINS.test(u.hostname)) continue;
+          let blocked = false;
+          for (const p of NON_VERIFY_URL_PATTERNS) {
+            if (p.test(u.pathname + u.search)) { blocked = true; break; }
+          }
+          if (blocked) continue;
+          if (tokenPathRe.test(u.pathname)) {
+            linkCandidates.push({ url: href, score: 1 });
+          }
+        } catch { continue; }
+      }
+      // Also check plain text URLs for token-like paths
+      if (linkCandidates.length === 0) {
+        for (const rawUrl of textUrls) {
+          const url = rawUrl.replace(/[.,;:!?)]+$/, '');
+          try {
+            const u = new URL(url);
+            if (BLOCKED_LINK_DOMAINS.test(u.hostname)) continue;
+            let blocked = false;
+            for (const p of NON_VERIFY_URL_PATTERNS) {
+              if (p.test(u.pathname + u.search)) { blocked = true; break; }
+            }
+            if (blocked) continue;
+            if (tokenPathRe.test(u.pathname)) {
+              linkCandidates.push({ url, score: 1 });
+            }
+          } catch { continue; }
+        }
+      }
+    }
+    if (linkCandidates.length === 0) return null;
+  }
 
   // Return highest-scoring link
   linkCandidates.sort((a, b) => b.score - a.score);
