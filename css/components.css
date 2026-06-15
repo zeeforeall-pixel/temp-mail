@@ -503,14 +503,14 @@ header h1 .icon { width: 1.2em; height: 1.2em; margin-right: 0.15em; vertical-al
   background: hsl(var(--primary) / 0.1);
   border: 2px solid hsl(var(--primary));
   border-radius: var(--radius-sm);
-  padding: 1rem 1.25rem;
+  padding: 1.25rem 1.5rem;
   margin-bottom: 1rem;
   align-items: center;
   justify-content: space-between;
 }
 
 #otpRow .otp-label {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: hsl(var(--primary));
@@ -518,7 +518,7 @@ header h1 .icon { width: 1.2em; height: 1.2em; margin-right: 0.15em; vertical-al
 }
 
 #otpRow .otp-code {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   font-weight: 700;
   font-family: 'VT323', 'SF Mono', monospace;
   color: hsl(var(--text));
