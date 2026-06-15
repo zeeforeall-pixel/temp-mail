@@ -249,6 +249,8 @@ export function renderBulkDomains() {
 
 let _lastMsgIds = '';
 
+const _verifyCache = new Map();
+
 export function renderMessages() {
   const $msgList = $('msgList');
   const $msgCount = $('msgCount');
@@ -266,14 +268,19 @@ export function renderMessages() {
 
   $msgList.innerHTML = messages
     .map((m, i) => {
-      const combined =
-        (m.text_body || '') + '\n' + (m.html_body || '') + '\n' + (m.subject || '');
       let otp = null;
       let link = null;
-      try {
-        ({ otp, link } = extractVerification(combined));
-      } catch (e) {
-        console.warn('OTP extraction failed for message', m.id, e);
+      if (_verifyCache.has(m.id)) {
+        ({ otp, link } = _verifyCache.get(m.id));
+      } else {
+        const combined =
+          (m.text_body || '') + '\n' + (m.html_body || '') + '\n' + (m.subject || '');
+        try {
+          ({ otp, link } = extractVerification(combined));
+        } catch (e) {
+          console.warn('OTP extraction failed for message', m.id, e);
+        }
+        _verifyCache.set(m.id, { otp, link });
       }
       const preview = escapeHtml(
         (m.text_body || m.html_body || '')
@@ -282,7 +289,7 @@ export function renderMessages() {
       );
       const otpBadge = otp ? `<span class="badge" data-otp="${escapeHtml(otp)}">${escapeHtml(otp)}</span>` : '';
       const linkBadge = link ? `<span class="badge badge-link" data-link="${escapeHtml(link)}" title="Verification link detected">🔗 Verify</span>` : '';
-      return `<div class="msg-item" data-idx="${i}"><div class="from">${escapeHtml(m.from_address) || 'Unknown'}</div><div class="subj">${otpBadge}${linkBadge}${escapeHtml(m.subject) || '(no subject)'}</div><div class="preview">${preview || '—'}</div><div class="time">${fmtTime(m.received_at)}</div></div>`;
+      return `<div class="msg-item" data-idx="${i}"><div class="from">${escapeHtml(m.from_address || m.sender_address) || 'Unknown'}</div><div class="subj">${otpBadge}${linkBadge}${escapeHtml(m.subject) || '(no subject)'}</div><div class="preview">${preview || '—'}</div><div class="time">${fmtTime(m.received_at)}</div></div>`;
     })
     .join('');
 }
@@ -422,7 +429,7 @@ export function showMessageModal(message) {
   const $otpCode = $('otpCode');
 
   $msgModalSubj.textContent = message.subject || '(no subject)';
-  $msgModalFrom.textContent = 'From: ' + (message.from_address || '—');
+  $msgModalFrom.textContent = 'From: ' + (message.from_address || message.sender_address || '—');
   $msgModalTo.textContent = 'To: ' + (currentInbox?.address || '—');
   $msgModalTime.textContent =
     'Received: ' +

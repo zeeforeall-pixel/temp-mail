@@ -38,7 +38,7 @@ import {
 import { genHumanPrefix } from './config.js';
 import { extractOTP, extractVerifyLink, extractVerification } from './otp.js';
 
-const DEFAULT_OTP_TIMEOUT_MS = 60_000;
+const DEFAULT_OTP_TIMEOUT_MS = 120_000;
 const POLL_MS = 50;
 
 let _subscribedAddresses = new Set();
@@ -116,7 +116,6 @@ async function waitForOTP(address, timeoutMs) {
   if (!addr) throw new Error('No address provided and no current inbox selected');
 
   const timeout = timeoutMs || DEFAULT_OTP_TIMEOUT_MS;
-  const start = Date.now();
 
   const existing = await apiFetchMessages(addr);
   for (const m of existing) {
@@ -136,26 +135,62 @@ async function waitForOTP(address, timeoutMs) {
   subscribeAddress(addr);
 
   return new Promise((resolve, reject) => {
+    let settled = false;
+    function done(fn) { if (!settled) { settled = true; fn(); } }
+
     const timer = setTimeout(() => {
-      unsub();
-      reject(new Error(`OTP timeout after ${timeout}ms for ${addr}`));
+      done(() => {
+        unsub();
+        clearInterval(pollTimer);
+        reject(new Error(`OTP timeout after ${timeout}ms for ${addr}`));
+      });
     }, timeout);
 
     const unsub = onMessage(addr, (msg) => {
       const v = extractVerification(msg.html_body || msg.text_body || '');
       if (v.otp || v.link) {
-        clearTimeout(timer);
-        unsub();
-        resolve({
-          otp: v.otp,
-          link: v.link,
-          from: msg.sender_address || msg.from_address,
-          subject: msg.subject,
-          received_at: msg.received_at,
-          message_id: msg.id,
+        done(() => {
+          clearTimeout(timer);
+          clearInterval(pollTimer);
+          unsub();
+          resolve({
+            otp: v.otp,
+            link: v.link,
+            from: msg.sender_address || msg.from_address,
+            subject: msg.subject,
+            received_at: msg.received_at,
+            message_id: msg.id,
+          });
         });
       }
     });
+
+    // Polling fallback every 2s in case realtime event is missed
+    const pollTimer = setInterval(async () => {
+      if (settled) return;
+      try {
+        const msgs = await apiFetchMessages(addr);
+        for (const m of msgs) {
+          const v = extractVerification(m.html_body || m.text_body || '');
+          if (v.otp || v.link) {
+            done(() => {
+              clearTimeout(timer);
+              clearInterval(pollTimer);
+              unsub();
+              resolve({
+                otp: v.otp,
+                link: v.link,
+                from: m.sender_address || m.from_address,
+                subject: m.subject,
+                received_at: m.received_at,
+                message_id: m.id,
+              });
+            });
+            return;
+          }
+        }
+      } catch {}
+    }, 2000);
   });
 }
 
@@ -164,29 +199,62 @@ async function waitForEmail(address, timeoutMs) {
   if (!addr) throw new Error('No address provided and no current inbox selected');
 
   const timeout = timeoutMs || DEFAULT_OTP_TIMEOUT_MS;
+  const startId = new Set();
+  try {
+    const existing = await apiFetchMessages(addr);
+    for (const m of existing) startId.add(m.id);
+  } catch {}
+
   subscribeAddress(addr);
 
   return new Promise((resolve, reject) => {
+    let settled = false;
+    function done(fn) { if (!settled) { settled = true; fn(); } }
+
+    function resolveMsg(msg) {
+      const v = extractVerification(msg.html_body || msg.text_body || '');
+      done(() => {
+        clearTimeout(timer);
+        clearInterval(pollTimer);
+        unsub();
+        resolve({
+          id: msg.id,
+          from: msg.sender_address || msg.from_address,
+          subject: msg.subject,
+          received_at: msg.received_at,
+          otp: v.otp,
+          verify_link: v.link,
+          body_text: msg.text_body,
+          body_html: msg.html_body,
+        });
+      });
+    }
+
     const timer = setTimeout(() => {
-      unsub();
-      reject(new Error(`Email timeout after ${timeout}ms for ${addr}`));
+      done(() => {
+        unsub();
+        clearInterval(pollTimer);
+        reject(new Error(`Email timeout after ${timeout}ms for ${addr}`));
+      });
     }, timeout);
 
     const unsub = onMessage(addr, (msg) => {
-      clearTimeout(timer);
-      unsub();
-      const v = extractVerification(msg.html_body || msg.text_body || '');
-      resolve({
-        id: msg.id,
-        from: msg.sender_address || msg.from_address,
-        subject: msg.subject,
-        received_at: msg.received_at,
-        otp: v.otp,
-        verify_link: v.link,
-        body_text: msg.text_body,
-        body_html: msg.html_body,
-      });
+      resolveMsg(msg);
     });
+
+    // Polling fallback every 2s
+    const pollTimer = setInterval(async () => {
+      if (settled) return;
+      try {
+        const msgs = await apiFetchMessages(addr);
+        for (const m of msgs) {
+          if (!startId.has(m.id)) {
+            resolveMsg(m);
+            return;
+          }
+        }
+      } catch {}
+    }, 2000);
   });
 }
 

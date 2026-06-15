@@ -557,9 +557,31 @@ function extractVerifyLinkFromDoc(doc) {
 
   const BLOCKED_LINK_DOMAINS = /sendgrid|mailchimp|mandrill|postmark|ses\.amazonaws|mailgun|sparkpost|constantcontact|exacttarget|sfmc|marketo|hubspot|pardot|eloqua|klaviyo|brevo|sendinblue|mixpanel|segment|amplitude|intercom|zendesk|freshdesk/i;
 
+  function unwrapRedirect(url) {
+    try {
+      const u = new URL(url);
+      const dest = u.searchParams.get('url') || u.searchParams.get('u') ||
+                   u.searchParams.get('redirect') || u.searchParams.get('redirect_url') ||
+                   u.searchParams.get('target') || u.searchParams.get('dest') ||
+                   u.searchParams.get('return_url') || u.searchParams.get('next');
+      if (dest && /^https?:\/\//i.test(dest)) return dest;
+    } catch {}
+    return null;
+  }
+
   for (const a of links) {
-    const href = a.getAttribute('href')?.trim();
+    let href = a.getAttribute('href')?.trim();
     if (!href) continue;
+
+    // Unwrap ESP redirect links (SendGrid, Mailchimp, Mandrill, etc.)
+    try {
+      const u = new URL(href);
+      if (BLOCKED_LINK_DOMAINS.test(u.hostname)) {
+        const inner = unwrapRedirect(href);
+        if (inner) href = inner;
+        else continue;
+      }
+    } catch { continue; }
 
     // Skip mailto:, tel:, javascript:, anchor-only links
     if (/^(mailto:|tel:|javascript:|#|data:)/i.test(href)) continue;
@@ -567,7 +589,7 @@ function extractVerifyLinkFromDoc(doc) {
     // Must be a valid absolute URL
     if (!/^https?:\/\//i.test(href)) continue;
 
-    // Reject known ESP/tracking domains early
+    // Skip if still an ESP domain after unwrap attempt
     try {
       const u = new URL(href);
       if (BLOCKED_LINK_DOMAINS.test(u.hostname)) continue;
