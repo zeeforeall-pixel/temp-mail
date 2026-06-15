@@ -1,7 +1,5 @@
 {
-  "framework": null,
-  "buildCommand": "echo 'static site'",
+  "buildCommand": "",
   "outputDirectory": ".",
-  "installCommand": "echo 'no deps'",
-  "cleanUrls": true
+  "installCommand": ""
 }
