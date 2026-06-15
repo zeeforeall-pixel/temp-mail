@@ -1,5 +1,7 @@
 {
-  "buildCommand": "npm run build",
+  "framework": null,
+  "buildCommand": "echo 'static site'",
   "outputDirectory": ".",
-  "installCommand": "echo 'no deps'"
+  "installCommand": "echo 'no deps'",
+  "cleanUrls": true
 }

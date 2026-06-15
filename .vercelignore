@@ -1,0 +1,9 @@
+node_modules
+.venv
+.fallow
+.netlify
+.vercel
+*.log
+.DS_Store
+scripts
+js/__tests__
