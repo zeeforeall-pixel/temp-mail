@@ -263,6 +263,24 @@ function wireEvents() {
     if (currentInbox) copyText(currentInbox.address);
   });
 
+  $('deleteBtn').addEventListener('click', async () => {
+    if (!currentInbox) return;
+    const addr = currentInbox.address;
+    if (!confirm(`Delete ${addr} and all its messages?`)) return;
+    try {
+      await TempMailAPI.deleteInbox(addr);
+      toast('Inbox deleted');
+      if (inboxHistory.length > 0) {
+        selectInbox(inboxHistory[0]);
+      } else {
+        await handleGenInbox(genHumanPrefix());
+      }
+    } catch (e) {
+      console.error('Delete failed:', e);
+      toastSafe('Failed to delete inbox');
+    }
+  });
+
   $('shareBtn').addEventListener('click', () => {
     if (currentInbox) {
       copyText(

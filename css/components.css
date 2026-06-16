@@ -576,3 +576,21 @@ header h1 .icon { width: 1.2em; height: 1.2em; margin-right: 0.15em; vertical-al
   line-height: 1.2;
   vertical-align: middle;
 }
+
+.btn-danger {
+  color: hsl(0, 70%, 55%);
+}
+
+.btn-danger:hover {
+  background: hsla(0, 70%, 55%, 0.1);
+  color: hsl(0, 70%, 45%);
+}
+
+.dark .btn-danger {
+  color: hsl(0, 70%, 65%);
+}
+
+.dark .btn-danger:hover {
+  background: hsla(0, 70%, 65%, 0.15);
+  color: hsl(0, 70%, 75%);
+}
