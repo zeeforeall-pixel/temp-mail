@@ -25,7 +25,7 @@ if (SB_ANON_KEY.includes('service_role')) {
 // ── Limits & thresholds ──
 
 export const MAX_INBOX_HISTORY = 999;
-export const MAX_BULK_COUNT = 999;
+export const MAX_BULK_COUNT = 99;
 export const BULK_CONCURRENCY = 50;
 export const MAX_INBOX_RETRIES = 12;
 export const MAX_GEN_RETRIES = 5;
