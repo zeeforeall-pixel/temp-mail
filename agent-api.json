@@ -73,11 +73,10 @@
       },
       "deleteInbox": {
         "params": [
-          "address?",
-          "apiKey"
+          "address?"
         ],
         "returns": "{ ok: true, address }",
-        "description": "Delete inbox + messages. Requires REST API key (tmk_...)"
+        "description": "Delete inbox + messages via RLS"
       }
     }
   },
@@ -120,8 +119,7 @@
       },
       "?api=delete": {
         "params": [
-          "address",
-          "key=tmk_xxx"
+          "address"
         ],
         "returns": "JSON { ok: true, address }"
       }

@@ -23,7 +23,7 @@ import {
   getEffDomain,
   createInbox,
   fetchMessages as apiFetchMessages,
-  deleteInboxViaApi,
+  deleteInbox as apiDeleteInbox,
 } from './api.js';
 
 import {
@@ -411,11 +411,14 @@ async function handleUrlApi() {
 
       case 'delete': {
         const address = params.get('address');
-        const key = params.get('key');
-        if (!address || !key) {
-          jsonResponse({ error: 'address and key parameters required' });
+        if (!address) {
+          jsonResponse({ error: 'address parameter required' });
           return true;
         }
+        const result = await deleteInbox(address);
+        jsonResponse(result);
+        return true;
+      }
         const result = await deleteInbox(address, key);
         jsonResponse(result);
         return true;
@@ -447,12 +450,10 @@ async function handleUrlApi() {
 
 // ── Inbox deletion ──
 
-async function deleteInbox(address, apiKey) {
+async function deleteInbox(address) {
   const addr = address || currentInbox?.address;
   if (!addr) throw new Error('No address provided');
-  if (!apiKey) throw new Error('API key required (pass apiKey parameter)');
-  const key = apiKey;
-  await deleteInboxViaApi(addr, ownerToken, key);
+  await apiDeleteInbox(addr, ownerToken);
   removeHistoryEntry(addr);
   if (currentInbox?.address === addr) {
     setCurrentInbox(null);
@@ -498,7 +499,7 @@ const TempMailAPI = {
         'getCurrentEmail()': 'Get current inbox address',
         'getDomains()': 'List available email domains',
         'copyEmail()': 'Copy current email to clipboard',
-        'deleteInbox(address?, apiKey)': 'Delete inbox + messages. Requires REST API key (tmk_...)',
+        'deleteInbox(address?)': 'Delete inbox + messages via RLS',
       },
       urlApi: {
         '?api=generate': 'Generate new email → JSON',
@@ -507,7 +508,7 @@ const TempMailAPI = {
         '?api=wait&address=x&t=60': 'Wait for OTP (seconds) → JSON',
         '?api=inboxes': 'List all inboxes → JSON',
         '?api=domains': 'List domains → JSON',
-        '?api=delete&address=x&key=tmk_xxx': 'Delete inbox → JSON',
+        '?api=delete&address=x': 'Delete inbox → JSON',
       },
       quickStart: `
         // One-liner: generate email and wait for OTP

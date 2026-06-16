@@ -567,32 +567,36 @@ export async function lookupSharedInbox(sharedAddress) {
   return data || null;
 }
 
-// ── Inbox deletion (via REST API) ──
 
-const TEMP_MAIL_API_URL = 'https://ijrccpgiulrmfpavazsl.supabase.co/functions/v1/temp-mail-api';
+// ── Inbox deletion (via Supabase RLS) ──
 
 /**
- * Delete an inbox and all its messages via the REST API.
- * Requires an API key (tmk_ format).
+ * Delete an inbox and all its messages via Supabase.
  *
  * @param {string} address - Inbox email address.
  * @param {string} ownerTokenArg - Owner token for the inbox.
- * @param {string} apiKey - REST API key.
  * @returns {Promise<{ok: boolean}>}
  */
-export async function deleteInboxViaApi(address, ownerTokenArg, apiKey) {
-  const res = await fetch(`${TEMP_MAIL_API_URL}?action=delete`, {
-    method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ address, owner_token: ownerTokenArg }),
-  });
+export async function deleteInbox(address, ownerTokenArg) {
+  // Delete messages first (foreign key constraint)
+  const { error: msgError } = await sb
+    .from('temp_messages')
+    .delete()
+    .eq('inbox_address', address);
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Delete failed: HTTP ${res.status}`);
+  if (msgError && !msgError.message.includes('not found')) {
+    throw new Error('Failed to delete messages: ' + msgError.message);
+  }
+
+  // Delete inbox
+  const { error: inboxError } = await sb
+    .from('temp_inboxes')
+    .delete()
+    .eq('address', address)
+    .eq('owner_token', ownerTokenArg);
+
+  if (inboxError && !inboxError.message.includes('not found')) {
+    throw new Error('Failed to delete inbox: ' + inboxError.message);
   }
 
   return { ok: true };
