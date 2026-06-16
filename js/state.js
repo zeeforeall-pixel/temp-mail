@@ -191,3 +191,8 @@ export function toggleDarkMode() {
   localStorage.setItem(LS_DARK_MODE, dark ? '1' : '0');
   return dark;
 }
+
+export function removeHistoryEntry(address) {
+  inboxHistory = inboxHistory.filter((h) => h.address !== address);
+  saveHistory();
+}

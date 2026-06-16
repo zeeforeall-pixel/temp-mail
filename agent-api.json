@@ -6,32 +6,48 @@
     "global": "window.TempMailAPI",
     "functions": {
       "generateEmail": {
-        "params": ["prefix?", "domain?"],
+        "params": [
+          "prefix?",
+          "domain?"
+        ],
         "returns": "{address, expires_at}",
         "description": "Create new inbox without UI interaction"
       },
       "getMessages": {
-        "params": ["address?"],
+        "params": [
+          "address?"
+        ],
         "returns": "messages[] with otp and verify_link extracted",
         "description": "Fetch messages, defaults to current inbox"
       },
       "waitForOTP": {
-        "params": ["address?", "timeoutMs?"],
+        "params": [
+          "address?",
+          "timeoutMs?"
+        ],
         "returns": "{otp, link, from, subject}",
         "description": "Poll until OTP arrives (default 60s timeout)"
       },
       "waitForEmail": {
-        "params": ["address?", "timeoutMs?"],
+        "params": [
+          "address?",
+          "timeoutMs?"
+        ],
         "returns": "full message with otp extracted",
         "description": "Wait for next email to arrive"
       },
       "quickSession": {
-        "params": ["prefix?", "domain?"],
+        "params": [
+          "prefix?",
+          "domain?"
+        ],
         "returns": "session object with .waitForOTP(), .getMessages()",
         "description": "One-liner: generate email + helper methods"
       },
       "getLatestOTP": {
-        "params": ["address?"],
+        "params": [
+          "address?"
+        ],
         "returns": "{otp, link, from, subject} or null",
         "description": "Get OTP from already-loaded messages (synchronous)"
       },
@@ -54,6 +70,14 @@
         "params": [],
         "returns": "email address string",
         "description": "Copy current email to clipboard"
+      },
+      "deleteInbox": {
+        "params": [
+          "address?",
+          "apiKey"
+        ],
+        "returns": "{ ok: true, address }",
+        "description": "Delete inbox + messages. Requires REST API key (tmk_...)"
       }
     }
   },
@@ -61,19 +85,29 @@
     "base": "append to any page URL",
     "endpoints": {
       "?api=generate": {
-        "params": ["prefix?", "domain?"],
+        "params": [
+          "prefix?",
+          "domain?"
+        ],
         "returns": "JSON {address, expires_at}"
       },
       "?api=messages": {
-        "params": ["address?"],
+        "params": [
+          "address?"
+        ],
         "returns": "JSON messages array"
       },
       "?api=otp": {
-        "params": ["address?"],
+        "params": [
+          "address?"
+        ],
         "returns": "JSON {otp, link, from, subject}"
       },
       "?api=wait": {
-        "params": ["address?", "t=60"],
+        "params": [
+          "address?",
+          "t=60"
+        ],
         "returns": "JSON OTP (blocks up to t seconds)"
       },
       "?api=inboxes": {
@@ -83,6 +117,13 @@
       "?api=domains": {
         "params": [],
         "returns": "JSON domains"
+      },
+      "?api=delete": {
+        "params": [
+          "address",
+          "key=tmk_xxx"
+        ],
+        "returns": "JSON { ok: true, address }"
       }
     }
   },

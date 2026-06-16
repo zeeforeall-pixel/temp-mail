@@ -566,3 +566,34 @@ export async function lookupSharedInbox(sharedAddress) {
 
   return data || null;
 }
+
+// ── Inbox deletion (via REST API) ──
+
+const TEMP_MAIL_API_URL = 'https://ijrccpgiulrmfpavazsl.supabase.co/functions/v1/temp-mail-api';
+
+/**
+ * Delete an inbox and all its messages via the REST API.
+ * Requires an API key (tmk_ format).
+ *
+ * @param {string} address - Inbox email address.
+ * @param {string} ownerTokenArg - Owner token for the inbox.
+ * @param {string} apiKey - REST API key.
+ * @returns {Promise<{ok: boolean}>}
+ */
+export async function deleteInboxViaApi(address, ownerTokenArg, apiKey) {
+  const res = await fetch(`${TEMP_MAIL_API_URL}?action=delete`, {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ address, owner_token: ownerTokenArg }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Delete failed: HTTP ${res.status}`);
+  }
+
+  return { ok: true };
+}

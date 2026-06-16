@@ -23,6 +23,7 @@ import {
   getEffDomain,
   createInbox,
   fetchMessages as apiFetchMessages,
+  deleteInboxViaApi,
 } from './api.js';
 
 import {
@@ -33,6 +34,8 @@ import {
   addHistoryEntry,
   setCurrentInbox,
   setMessages,
+  removeHistoryEntry,
+  ownerToken,
 } from './state.js';
 
 import { genHumanPrefix } from './config.js';
@@ -406,10 +409,22 @@ async function handleUrlApi() {
         return true;
       }
 
+      case 'delete': {
+        const address = params.get('address');
+        const key = params.get('key');
+        if (!address || !key) {
+          jsonResponse({ error: 'address and key parameters required' });
+          return true;
+        }
+        const result = await deleteInbox(address, key);
+        jsonResponse(result);
+        return true;
+      }
+
       default:
         jsonResponse({
           error: 'Unknown API action',
-          available: ['generate', 'messages', 'otp', 'wait', 'inboxes', 'domains', 'email'],
+          available: ['generate', 'messages', 'otp', 'wait', 'inboxes', 'domains', 'email', 'delete'],
           usage: {
             generate: '?api=generate[&prefix=x][&domain=y]',
             messages: '?api=messages[&address=x]',
@@ -418,6 +433,7 @@ async function handleUrlApi() {
             inboxes: '?api=inboxes',
             domains: '?api=domains',
             email: '?api=email',
+            delete: '?api=delete&address=x&key=tmk_xxx',
           },
         });
         return true;
@@ -426,6 +442,23 @@ async function handleUrlApi() {
     jsonResponse({ error: err.message });
     return true;
   }
+}
+
+
+// ── Inbox deletion ──
+
+async function deleteInbox(address, apiKey) {
+  const addr = address || currentInbox?.address;
+  if (!addr) throw new Error('No address provided');
+  if (!apiKey) throw new Error('API key required (pass apiKey parameter)');
+  const key = apiKey;
+  await deleteInboxViaApi(addr, ownerToken, key);
+  removeHistoryEntry(addr);
+  if (currentInbox?.address === addr) {
+    setCurrentInbox(null);
+    setMessages([]);
+  }
+  return { ok: true, address: addr };
 }
 
 // ── Expose globally ──
@@ -441,6 +474,7 @@ const TempMailAPI = {
   getCurrentEmail,
   getDomains,
   copyEmail,
+  deleteInbox,
 
   // Low-level access
   sb,
@@ -464,6 +498,7 @@ const TempMailAPI = {
         'getCurrentEmail()': 'Get current inbox address',
         'getDomains()': 'List available email domains',
         'copyEmail()': 'Copy current email to clipboard',
+        'deleteInbox(address?, apiKey)': 'Delete inbox + messages. Requires REST API key (tmk_...)',
       },
       urlApi: {
         '?api=generate': 'Generate new email → JSON',
@@ -472,6 +507,7 @@ const TempMailAPI = {
         '?api=wait&address=x&t=60': 'Wait for OTP (seconds) → JSON',
         '?api=inboxes': 'List all inboxes → JSON',
         '?api=domains': 'List domains → JSON',
+        '?api=delete&address=x&key=tmk_xxx': 'Delete inbox → JSON',
       },
       quickStart: `
         // One-liner: generate email and wait for OTP
