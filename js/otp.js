@@ -44,7 +44,7 @@ const NON_OTP_KEYWORDS = /\b(order|ref|reference|invoice|tracking|ticket|total|p
 
 // ── Verification link patterns ──
 
-const VERIFY_URL_KEYWORDS = /(verify|confirm|activation|activate|validate|approve|accept|enable|complete|claim|auth|token|register|sign.?up|onboard|unlock|welcome|email.?confirm|verif|bestätig|vérifi|verific|подтвержд|确认|確認|인증)/i;
+const VERIFY_URL_KEYWORDS = /(verify|confirm|activation|activate|validate|approve|accept|enable|complete|claim|auth|token|register|sign.?up|sign.?in|log.?in|onboard|unlock|welcome|magic.?link|device|authorize|authorise|email.?confirm|verif|bestätig|vérifi|verific|подтвержд|确认|確認|인증)/i;
 
 const NON_VERIFY_URL_PATTERNS = [
   /\/unsubscribe/i,
@@ -605,7 +605,7 @@ function extractVerifyLinkFromDoc(doc) {
 
     // Boost: link text contains verification keywords
     if (
-      /(verify|confirm|activate|approve|enable|complete|claim|log.?in|sign.?in|开始|确认|確認|인증|подтвержд|bestätig|vérifi|verific)/i.test(
+      /(verify|confirm|activate|approve|enable|complete|claim|log.?in|sign.?in|magic.?link|device|authorize|authorise|开始|确认|確認|인증|подтвержд|bestätig|vérifi|verific)/i.test(
         linkText
       )
     ) {
