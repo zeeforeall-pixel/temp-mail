@@ -605,7 +605,7 @@ function extractVerifyLinkFromDoc(doc) {
 
     // Boost: link text contains verification keywords
     if (
-      /(verify|confirm|activate|approve|enable|complete|claim|log.?in|sign.?in|magic.?link|device|authorize|authorise|开始|确认|確認|인증|подтвержд|bestätig|vérifi|verific)/i.test(
+      /(verify|confirm|activate|approve|enable|complete|claim|auth|token|log.?in|sign.?in|magic.?link|device|authorize|authorise|开始|确认|確認|인증|подтвержд|bestätig|vérifi|verific)/i.test(
         linkText
       )
     ) {
@@ -634,7 +634,7 @@ function extractVerifyLinkFromDoc(doc) {
     try {
       const u = new URL(href);
       const path = u.pathname.toLowerCase();
-      if (/(verify|confirm|activate|validate)/.test(path)) score += 5;
+      if (/(verify|confirm|activate|validate|sign.?in|log.?in|auth|token|unlock|approve)/.test(path)) score += 5;
       // Penalize if it looks like an API/tracking endpoint
       if (/api\/|\/webhook|\/pixel|\/track/i.test(path)) score -= 10;
     } catch {

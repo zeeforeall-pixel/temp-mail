@@ -404,17 +404,17 @@ async function handleBulkVipCreate(count, domain) {
 const I18N = {
   zh: {
     tagline: '一次性邮箱 · 由 疯子 xscope0 制作',
-    inboxTitle: '当前收件箱',
+    inboxTitle: '收件箱',
     search: '搜索收件箱…',
   },
   en: {
     tagline: 'Disposable inbox · by 疯子 xscope0',
-    inboxTitle: 'Your inbox',
+    inboxTitle: 'Inboxes',
     search: 'Search inboxes…',
   },
   id: {
     tagline: 'Email sementara · oleh 疯子 xscope0',
-    inboxTitle: 'Inbox kamu',
+    inboxTitle: 'Inboxes',
     search: 'Cari inbox…',
   },
 };
@@ -618,6 +618,112 @@ function wireEvents() {
       setHistoryFilter(e.target.value);
     });
   }
+
+  // ── GitHub Helper toggle ──
+  const $ghHelperBtn = $('ghHelperBtn');
+  const $ghBackBtn = $('ghBackBtn');
+  const $mainView = $('mainView');
+  const $ghView = $('ghView');
+
+  function showGhView() {
+    $mainView.style.display = 'none';
+    $ghView.style.display = 'block';
+  }
+  function showMainView() {
+    $mainView.style.display = 'block';
+    $ghView.style.display = 'none';
+  }
+
+  if ($ghHelperBtn) $ghHelperBtn.addEventListener('click', showGhView);
+  if ($ghBackBtn) $ghBackBtn.addEventListener('click', showMainView);
+
+  // GitHub Helper: mode toggle
+  const $ghModeBtns = document.querySelectorAll('.gh-mode-btn');
+  const $ghPrefixCustom = $('ghPrefixCustom');
+  $ghModeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      $ghModeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      $ghPrefixCustom.style.display = btn.dataset.mode === 'custom' ? 'block' : 'none';
+    });
+  });
+
+  // GitHub Helper: generate credential
+  const $ghGenerateBtn = $('ghGenerateBtn');
+  const $ghCredResult = $('ghCredResult');
+
+  function genPassword(len = 16) {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*';
+    let pw = '';
+    for (let i = 0; i < len; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+    return pw;
+  }
+
+  function genUsername(prefix) {
+    const adjectives = ['swift','calm','dark','keen','pure','bold','cool','deep','fine','glad','idle','just','live','mild','neat','open','rare','safe','tall','vast','warm'];
+    const nouns = ['fox','owl','bear','wolf','deer','hawk','lynx','swan','crow','dove','wren','hare','lark','moth','newt','puma','seal','toad','vole','bat','bee'];
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+    const suffix = Math.floor(Math.random() * 9000 + 1000);
+    if (prefix) return prefix.toLowerCase().replace(/[^a-z0-9]/g, '') + suffix;
+    return adj + noun + suffix;
+  }
+
+  if ($ghGenerateBtn) {
+    $ghGenerateBtn.addEventListener('click', async () => {
+      const activeMode = document.querySelector('.gh-mode-btn.active');
+      const mode = activeMode ? activeMode.dataset.mode : 'random';
+      let prefix = '';
+      if (mode === 'custom') {
+        prefix = ($('ghPrefixInput')?.value || '').trim();
+      }
+
+      const username = genUsername(prefix);
+      const password = genPassword();
+
+      // Generate inbox for verification email
+      const domain = getEffDomain();
+      try {
+        const inbox = await createInbox(genHumanPrefix(), domain);
+        if (inbox) {
+          addHistoryEntry(inbox);
+          selectInbox(inbox);
+
+          $ghCredResult.style.display = 'block';
+          $ghCredResult.innerHTML = `
+            <div class="gh-cred-row">
+              <span class="gh-cred-label">Username</span>
+              <span class="gh-cred-value">${escapeHtml(username)}</span>
+              <button class="gh-cred-copy" data-copy="${escapeHtml(username)}">Copy</button>
+            </div>
+            <div class="gh-cred-row">
+              <span class="gh-cred-label">Password</span>
+              <span class="gh-cred-value">${escapeHtml(password)}</span>
+              <button class="gh-cred-copy" data-copy="${escapeHtml(password)}">Copy</button>
+            </div>
+            <div class="gh-cred-row">
+              <span class="gh-cred-label">Email</span>
+              <span class="gh-cred-value">${escapeHtml(inbox.address)}</span>
+              <button class="gh-cred-copy" data-copy="${escapeHtml(inbox.address)}">Copy</button>
+            </div>
+          `;
+
+          // Wire copy buttons
+          $ghCredResult.querySelectorAll('.gh-cred-copy').forEach(btn => {
+            btn.addEventListener('click', () => copyText(btn.dataset.copy));
+          });
+
+          // Switch back to main view to show inbox
+          showMainView();
+          toast('GitHub credential generated!');
+        }
+      } catch (e) {
+        console.error('GitHub credential generation failed:', e);
+        toastSafe('Failed to generate credential');
+      }
+    });
+  }
+
 }
 
 // ── Initialization ──

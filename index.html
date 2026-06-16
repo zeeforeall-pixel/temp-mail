@@ -34,6 +34,7 @@
         <button class="lang-btn active" data-lang="en" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> US</button>
         <button class="lang-btn" data-lang="id" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> ID</button>
       </nav>
+      <button class="btn btn-ghost" id="ghHelperBtn" title="GitHub Helper" style="padding:0.35rem 0.6rem;font-size:0.8rem;gap:0.3rem;"><svg viewBox="0 0 24 24" fill="currentColor" class="icon" style="width:16px;height:16px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg> GitHub</button>
       <button class="btn btn-ghost" id="apiBtn" title="Agent API documentation" style="padding:0.35rem 0.6rem;font-size:0.8rem;gap:0.3rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:16px;height:16px;"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg> API</button>
       <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -41,11 +42,13 @@
     </div>
   </header>
 
+  <!-- Main View -->
+  <div id="mainView">
   <!-- Inbox card -->
   <div class="card">
     <div class="card-title">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-      <span data-i18n="inboxTitle">Your inbox</span>
+      <span data-i18n="inboxTitle">Inboxes</span>
       <span class="expiry-badge" id="expiryDisplay" style="display:none;"></span>
     </div>
     <div class="inbox-row" id="inboxRow">
@@ -92,7 +95,7 @@
     </div>
     <div class="vip-free-banner">
       <span class="vip-free-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></span>
-      <strong>VIP enabled — 疯子 xscope0</strong>
+      <strong>Cracked — 疯子 xscope0</strong>
       <p>Complete Email + Password credentials for IMAP/SMTP login. Dark mode stays locked.</p>
     </div>
     <div class="vip-credentials">
@@ -143,7 +146,7 @@
     <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
       <span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-        Your Inboxes
+        Inboxes
       </span>
       <button class="btn btn-ghost" id="dumpBtn" title="Clear all inboxes" style="font-size:0.7rem;padding:0.2rem 0.5rem;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -172,6 +175,101 @@
       </div>
     </div>
   </div>
+  </div><!-- /mainView -->
+
+  <!-- GitHub Helper View -->
+  <div id="ghView" style="display:none;">
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>
+          <svg viewBox="0 0 24 24" fill="currentColor" class="icon" style="width:1.1em;height:1.1em;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub Helper
+        </span>
+        <button class="btn btn-ghost" id="ghBackBtn" style="font-size:0.75rem;padding:0.3rem 0.6rem;">Back to Inbox</button>
+      </div>
+      <p style="font-size:0.82rem;color:hsl(var(--text2));margin-bottom:1rem;">Generate username, password &amp; verification email for your GitHub account.</p>
+
+      <!-- Step 1 -->
+      <div class="gh-step">
+        <div class="gh-step-header">
+          <span class="gh-step-num">1</span>
+          <span class="gh-step-title">Generate Credential</span>
+        </div>
+        <p>Confirm this account is for yourself &amp; you don't have a GitHub account yet.</p>
+        <div style="margin-top:0.5rem;">
+          <label class="input-label">Email verification mode</label>
+          <div class="gh-mode-row">
+            <button class="btn btn-outline btn-sm gh-mode-btn active" data-mode="random">Auto Random</button>
+            <button class="btn btn-outline btn-sm gh-mode-btn" data-mode="custom">Custom Prefix</button>
+          </div>
+        </div>
+        <div id="ghPrefixCustom" style="display:none;margin-top:0.5rem;">
+          <label class="input-label">Custom prefix</label>
+          <input class="modal-input" id="ghPrefixInput" placeholder="e.g. john.doe" />
+        </div>
+        <button class="btn" id="ghGenerateBtn" style="margin-top:0.75rem;width:100%;">Generate Credential</button>
+        <div id="ghCredResult" style="display:none;margin-top:0.75rem;"></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="gh-step">
+        <div class="gh-step-header">
+          <span class="gh-step-num">2</span>
+          <span class="gh-step-title">Auto-Fill GitHub Form</span>
+          <span class="gh-step-tag">NEW</span>
+        </div>
+        <p>Setup once — drag to bookmark bar, use anytime.</p>
+        <div class="gh-sub-steps">
+          <div class="gh-sub-step"><span class="gh-sub-num">1</span> Click <strong>"Open GitHub Signup"</strong> below</div>
+          <div class="gh-sub-step"><span class="gh-sub-num">2</span> On the GitHub tab, click bookmarklet <strong>"🚀 Moca Auto-Fill"</strong> → fields auto-fill (~5s)</div>
+          <div class="gh-sub-step"><span class="gh-sub-num">3</span> Solve captcha (puzzle, ~10s) → click <strong>Create account</strong></div>
+          <div class="gh-sub-step"><span class="gh-sub-num">4</span> Come back here — OTP appears automatically in Step 3</div>
+        </div>
+        <div class="gh-checklist">
+          <div>✓ Turn off VPN/proxy — use personal network (4G / home WiFi)</div>
+          <div>✓ Don't use Incognito — use your daily browser profile</div>
+          <div>✓ Disable aggressive privacy extensions (uBlock, Brave Shield max)</div>
+          <div>✓ Don't rush — solve captcha slowly</div>
+          <div>✓ If "unusual activity" appears: wait 24h / switch network</div>
+        </div>
+        <a href="https://github.com/signup" target="_blank" rel="noopener" class="btn" style="display:inline-block;margin-top:0.75rem;text-align:center;width:100%;text-decoration:none;">Open GitHub Signup</a>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="gh-step">
+        <div class="gh-step-header">
+          <span class="gh-step-num">3</span>
+          <span class="gh-step-title">OTP Verification</span>
+        </div>
+        <p>After completing Step 2 on GitHub, the OTP code will appear here automatically.</p>
+        <div id="ghOtpDisplay" style="margin-top:0.5rem;padding:0.75rem;background:hsl(var(--surface2));border:1px dashed hsl(var(--border));border-radius:var(--radius-sm);text-align:center;color:hsl(var(--text2));font-size:0.85rem;">
+          Waiting for OTP…
+        </div>
+      </div>
+
+      <!-- Step 5 (skip step 4) -->
+      <div class="gh-step">
+        <div class="gh-step-header">
+          <span class="gh-step-num">5</span>
+          <span class="gh-step-title">Setup 2FA (Required!)</span>
+          <span class="gh-step-tag gh-step-warn">30 DAYS</span>
+        </div>
+        <p>GitHub requires 2FA within 30 days of signup. Past the deadline = account locked.</p>
+        <div class="gh-sub-steps">
+          <div class="gh-sub-step"><span class="gh-sub-num">1</span> <strong>Install authenticator app</strong> — Recommended: Aegis (Android, open-source) or Raivo (iOS). Avoid Google Authenticator (no export/backup).</div>
+          <div class="gh-sub-step"><span class="gh-sub-num">2</span> <strong>Open GitHub 2FA settings</strong></div>
+          <div class="gh-sub-step"><span class="gh-sub-num">3</span> <strong>Scan QR code → enter 6-digit code</strong> — Open authenticator app, tap +, scan the QR shown on GitHub.</div>
+        </div>
+        <div class="gh-warning">
+          ⚠️ <strong>Save Recovery Codes!</strong><br>
+          GitHub gives you 16 recovery codes — screenshot or download &amp; store somewhere safe (password manager / cloud notes). Without these, if you lose your phone the account is gone forever.
+        </div>
+        <p style="font-size:0.78rem;color:hsl(var(--text2));margin-top:0.5rem;">Bonus: after 2FA is active, add SSH key &amp; Personal Access Token so you can git push without password.</p>
+        <a href="https://github.com/settings/security" target="_blank" rel="noopener" class="btn btn-outline" style="display:inline-block;margin-top:0.75rem;text-align:center;width:100%;text-decoration:none;">Setup 2FA on GitHub</a>
+      </div>
+    </div>
+  </div><!-- /ghView -->
+
 </div>
 
 <!-- New Inbox Modal -->

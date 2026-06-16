@@ -119,8 +119,8 @@ header > div {
   gap: 0.35rem;
   font-size: 0.78rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  text-transform: none;
+  letter-spacing: 0.02em;
   color: hsl(var(--primary));
   margin-bottom: var(--space-md);
 }

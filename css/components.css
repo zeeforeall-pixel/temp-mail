@@ -1129,13 +1129,13 @@ html.dark .vip-feature-copy span {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.4rem;
-  height: 1.4rem;
-  margin-right: 0.35rem;
+  min-width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius-sm);
   color: hsl(var(--primary));
-  font-size: 0.72rem;
+  font-size: 0.6rem;
   line-height: 1;
 }
 
@@ -1256,6 +1256,169 @@ html:not(.dark) .theme-toggle {
 }
 
 html:not(.dark) .theme-toggle:hover {
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary));
+}
+
+/* ── GitHub Helper Steps ── */
+
+.gh-step {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: hsl(var(--surface2));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-sm);
+}
+
+.gh-step:last-child {
+  margin-bottom: 0;
+}
+
+.gh-step-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.gh-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  color: hsl(var(--bg));
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.gh-step-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: hsl(var(--text));
+}
+
+.gh-step-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: hsl(var(--primary) / 0.15);
+  color: hsl(var(--primary));
+}
+
+.gh-step-warn {
+  background: hsl(var(--danger) / 0.15);
+  color: hsl(var(--danger));
+}
+
+.gh-sub-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+  font-size: 0.82rem;
+}
+
+.gh-sub-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.5;
+}
+
+.gh-sub-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.gh-checklist {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--surface3));
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: hsl(var(--text2));
+}
+
+.gh-checklist div {
+  padding: 0.1rem 0;
+}
+
+.gh-mode-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gh-mode-btn.active {
+  background: hsl(var(--primary) / 0.12);
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary));
+}
+
+.gh-warning {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--danger) / 0.08);
+  border: 1px solid hsl(var(--danger) / 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.gh-cred-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid hsl(var(--border));
+  font-size: 0.82rem;
+}
+
+.gh-cred-row:last-child {
+  border-bottom: none;
+}
+
+.gh-cred-label {
+  color: hsl(var(--text2));
+  min-width: 70px;
+}
+
+.gh-cred-value {
+  font-family: var(--font-mono);
+  color: hsl(var(--text));
+  word-break: break-all;
+  flex: 1;
+  text-align: right;
+}
+
+.gh-cred-copy {
+  margin-left: 0.5rem;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-sm);
+  color: hsl(var(--text2));
+}
+
+.gh-cred-copy:hover {
   border-color: hsl(var(--primary));
   color: hsl(var(--primary));
 }
