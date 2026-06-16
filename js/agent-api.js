@@ -24,6 +24,7 @@ import {
   createInbox,
   fetchMessages as apiFetchMessages,
   deleteInbox as apiDeleteInbox,
+  createVipInbox,
 } from './api.js';
 
 import {
@@ -38,7 +39,7 @@ import {
   ownerToken,
 } from './state.js';
 
-import { genHumanPrefix } from './config.js';
+import { genHumanPrefix, generateInboxPassword, getMailServerInfo } from './config.js';
 import { extractOTP, extractVerifyLink, extractVerification } from './otp.js';
 
 const DEFAULT_OTP_TIMEOUT_MS = 120_000;
@@ -98,6 +99,40 @@ async function generateEmail(prefix, domain) {
   return { address: inbox.address, expires_at: inbox.expires_at };
 }
 
+
+async function generateVipEmail(prefix, domain) {
+  const p = prefix || genHumanPrefix();
+  const d = domain || getEffDomain();
+  const inbox = await createVipInbox(p, d);
+  if (!inbox) return null;
+  addHistoryEntry(inbox);
+  setCurrentInbox(inbox);
+  subscribeAddress(inbox.address);
+  const serverInfo = getMailServerInfo(inbox.address.split("@")[1]);
+  return {
+    address: inbox.address,
+    expires_at: inbox.expires_at,
+    password: inbox.password_plain,
+    is_vip: true,
+    imap: serverInfo.imap,
+    smtp: serverInfo.smtp,
+  };
+}
+
+function getVipCredentials(address) {
+  const addr = address || currentInbox?.address;
+  if (!addr) return null;
+  const inbox = inboxHistory.find((h) => h.address === addr);
+  if (!inbox?.password_plain) return null;
+  const serverInfo = getMailServerInfo(addr.split("@")[1]);
+  return {
+    address: addr,
+    password: inbox.password_plain,
+    is_vip: true,
+    imap: serverInfo.imap,
+    smtp: serverInfo.smtp,
+  };
+}
 async function getMessages(address) {
   const addr = address || currentInbox?.address;
   if (!addr) return [];
@@ -351,6 +386,21 @@ async function handleUrlApi() {
         return true;
       }
 
+      case 'vip': {
+        const prefix = params.get('prefix') || undefined;
+        const domain = params.get('domain') || undefined;
+        const result = await generateVipEmail(prefix, domain);
+        jsonResponse(result);
+        return true;
+      }
+
+      case 'credentials': {
+        const address = params.get('address');
+        const creds = getVipCredentials(address);
+        jsonResponse(creds || { error: 'No VIP credentials found for this address' });
+        return true;
+      }
+
       case 'messages': {
         const address = params.get('address');
         const msgs = await getMessages(address);
@@ -419,10 +469,6 @@ async function handleUrlApi() {
         jsonResponse(result);
         return true;
       }
-        const result = await deleteInbox(address, key);
-        jsonResponse(result);
-        return true;
-      }
 
       default:
         jsonResponse({
@@ -476,6 +522,10 @@ const TempMailAPI = {
   getDomains,
   copyEmail,
   deleteInbox,
+
+  // VIP features
+  generateVipEmail,
+  getVipCredentials,
 
   // Low-level access
   sb,

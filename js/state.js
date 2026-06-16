@@ -180,8 +180,9 @@ export function isDarkMode() {
 }
 
 export function initDarkMode() {
-  if (localStorage.getItem(LS_DARK_MODE) === '1') {
+  if (localStorage.getItem(LS_DARK_MODE) !== '0') {
     document.documentElement.classList.add('dark');
+    localStorage.setItem(LS_DARK_MODE, '1');
   }
 }
 

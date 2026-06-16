@@ -26,11 +26,12 @@ if (SB_ANON_KEY.includes('service_role')) {
 
 export const MAX_INBOX_HISTORY = 999;
 export const MAX_BULK_COUNT = 99;
-export const BULK_CONCURRENCY = 50;
+export const MAX_VIP_BULK_COUNT = 100;
+export const BULK_CONCURRENCY = 100;
 export const MAX_INBOX_RETRIES = 12;
 export const MAX_GEN_RETRIES = 5;
 export const RETRY_DELAY_MS = 300;
-export const POLL_INTERVAL_MS = 2000;
+export const POLL_INTERVAL_MS = 10;
 export const MESSAGE_FETCH_LIMIT = 100;
 export const TOKEN_POOL_SIZE = 100;
 export const EXPIRY_WARNING_MS = 10 * 60 * 1000;       // 10 minutes
@@ -49,6 +50,7 @@ export const LS_SEEN_MESSAGES = 'tm_seen_messages';
 
 export const BULK_BLACKLIST = ['moymoy.me', 'openfile.id'];
 
+export const PREMIUM_DOMAINS = ['moyzel.foo', 'moymoy.me', 'openfile.id'];
 // ── Word lists for human-readable prefix generation ──
 // Two large word pools: adjectives and nouns. Combined with a random
 // suffix to guarantee uniqueness across billions of combinations.
@@ -194,6 +196,7 @@ export const ICONS = {
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
   clipboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
   key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
+  crown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>',
 };
 
 // ── Human-readable prefix generator ──
@@ -235,4 +238,62 @@ export function genHumanPrefix() {
  */
 export function resetPrefixDedup() {
   usedPrefixes.clear();
+}
+
+// ── IMAP/SMTP Server Configuration ──
+
+export const IMAP_HOST = 'mail.{domain}';
+export const IMAP_PORT = 993;
+export const IMAP_ENCRYPTION = 'SSL/TLS';
+export const SMTP_HOST = 'mail.{domain}';
+export const SMTP_PORT = 465;
+export const SMTP_ENCRYPTION = 'SSL/TLS';
+export const SMTP_PORT_ALT = 587;
+export const SMTP_ENCRYPTION_ALT = 'STARTTLS';
+
+// ── Password generator for VIP inboxes ──
+
+const PW_CHARS_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
+const PW_CHARS_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const PW_CHARS_DIGIT = '0123456789';
+const PW_CHARS_SPECIAL = '!@#$%&*';
+const PW_CHARS_ALL = PW_CHARS_ALPHA + PW_CHARS_UPPER + PW_CHARS_DIGIT + PW_CHARS_SPECIAL;
+
+/**
+ * Generate a strong random password for IMAP/SMTP login.
+ * Format: 16 chars with guaranteed mix of upper, lower, digit, special.
+ */
+export function generateInboxPassword(length = 16) {
+  const pw = new Array(length);
+  pw[0] = PW_CHARS_ALPHA[Math.floor(Math.random() * PW_CHARS_ALPHA.length)];
+  pw[1] = PW_CHARS_UPPER[Math.floor(Math.random() * PW_CHARS_UPPER.length)];
+  pw[2] = PW_CHARS_DIGIT[Math.floor(Math.random() * PW_CHARS_DIGIT.length)];
+  pw[3] = PW_CHARS_SPECIAL[Math.floor(Math.random() * PW_CHARS_SPECIAL.length)];
+  for (let i = 4; i < length; i++) {
+    pw[i] = PW_CHARS_ALL[Math.floor(Math.random() * PW_CHARS_ALL.length)];
+  }
+  for (let i = pw.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pw[i], pw[j]] = [pw[j], pw[i]];
+  }
+  return pw.join('');
+}
+
+/**
+ * Get IMAP/SMTP connection info for a domain.
+ * @param {string} domain - The email domain.
+ * @returns {{ imap: object, smtp: object }}
+ */
+export function getMailServerInfo(domain) {
+  const host = IMAP_HOST.replace('{domain}', domain);
+  return {
+    imap: { host, port: IMAP_PORT, encryption: IMAP_ENCRYPTION },
+    smtp: {
+      host: SMTP_HOST.replace('{domain}', domain),
+      port: SMTP_PORT,
+      portAlt: SMTP_PORT_ALT,
+      encryption: SMTP_ENCRYPTION,
+      encryptionAlt: SMTP_ENCRYPTION_ALT,
+    },
+  };
 }

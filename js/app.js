@@ -5,8 +5,11 @@
 import {
   POLL_INTERVAL_MS,
   MAX_BULK_COUNT,
+  MAX_VIP_BULK_COUNT,
   ICONS,
+  PREMIUM_DOMAINS,
   genHumanPrefix,
+  getMailServerInfo,
 } from './config.js';
 
 import {
@@ -20,7 +23,6 @@ import {
   initSelectedDomain,
   initDarkMode,
   initSeenMessages,
-  resetOwnerToken,
   addHistoryEntry,
   clearHistory,
   saveHistory,
@@ -37,10 +39,12 @@ import {
   getEffDomain,
   createInbox,
   bulkCreateInboxes,
+  bulkCreateVipInboxes,
   fetchMessages as apiFetchMessages,
   fetchMessagesForAddresses,
   fetchMessageCounts,
   lookupSharedInbox,
+  createVipInbox,
 } from './api.js';
 
 import {
@@ -63,9 +67,11 @@ import {
   closeAllModals,
   setHistoryFilter,
   renderBulkDomains,
+  renderBulkVipDomains,
   startExpiryTicker,
   formatExpiry,
   escapeHtml,
+  renderVipCredentials,
 } from './ui.js';
 
 import { handleUrlApi } from './agent-api.js';
@@ -86,6 +92,7 @@ async function prefetchHistoryCounts() {
 function selectInbox(inbox) {
   setCurrentInbox(inbox);
   renderInbox();
+  renderVipCredentials();
   renderInboxHistory();
 
   if (inbox) {
@@ -160,13 +167,17 @@ function subscribe() {
 function startPoll() {
   stopPoll();
   if (currentInbox) {
-    pollInterval = setInterval(fetchAndRenderMessages, POLL_INTERVAL_MS);
+    pollInterval = setTimeout(async () => {
+      await fetchAndRenderMessages();
+      startPoll();
+    }, POLL_INTERVAL_MS);
   }
 }
 
 function stopPoll() {
   if (pollInterval) {
     clearInterval(pollInterval);
+    clearTimeout(pollInterval);
     pollInterval = null;
   }
 }
@@ -179,13 +190,45 @@ async function handleGenInbox(prefix) {
     const inbox = await createInbox(prefix, domain);
     addHistoryEntry(inbox);
     debouncedRenderInboxHistory();
-    toast('Inbox created!');
+    const inboxDomain = inbox.address.split('@')[1] || '';
+    if (PREMIUM_DOMAINS.includes(inboxDomain)) {
+      toast(ICONS.crown + ' Premium inbox created!');
+    } else {
+      toast('Inbox created!');
+    }
   } catch (e) {
     console.error('Failed to create inbox:', e);
     toastSafe('Failed to create inbox');
   }
 }
 
+
+async function handleVipInbox() {
+  const $vipBtn = document.getElementById("vipBtn");
+  if ($vipBtn) {
+    $vipBtn.disabled = true;
+    $vipBtn.innerHTML = "<span class=\"spinner\"></span> Creating VIP...";
+  }
+  try {
+    const prefix = genHumanPrefix();
+    const domain = getEffDomain();
+    const inbox = await createVipInbox(prefix, domain);
+    if (inbox) {
+      addHistoryEntry(inbox);
+      selectInbox(inbox);
+      renderVipCredentials();
+      toast("Email+PW created · 疯子 xscope0");
+    }
+  } catch (e) {
+    console.error("Failed to create VIP inbox:", e);
+    toastSafe("VIP inbox creation failed");
+  } finally {
+    if ($vipBtn) {
+      $vipBtn.disabled = false;
+      $vipBtn.innerHTML = "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"icon\"><path d=\"M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4\"/></svg> Email+PW";
+    }
+  }
+}
 async function handleCustomInbox(prefix, domain) {
   const d = domain || getEffDomain();
   const local = (prefix || '').toLowerCase().replace(/[^a-z0-9._-]/g, '');
@@ -245,11 +288,132 @@ async function handleBulkCreate(count, domain) {
   }
 }
 
-function handleReset() {
-  resetOwnerToken();
-  const prefix = genHumanPrefix();
-  handleGenInbox(prefix);
-  toastSafe('\u267B Identity rotated');
+function csvValue(value) {
+  const str = String(value ?? '');
+  return /[",\n]/.test(str) ? '"' + str.replace(/"/g, '""') + '"' : str;
+}
+
+function exportVipCsv(inboxes) {
+  const headers = [
+    'email',
+    'password',
+    'imap_host',
+    'imap_port',
+    'imap_encryption',
+    'smtp_host',
+    'smtp_port',
+    'smtp_encryption',
+    'smtp_port_alt',
+    'smtp_encryption_alt',
+    'username',
+    'expires_at',
+  ];
+  const rows = inboxes.map((inbox) => {
+    const domain = inbox.address.split('@')[1] || '';
+    const server = getMailServerInfo(domain);
+    return [
+      inbox.address,
+      inbox.password_plain,
+      server.imap.host,
+      server.imap.port,
+      server.imap.encryption,
+      server.smtp.host,
+      server.smtp.port,
+      server.smtp.encryption,
+      server.smtp.altPort,
+      server.smtp.altEncryption,
+      inbox.address,
+      inbox.expires_at,
+    ];
+  });
+  const csv = [headers, ...rows]
+    .map((row) => row.map(csvValue).join(','))
+    .join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'vip-inboxes-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function handleBulkVipCreate(count, domain) {
+  const $bulkVipBtn = $('bulkVipBtn');
+  const $bulkVipGo = $('bulkVipModalGo');
+  const $bulkVipProgress = $('bulkVipProgress');
+  const $bulkVipBar = $('bulkVipBar');
+  const origBtn = $bulkVipBtn.innerHTML;
+  const origGo = $bulkVipGo.innerHTML;
+
+  $bulkVipBtn.innerHTML = '<span class="spinner"></span> VIP';
+  $bulkVipGo.innerHTML = '<span class="spinner"></span> Creating...';
+  $bulkVipBtn.disabled = true;
+  $bulkVipGo.disabled = true;
+  $bulkVipProgress.style.display = 'block';
+  $bulkVipBar.style.width = '0%';
+
+  function updateProgress(done, total) {
+    $bulkVipBar.style.width = Math.min(100, (done / total) * 100) + '%';
+  }
+
+  try {
+    const { results, failures } = await bulkCreateVipInboxes(count, {
+      domain,
+      onProgress: updateProgress,
+    });
+    for (const inbox of results) addHistoryEntry(inbox);
+    if (results.length > 0) {
+      selectInbox(results[0]);
+      exportVipCsv(results);
+    }
+    closeModal('bulkVipModal');
+    toastSafe(results.length + '/' + count + ' VIP inboxes created' + (failures.length ? ' (' + failures.length + ' failed)' : ''));
+  } catch (e) {
+    console.error('Bulk VIP creation failed:', e);
+    toastSafe('Bulk VIP creation failed');
+  } finally {
+    $bulkVipBtn.innerHTML = origBtn;
+    $bulkVipGo.innerHTML = origGo;
+    $bulkVipBtn.disabled = false;
+    $bulkVipGo.disabled = false;
+    $bulkVipProgress.style.display = 'none';
+  }
+}
+
+const I18N = {
+  zh: {
+    tagline: '一次性邮箱 · 由 疯子 xscope0 制作',
+    inboxTitle: '当前收件箱',
+    search: '搜索收件箱…',
+  },
+  en: {
+    tagline: 'Disposable inbox · by 疯子 xscope0',
+    inboxTitle: 'Your inbox',
+    search: 'Search inboxes…',
+  },
+  id: {
+    tagline: 'Email sementara · oleh 疯子 xscope0',
+    inboxTitle: 'Inbox kamu',
+    search: 'Cari inbox…',
+  },
+};
+
+function applyLanguage(lang) {
+  const nextLang = I18N[lang] ? lang : 'zh';
+  localStorage.setItem('tm_lang', nextLang);
+  document.documentElement.lang = nextLang === 'zh' ? 'zh' : nextLang;
+  document.querySelectorAll('.lang-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.lang === nextLang);
+  });
+  const tagline = document.querySelector('[data-i18n="tagline"]');
+  if (tagline) tagline.textContent = I18N[nextLang].tagline;
+  const inboxTitle = document.querySelector('[data-i18n="inboxTitle"]');
+  if (inboxTitle) inboxTitle.textContent = I18N[nextLang].inboxTitle;
+  const historySearch = $('historySearch');
+  if (historySearch) historySearch.placeholder = I18N[nextLang].search;
 }
 
 // ── Wire event listeners ──
@@ -282,6 +446,15 @@ function wireEvents() {
     }
   });
 
+
+  // VIP inbox creation
+  $('vipBtn').addEventListener('click', () => handleVipInbox());
+  $('bulkVipBtn').addEventListener('click', () => {
+    $('bulkVipCountInput').value = '25';
+    renderBulkVipDomains();
+    openModal('bulkVipModal');
+    setTimeout(() => $('bulkVipCountInput').focus(), 100);
+  });
   $('shareBtn').addEventListener('click', () => {
     if (currentInbox) {
       copyText(
@@ -290,7 +463,9 @@ function wireEvents() {
     }
   });
 
-  $('resetBtn').addEventListener('click', handleReset);
+  document.querySelectorAll('.lang-btn').forEach((btn) => {
+    btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
+  });
 
   $('refreshBtn').addEventListener('click', fetchAndRenderMessages);
 
@@ -356,6 +531,28 @@ function wireEvents() {
     if (e.key === 'Enter') $('bulkModalGo').click();
   });
 
+  $('bulkVipModalClose').addEventListener('click', () =>
+    closeModal('bulkVipModal')
+  );
+  $('bulkVipModalCancel').addEventListener('click', () =>
+    closeModal('bulkVipModal')
+  );
+  $('bulkVipModal').addEventListener('click', (e) => {
+    if (e.target === $('bulkVipModal')) closeModal('bulkVipModal');
+  });
+  $('bulkVipModalGo').addEventListener('click', () => {
+    const c = parseInt($('bulkVipCountInput').value, 10);
+    const bulkVipDomainEl = document.getElementById('bulkVipDomainSelector');
+    const selectedBulkVipDomain = bulkVipDomainEl?.dataset?.domain;
+    const bulkVipDomain = selectedBulkVipDomain && selectedBulkVipDomain !== '__random__' ? selectedBulkVipDomain : null;
+    if (c > 0) {
+      handleBulkVipCreate(Math.min(c, MAX_VIP_BULK_COUNT), bulkVipDomain);
+    }
+  });
+  $('bulkVipCountInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') $('bulkVipModalGo').click();
+  });
+
   $('msgModalClose').addEventListener('click', () =>
     closeModal('msgModal')
   );
@@ -419,6 +616,7 @@ async function init() {
 
   initThemeToggle();
   initKeyboardShortcuts();
+  applyLanguage(localStorage.getItem('tm_lang') || 'en');
   wireEvents();
 
   showLoadingSkeleton();
@@ -487,18 +685,18 @@ let isVisible = true;
 let adaptivePollInterval = null;
 
 function getAdaptivePollInterval() {
-  // Mobile devices get slower polling to save battery
-  const isMobile = window.innerWidth <= 768 || 'ontouchstart' in window;
-  if (!isVisible) return 10000; // 10s when hidden
-  if (isMobile) return 3000;    // 3s on mobile
-  return 2000;                  // 2s on desktop
+  if (!isVisible) return 10000;
+  return POLL_INTERVAL_MS;
 }
 
 function updatePolling() {
   stopPoll();
   if (currentInbox && isVisible) {
     const interval = getAdaptivePollInterval();
-    pollInterval = setInterval(fetchAndRenderMessages, interval);
+    pollInterval = setTimeout(async () => {
+      await fetchAndRenderMessages();
+      updatePolling();
+    }, interval);
   }
 }
 
@@ -530,6 +728,9 @@ startPoll = function() {
   stopPoll();
   if (currentInbox && isVisible) {
     const interval = getAdaptivePollInterval();
-    pollInterval = setInterval(fetchAndRenderMessages, interval);
+    pollInterval = setTimeout(async () => {
+      await fetchAndRenderMessages();
+      startPoll();
+    }, interval);
   }
 };

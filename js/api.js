@@ -23,6 +23,7 @@ import {
   DOMAIN_CIRCUIT_BREAKER_THRESHOLD,
   DOMAIN_CIRCUIT_BREAKER_COOLDOWN_MS,
   genHumanPrefix,
+  generateInboxPassword,
   resetPrefixDedup,
 } from './config.js';
 
@@ -93,6 +94,9 @@ export async function createInbox(prefix, domain, retries = MAX_GEN_RETRIES) {
   });
 
   if (error || data?.error) {
+    if (isVipDomainError({ message: data?.error || error?.message || '' })) {
+      return createVipInbox(prefix, domain);
+    }
     if (retries <= 0) {
       throw new Error(data?.error || error?.message || 'Failed to create inbox');
     }
@@ -113,6 +117,8 @@ const SB_FUNC_URL = `${SB_URL}/functions/v1/generate-inbox`;
 const tokenQuarantine = new Map();     // token → cooldown expiry timestamp
 const domainFailCount = new Map();     // domain → consecutive failure count
 const domainCooldown = new Map();      // domain → cooldown expiry timestamp
+let bulkThrottleMs = 0;
+let bulkThrottleUntil = 0;
 
 function isTokenQuarantined(token) {
   const until = tokenQuarantine.get(token);
@@ -167,11 +173,36 @@ function reportDomainSuccess(domain) {
   domainFailCount.delete(domain);
 }
 
+async function waitForBulkThrottle() {
+  const waitMs = bulkThrottleUntil - Date.now();
+  if (waitMs > 0) {
+    await new Promise((r) => setTimeout(r, waitMs + poissonDelay(25)));
+  }
+}
+
+function reportBulkRateLimit() {
+  bulkThrottleMs = Math.min(3000, Math.max(250, bulkThrottleMs * 1.5 || 250));
+  bulkThrottleUntil = Date.now() + bulkThrottleMs;
+}
+
+function reportBulkSuccess() {
+  bulkThrottleMs = Math.max(0, bulkThrottleMs * 0.85 - 25);
+  if (bulkThrottleMs === 0) bulkThrottleUntil = 0;
+}
+
 // ── Poisson-distributed delay (models natural arrival patterns) ──
 
 function poissonDelay(lambda) {
   // Exponential inter-arrival time with mean = lambda ms
   return -Math.log(1 - Math.random()) * lambda;
+}
+
+function isRateLimitError(error) {
+  return error?.status === 429 || /rate\s*limit|too many requests/i.test(error?.message || '');
+}
+
+function isVipDomainError(error) {
+  return /khusus\s+vip|vip/i.test(error?.message || '');
 }
 
 // ── Build request body with random padding (breaks body fingerprinting) ──
@@ -301,7 +332,9 @@ export async function fireInboxRequest(prefix, domain, token) {
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.error || data.message || `HTTP ${res.status}`);
+    const error = new Error(data.error || data.message || `HTTP ${res.status}`);
+    error.status = res.status;
+    throw error;
   }
   if (data?.error) {
     throw new Error(data.error);
@@ -349,8 +382,14 @@ export async function tryCreateInbox(prefix, domain, tokenIdx) {
       reportDomainSuccess(domain);
       return result;
     } catch (e) {
+      if (isVipDomainError(e)) {
+        return createVipInbox(p, domain);
+      }
       quarantineToken(tk);
       reportDomainFailure(domain);
+      if (isRateLimitError(e)) {
+        reportBulkRateLimit();
+      }
       if (attempt < MAX_INBOX_RETRIES - 1) {
         console.warn(`Attempt ${attempt + 1}/${MAX_INBOX_RETRIES} failed (${e.message}) — quarantined token, retrying`);
       }
@@ -372,55 +411,76 @@ export async function bulkCreateInboxes(count, onProgress, targetDomain) {
   tokenQuarantine.clear();
   domainFailCount.clear();
   domainCooldown.clear();
-
-  // Pre-generate unique prefixes and domain assignments
-  const prefixes = Array.from({ length: count }, () => genHumanPrefix());
-  let domainsForJobs;
-  if (targetDomain && domains.some(d => d.domain === targetDomain)) {
-    domainsForJobs = Array.from({ length: count }, () => targetDomain);
-  } else {
-    const availableDomains = domains.filter(
-      (d) => !BULK_BLACKLIST.some(b => d.domain.includes(b)) && isDomainAvailable(d.domain)
-    );
-    const domList = availableDomains.length > 0 ? availableDomains : domains;
-    domainsForJobs = Array.from({ length: count }, () =>
-      domList[Math.floor(Math.random() * domList.length)]?.domain
-    );
-  }
-
-  // Shuffle job order to avoid predictable sequences
-  const jobIndices = Array.from({ length: count }, (_, i) => i);
-  for (let i = jobIndices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [jobIndices[i], jobIndices[j]] = [jobIndices[j], jobIndices[i]];
-  }
+  bulkThrottleMs = 0;
+  bulkThrottleUntil = 0;
 
   const results = [];
+  const failures = [];
   const concurrency = Math.min(count, BULK_CONCURRENCY);
-  let done = 0;
-  let idx = 0;
+  let active = 0;
+  let attempts = 0;
+  const maxAttempts = count + Math.max(BULK_CONCURRENCY, Math.ceil(count * 0.25));
 
-  async function worker(workerId) {
+  function pickDomain() {
+    if (targetDomain && domains.some((d) => d.domain === targetDomain) && isDomainAvailable(targetDomain)) {
+      return targetDomain;
+    }
+
+    const availableDomains = domains.filter(
+      (d) => !BULK_BLACKLIST.some((b) => d.domain.includes(b)) && isDomainAvailable(d.domain)
+    );
+    const pool = availableDomains.length > 0 ? availableDomains : domains.filter(
+      (d) => !BULK_BLACKLIST.some((b) => d.domain.includes(b))
+    );
+
+    if (pool.length === 0) {
+      return targetDomain || domains[0]?.domain || '';
+    }
+
+    return pool[Math.floor(Math.random() * pool.length)]?.domain || '';
+  }
+
+  function nextJob() {
+    if (results.length + active >= count || attempts >= maxAttempts) return null;
+    active++;
+    attempts++;
+    return {
+      prefix: genHumanPrefix(),
+      domain: pickDomain(),
+      tokenIndex: attempts % tokenPool.length,
+    };
+  }
+
+  async function worker() {
     // Staggered startup — each worker starts at a Poisson-distributed offset
     await new Promise((r) => setTimeout(r, poissonDelay(25)));
 
     while (true) {
-      const i = idx++;
-      if (i >= count) break;
-      const realIdx = jobIndices[i];
+      if (results.length >= count || attempts >= maxAttempts) break;
 
-      const r = await tryCreateInbox(
-        prefixes[realIdx],
-        domainsForJobs[realIdx],
-        realIdx % tokenPool.length
-      );
-      if (r) results.push(r);
-      done++;
-      onProgress(done, count);
+      const job = nextJob();
+      if (!job) break;
+
+      await waitForBulkThrottle();
+      const r = await tryCreateInbox(job.prefix, job.domain, job.tokenIndex);
+      if (r) {
+        results.push(r);
+        reportBulkSuccess();
+      } else {
+        failures.push({
+          prefix: job.prefix,
+          domain: job.domain,
+          error: 'exhausted retries',
+        });
+      }
+      active--;
+      onProgress(Math.min(results.length, count), count);
 
       // Poisson-distributed inter-request delay (mean ~40ms)
       // This creates natural-looking traffic instead of uniform bursts
       await new Promise((r) => setTimeout(r, poissonDelay(12)));
+
+      if (results.length >= count) break;
     }
   }
 
@@ -428,7 +488,10 @@ export async function bulkCreateInboxes(count, onProgress, targetDomain) {
     Array.from({ length: concurrency }, (_, i) => worker(i))
   );
   saveTokenPool();
-  return results;
+  if (results.length < count) {
+    console.warn(`Bulk inbox creation completed ${results.length}/${count}; ${failures.length} refill attempts exhausted`);
+  }
+  return results.slice(0, count);
 }
 
 // ── Message fetching ──
@@ -600,4 +663,88 @@ export async function deleteInbox(address, ownerTokenArg) {
   }
 
   return { ok: true };
+}
+
+// ── VIP Inbox Creation (with auto-generated IMAP/SMTP password) ──
+
+/**
+ * Create a VIP inbox with an auto-generated password for IMAP/SMTP login.
+ * Creates the inbox via edge function, then updates it with password_plain + is_vip.
+ *
+ * @param {string} prefix - Desired local part of the email.
+ * @param {string} domain - Domain to use.
+ * @returns {Promise<{address: string, expires_at: string, password_plain: string, is_vip: true}|null>}
+ */
+export async function createVipInbox(prefix, domain) {
+  const password = generateInboxPassword();
+  const targetDomain = domain || getEffDomain();
+
+  for (let attempt = 0; attempt < MAX_GEN_RETRIES; attempt++) {
+    const local = (attempt === 0 && prefix ? prefix : genHumanPrefix())
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]/g, '');
+    const address = `${local}@${targetDomain}`;
+
+    const { data, error } = await sb
+      .from('temp_inboxes')
+      .insert({
+        address,
+        domain: targetDomain,
+        owner_token: ownerToken,
+        password_plain: password,
+        is_vip: true,
+      })
+      .select('address, expires_at, password_plain, is_vip')
+      .single();
+
+    if (!error) return data;
+    if (!/duplicate|already exists|unique/i.test(error.message || '')) {
+      throw new Error(error.message || 'Failed to create VIP inbox');
+    }
+  }
+
+  throw new Error('Failed to create VIP inbox: duplicate prefixes exhausted');
+}
+
+export async function bulkCreateVipInboxes(count, opts = {}) {
+  const {
+    domain,
+    concurrency = 10,
+    onProgress,
+  } = opts;
+
+  const results = [];
+  const failures = [];
+  let nextIndex = 0;
+
+  function pickDomain() {
+    if (domain && domains.some((d) => d.domain === domain)) return domain;
+    if (selectedDomain && selectedDomain !== '__random__') return selectedDomain;
+    return domains[Math.floor(Math.random() * domains.length)]?.domain || '';
+  }
+
+  async function worker() {
+    while (true) {
+      const index = nextIndex++;
+      if (index >= count) break;
+
+      try {
+        const inbox = await createVipInbox(genHumanPrefix(), pickDomain());
+        results.push(inbox);
+      } catch (e) {
+        failures.push({ index, error: e.message });
+      }
+
+      onProgress?.(results.length + failures.length, count, {
+        success: results.length,
+        fail: failures.length,
+      });
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(count, concurrency) }, () => worker())
+  );
+
+  return { results, failures };
 }

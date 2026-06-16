@@ -5,7 +5,7 @@
  * all render functions. The app.js module wires events to API calls.
  */
 
-import { ICONS } from './config.js';
+import { ICONS, getMailServerInfo, PREMIUM_DOMAINS } from './config.js';
 import {
   currentInbox,
   messages,
@@ -222,7 +222,15 @@ export function renderDomains() {
 
 
 export function renderBulkDomains() {
-  const $sel = document.getElementById("bulkDomainSelector");
+  renderDomainSelector('bulkDomainSelector');
+}
+
+export function renderBulkVipDomains() {
+  renderDomainSelector('bulkVipDomainSelector');
+}
+
+function renderDomainSelector(id) {
+  const $sel = document.getElementById(id);
   if (!$sel) return;
   $sel.innerHTML = "";
   const all = [
@@ -232,9 +240,11 @@ export function renderBulkDomains() {
   if (!$sel.dataset.domain) $sel.dataset.domain = "__random__";
   all.forEach((d) => {
     const el = document.createElement("span");
-    el.className = "domain-chip" + (d.domain === $sel.dataset.domain ? " active" : "");
+    const isPremium = PREMIUM_DOMAINS.includes(d.domain);
+    el.className = "domain-chip" + (d.domain === $sel.dataset.domain ? " active" : "") + (isPremium ? " domain-premium" : "");
     el.dataset.domain = d.domain;
     if (d.domain === "__random__") { el.innerHTML = ICONS.dice + " Random"; }
+    else if (isPremium) { el.innerHTML = '<span class="crown-icon">' + ICONS.crown + '</span> ' + escapeHtml(d.label); }
     else { el.textContent = d.label; }
     el.addEventListener("click", () => {
       $sel.querySelectorAll(".domain-chip").forEach((c) => c.classList.remove("active"));
@@ -288,7 +298,8 @@ export function renderMessages() {
           .substring(0, 80)
       );
       const otpBadge = otp ? `<span class="badge" data-otp="${escapeHtml(otp)}">${escapeHtml(otp)}</span>` : '';
-      const linkBadge = link ? `<span class="badge badge-link" data-link="${escapeHtml(link)}" title="Verification link detected">🔗 Verify</span>` : '';
+      const linkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="badge-icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+      const linkBadge = link ? `<span class="badge badge-link" data-link="${escapeHtml(link)}" title="Verification link detected">${linkIcon}Verify</span>` : '';
       return `<div class="msg-item" data-idx="${i}"><div class="from">${escapeHtml(m.from_address || m.sender_address) || 'Unknown'}</div><div class="subj">${otpBadge}${linkBadge}${escapeHtml(m.subject) || '(no subject)'}</div><div class="preview">${preview || '—'}</div><div class="time">${fmtTime(m.received_at)}</div></div>`;
     })
     .join('');
@@ -327,6 +338,7 @@ export function renderInboxHistory() {
     .map((h) => {
       const realIdx = inboxHistory.findIndex((x) => x.address === h.address);
       const active = currentInbox?.address === h.address;
+      const displayNumber = realIdx + 1;
       const local = h.address.split('@')[0];
       const label =
         local.length > 12
@@ -337,8 +349,12 @@ export function renderInboxHistory() {
       const badge = count > 0
         ? `<span class="hist-count">${count}</span>`
         : '';
+      const domain = h.address.split('@')[1] || '';
+      const premiumBadge = PREMIUM_DOMAINS.includes(domain)
+        ? '<span class="premium-tag">' + ICONS.crown + '</span>'
+        : '';
 
-      return `<span class="hist-chip${active ? ' active' : ''}" data-idx="${realIdx}" title="${escapeHtml(h.address)}">${escapeHtml(label)}${badge}</span>`;
+      return `<span class="hist-chip${active ? ' active' : ''}" data-idx="${realIdx}" title="${escapeHtml(h.address)}"><span class="hist-number">${displayNumber}</span>${escapeHtml(label)}${premiumBadge}${badge}</span>`;
     })
     .join('');
 }
@@ -379,7 +395,9 @@ export function closeAllModals() {
 
 export function initThemeToggle() {
   const $themeToggle = $('themeToggle');
+  if (!$themeToggle) return;
   $themeToggle.innerHTML = isDarkMode() ? ICONS.sun : ICONS.moon;
+  $themeToggle.disabled = false;
 
   $themeToggle.addEventListener('click', () => {
     const dark = toggleDarkMode();
@@ -503,3 +521,59 @@ export function debounce(fn, delay) {
 // Debounced versions of expensive operations
 export const debouncedRenderInboxHistory = debounce(renderInboxHistory, 150);
 export const debouncedRenderMessages = debounce(renderMessages, 100);
+
+// ── VIP Credentials Panel ──
+
+
+/**
+ * Render the VIP credentials panel for the current inbox.
+ * Shows IMAP/SMTP connection info if the inbox has a password.
+ */
+export function renderVipCredentials() {
+  const $panel = $('vipPanel');
+  if (!$panel) return;
+
+  if (!currentInbox || !currentInbox.password_plain) {
+    $panel.style.display = 'none';
+    return;
+  }
+
+  $panel.style.display = 'block';
+
+  const addr = currentInbox.address;
+  const pw = currentInbox.password_plain;
+  const domain = addr.split('@')[1] || '';
+  const server = getMailServerInfo(domain);
+
+  $('vipEmail').textContent = addr;
+  $('vipPassword').textContent = pw;
+  $('vipImapHost').textContent = server.imap.host;
+  $('vipImapPort').textContent = String(server.imap.port);
+  $('vipSmtpHost').textContent = server.smtp.host;
+  $('vipSmtpPort').textContent = String(server.smtp.port);
+  $('vipSmtpUser').textContent = addr;
+
+  // Wire copy buttons inside VIP panel
+  $panel.querySelectorAll('.vip-copy').forEach(btn => {
+    btn.onclick = () => {
+      const targetId = btn.dataset.copy;
+      const el = $(targetId);
+      if (el) copyText(el.textContent);
+    };
+  });
+
+  // Wire copy-all button
+  const $copyAll = $('vipCopyAll');
+  if ($copyAll) {
+    $copyAll.onclick = () => {
+      const text = [
+        `Email: ${addr}`,
+        `Password: ${pw}`,
+        `IMAP: ${server.imap.host}:${server.imap.port} (${server.imap.encryption})`,
+        `SMTP: ${server.smtp.host}:${server.smtp.port} (${server.smtp.encryption})`,
+        `Username: ${addr}`,
+      ].join('\n');
+      copyText(text);
+    };
+  }
+}
