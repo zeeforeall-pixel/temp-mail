@@ -155,3 +155,91 @@ header p {
     flex: 1;
   }
 }
+
+/* ── Mobile optimizations ── */
+
+@media (max-width: 768px) {
+  /* Reduce animations for battery savings */
+  .card,
+  .btn,
+  .inbox-row .addr {
+    transition: none !important;
+  }
+
+  .card:hover {
+    transform: none !important;
+    box-shadow: 6px 6px 0 hsl(var(--border)) !important;
+  }
+
+  .btn:hover {
+    transform: none !important;
+  }
+
+  /* Larger touch targets */
+  .btn {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+
+  .btn-icon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .btn-ghost {
+    min-height: 44px;
+  }
+
+  /* Better spacing for mobile */
+  .actions {
+    gap: 0.5rem;
+  }
+
+  .inbox-row {
+    gap: 0.5rem;
+  }
+
+  .inbox-row .addr {
+    font-size: 0.95rem;
+    padding: 0.75rem;
+  }
+
+  /* Stack buttons on very small screens */
+  @media (max-width: 400px) {
+    .actions {
+      flex-direction: column;
+    }
+
+    .actions .btn {
+      width: 100%;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+    }
+  }
+
+  /* Message list improvements */
+  .msg-item {
+    padding: 1rem;
+  }
+
+  .msg-item .from {
+    font-size: 0.9rem;
+  }
+
+  .msg-item .subj {
+    font-size: 0.85rem;
+  }
+
+  .msg-item .preview {
+    font-size: 0.8rem;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    max-width: 680px;
+  }
+}

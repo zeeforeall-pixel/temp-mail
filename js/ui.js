@@ -489,3 +489,17 @@ export function showMessageModal(message) {
 
   openModal('msgModal');
 }
+
+// ── Debounce utility ──
+
+export function debounce(fn, delay) {
+  let timeoutId;
+  return function(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// Debounced versions of expensive operations
+export const debouncedRenderInboxHistory = debounce(renderInboxHistory, 150);
+export const debouncedRenderMessages = debounce(renderMessages, 100);

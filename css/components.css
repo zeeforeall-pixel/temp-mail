@@ -594,3 +594,100 @@ header h1 .icon { width: 1.2em; height: 1.2em; margin-right: 0.15em; vertical-al
   background: hsla(0, 70%, 65%, 0.15);
   color: hsl(0, 70%, 75%);
 }
+
+/* ── Mobile-specific component improvements ── */
+
+@media (max-width: 768px) {
+  /* Toast improvements */
+  #toast {
+    max-width: 90%;
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Modal improvements */
+  .modal {
+    padding: 1rem;
+  }
+
+  .modal-content {
+    max-width: 95%;
+    padding: 1.25rem;
+  }
+
+  /* Search input */
+  .history-search {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+  }
+
+  /* Message items */
+  .msg-item {
+    padding: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .msg-item .from {
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .msg-item .subj {
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .msg-item .preview {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .msg-item .time {
+    font-size: 0.7rem;
+  }
+
+  /* Badge improvements */
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  /* History chips */
+  .hist-chip {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Progress bar */
+  #bulkProgress {
+    height: 8px;
+  }
+
+  /* Card titles */
+  .card-title {
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Expiry badge */
+  .expiry-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+  .modal-content {
+    padding: 1rem;
+  }
+
+  .msg-item {
+    padding: 0.75rem;
+  }
+
+  .hist-chip {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+  }
+}

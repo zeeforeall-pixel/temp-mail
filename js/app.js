@@ -52,6 +52,7 @@ import {
   renderDomains,
   renderMessages,
   renderInboxHistory,
+  debouncedRenderInboxHistory,
   showLoadingSkeleton,
   hideLoadingSkeleton,
   showMessageModal,
@@ -177,7 +178,7 @@ async function handleGenInbox(prefix) {
     const domain = getEffDomain();
     const inbox = await createInbox(prefix, domain);
     addHistoryEntry(inbox);
-    selectInbox(inbox);
+    debouncedRenderInboxHistory();
     toast('Inbox created!');
   } catch (e) {
     console.error('Failed to create inbox:', e);
@@ -195,7 +196,7 @@ async function handleCustomInbox(prefix, domain) {
   try {
     const inbox = await createInbox(local || undefined, d);
     addHistoryEntry(inbox);
-    selectInbox(inbox);
+    debouncedRenderInboxHistory();
     closeModal('newInboxModal');
     toast('Inbox created!');
   } catch (e) {
@@ -479,3 +480,56 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ── Adaptive polling (pause when tab hidden) ──
+
+let isVisible = true;
+let adaptivePollInterval = null;
+
+function getAdaptivePollInterval() {
+  // Mobile devices get slower polling to save battery
+  const isMobile = window.innerWidth <= 768 || 'ontouchstart' in window;
+  if (!isVisible) return 10000; // 10s when hidden
+  if (isMobile) return 3000;    // 3s on mobile
+  return 2000;                  // 2s on desktop
+}
+
+function updatePolling() {
+  stopPoll();
+  if (currentInbox && isVisible) {
+    const interval = getAdaptivePollInterval();
+    pollInterval = setInterval(fetchAndRenderMessages, interval);
+  }
+}
+
+// Visibility change handler
+document.addEventListener('visibilitychange', () => {
+  isVisible = !document.hidden;
+  if (currentInbox) {
+    if (isVisible) {
+      fetchAndRenderMessages(); // Immediate fetch when returning
+      updatePolling();
+    } else {
+      stopPoll();
+    }
+  }
+});
+
+// Resize handler for mobile detection
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    if (currentInbox) updatePolling();
+  }, 250);
+});
+
+// Override startPoll to use adaptive polling
+const originalStartPoll = startPoll;
+startPoll = function() {
+  stopPoll();
+  if (currentInbox && isVisible) {
+    const interval = getAdaptivePollInterval();
+    pollInterval = setInterval(fetchAndRenderMessages, interval);
+  }
+};
