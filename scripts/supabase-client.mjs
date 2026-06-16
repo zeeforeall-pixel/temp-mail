@@ -2,9 +2,11 @@
  * supabase-client.mjs — Node.js client for Supabase with bulk ops & realtime.
  *
  * Features:
- *   - Bulk inbox creation (100+ at once, no rate limit)
+ *   - Bulk inbox creation (3000+ at once, no rate limit)
  *   - Real-time message subscriptions (instant notifications)
  *   - Token rotation for stealth (multiple owner_tokens)
+ *   - Token quarantine & domain circuit breaker
+ *   - Poisson-distributed delays for stealth
  *
  * Usage:
  *   import { createInbox, bulkCreate, subscribeToInbox } from "./supabase-client.mjs";
@@ -62,6 +64,73 @@ function rotateToken(index = 0) {
   tokenPool[index % tokenPool.length] = generateToken();
 }
 
+// ── Token quarantine & domain circuit breaker ──
+
+const TOKEN_QUARANTINE_MS = 60000; // 1 minute
+const DOMAIN_CIRCUIT_BREAKER_THRESHOLD = 5;
+const DOMAIN_CIRCUIT_BREAKER_COOLDOWN_MS = 300000; // 5 minutes
+
+const tokenQuarantine = new Map();
+const domainFailCount = new Map();
+const domainCooldown = new Map();
+
+function isTokenQuarantined(token) {
+  const until = tokenQuarantine.get(token);
+  if (!until) return false;
+  if (Date.now() >= until) {
+    tokenQuarantine.delete(token);
+    return false;
+  }
+  return true;
+}
+
+function quarantineToken(token) {
+  tokenQuarantine.set(token, Date.now() + TOKEN_QUARANTINE_MS);
+}
+
+function getAvailableToken(idx) {
+  const primary = tokenPool[idx % tokenPool.length];
+  if (!isTokenQuarantined(primary)) return primary;
+
+  const shuffled = [...tokenPool].sort(() => Math.random() - 0.5);
+  for (const tk of shuffled) {
+    if (!isTokenQuarantined(tk)) return tk;
+  }
+
+  rotateToken(idx % tokenPool.length);
+  return tokenPool[idx % tokenPool.length];
+}
+
+function isDomainAvailable(domain) {
+  const until = domainCooldown.get(domain);
+  if (!until) return true;
+  if (Date.now() >= until) {
+    domainCooldown.delete(domain);
+    domainFailCount.delete(domain);
+    return true;
+  }
+  return false;
+}
+
+function reportDomainFailure(domain) {
+  const count = (domainFailCount.get(domain) || 0) + 1;
+  domainFailCount.set(domain, count);
+  if (count >= DOMAIN_CIRCUIT_BREAKER_THRESHOLD) {
+    domainCooldown.set(domain, Date.now() + DOMAIN_CIRCUIT_BREAKER_COOLDOWN_MS);
+    console.warn("Circuit breaker tripped for " + domain + " — cooldown " + (DOMAIN_CIRCUIT_BREAKER_COOLDOWN_MS / 1000) + "s");
+  }
+}
+
+function reportDomainSuccess(domain) {
+  domainFailCount.delete(domain);
+}
+
+// ── Poisson-distributed delay ──
+
+function poissonDelay(lambda) {
+  return -Math.log(1 - Math.random()) * lambda;
+}
+
 // ── Domain management ──
 
 let cachedDomains = null;
@@ -85,10 +154,12 @@ export async function fetchDomains() {
 }
 
 function getRandomDomain(domains) {
-  if (!domains || domains.length === 0) {
+  const available = domains.filter(d => isDomainAvailable(d.domain));
+  const pool = available.length > 0 ? available : domains;
+  if (pool.length === 0) {
     throw new Error("No domains available");
   }
-  return domains[Math.floor(Math.random() * domains.length)].domain;
+  return pool[Math.floor(Math.random() * pool.length)].domain;
 }
 
 // ── Human-readable prefix generator ──
@@ -104,22 +175,44 @@ const NOUNS = [
   "dove", "pike", "wren", "hare", "lark", "moth", "newt", "puma", "seal",
 ];
 
+const usedPrefixes = new Set();
+
 function genHumanPrefix() {
+  for (let attempt = 0; attempt < 50; attempt++) {
+    const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+    const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+    const suffix = randomBytes(3).toString("hex");
+    const prefix = adj + "." + noun + "." + suffix;
+    if (!usedPrefixes.has(prefix)) {
+      usedPrefixes.add(prefix);
+      return prefix;
+    }
+  }
   const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
   const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
-  const suffix = randomBytes(3).toString("hex");
-  return adj + "." + noun + "." + suffix;
+  return adj + "." + noun + "." + Date.now().toString(36);
 }
 
-// ── Inbox creation ──
+function resetPrefixDedup() {
+  usedPrefixes.clear();
+}
+
+// ── Inbox creation with retry logic ──
+
+const MAX_RETRIES = 5;
 
 export async function createInbox(opts = {}) {
-  const { prefix, domain, tokenIndex = 0 } = opts;
+  const { prefix, domain, tokenIndex = 0, retries = MAX_RETRIES } = opts;
 
   const domains = await fetchDomains();
-  const effectiveDomain = domain || getRandomDomain(domains);
+  let effectiveDomain = domain || getRandomDomain(domains);
   const effectivePrefix = prefix || genHumanPrefix();
-  const token = getToken(tokenIndex);
+  
+  if (!isDomainAvailable(effectiveDomain)) {
+    effectiveDomain = getRandomDomain(domains);
+  }
+  
+  const token = getAvailableToken(tokenIndex);
 
   const { data, error } = await sb.functions.invoke("generate-inbox", {
     body: {
@@ -129,15 +222,27 @@ export async function createInbox(opts = {}) {
     },
   });
 
-  if (error) {
-    rotateToken(tokenIndex);
-    throw new Error(error.message || "Failed to create inbox");
+  if (error || (data && data.error)) {
+    if (retries <= 0) {
+      throw new Error((data && data.error) || error.message || "Failed to create inbox");
+    }
+    
+    quarantineToken(token);
+    reportDomainFailure(effectiveDomain);
+    
+    const backoff = Math.min(800, 20 * Math.pow(1.5, MAX_RETRIES - retries));
+    const delay = poissonDelay(backoff) + Math.random() * 10;
+    await new Promise((r) => setTimeout(r, delay));
+    
+    return createInbox({
+      prefix: genHumanPrefix(),
+      domain: getRandomDomain(domains),
+      tokenIndex,
+      retries: retries - 1,
+    });
   }
 
-  if (data && data.error) {
-    rotateToken(tokenIndex);
-    throw new Error(data.error);
-  }
+  reportDomainSuccess(effectiveDomain);
 
   return {
     address: data.address,
@@ -146,49 +251,101 @@ export async function createInbox(opts = {}) {
   };
 }
 
-// ── Bulk creation (no rate limit with anon key) ──
+// ── Bulk creation (3000+ inboxes, no rate limit) ──
 
 export async function bulkCreate(count, opts = {}) {
-  const { concurrency = 10, onProgress } = opts;
+  const { 
+    concurrency = 50, 
+    onProgress,
+    waveSize = 100,
+    waveDelay = 500,
+  } = opts;
+  
+  resetPrefixDedup();
+  tokenQuarantine.clear();
+  domainFailCount.clear();
+  domainCooldown.clear();
+  
   const domains = await fetchDomains();
-
-  const jobs = Array.from({ length: count }, (_, i) => ({
-    prefix: genHumanPrefix(),
-    domain: getRandomDomain(domains),
-    tokenIndex: i % TOKEN_POOL_SIZE,
-  }));
-
+  
   const results = [];
+  const failures = [];
   let done = 0;
-
-  async function worker() {
-    while (jobs.length > 0) {
-      const job = jobs.shift();
-      if (!job) break;
-
+  let successCount = 0;
+  let failCount = 0;
+  
+  async function worker(jobs) {
+    for (const job of jobs) {
       try {
         const inbox = await createInbox({
           prefix: job.prefix,
           domain: job.domain,
           tokenIndex: job.tokenIndex,
+          retries: MAX_RETRIES,
         });
         results.push(inbox);
+        successCount++;
       } catch (e) {
-        console.error("Failed to create " + job.prefix + ":", e.message);
+        failures.push({
+          prefix: job.prefix,
+          domain: job.domain,
+          error: e.message,
+        });
+        failCount++;
       }
-
+      
       done++;
-      if (onProgress) onProgress(done, count);
-
-      // Small delay to avoid overwhelming the server
-      await new Promise((r) => setTimeout(r, 10 + Math.random() * 20));
+      if (onProgress) {
+        onProgress(done, count, { success: successCount, fail: failCount });
+      }
+      
+      await new Promise((r) => setTimeout(r, poissonDelay(12)));
     }
   }
-
-  const workers = Array.from({ length: concurrency }, () => worker());
-  await Promise.all(workers);
-
-  return results;
+  
+  // Process in waves to manage memory and allow circuit breakers to work
+  for (let waveStart = 0; waveStart < count; waveStart += waveSize) {
+    const waveEnd = Math.min(waveStart + waveSize, count);
+    const waveCount = waveEnd - waveStart;
+    
+    const jobs = Array.from({ length: waveCount }, (_, i) => ({
+      prefix: genHumanPrefix(),
+      domain: getRandomDomain(domains),
+      tokenIndex: (waveStart + i) % TOKEN_POOL_SIZE,
+    }));
+    
+    // Shuffle jobs
+    for (let i = jobs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [jobs[i], jobs[j]] = [jobs[j], jobs[i]];
+    }
+    
+    // Split jobs among workers
+    const workerJobs = Array.from({ length: concurrency }, () => []);
+    jobs.forEach((job, i) => {
+      workerJobs[i % concurrency].push(job);
+    });
+    
+    // Launch workers
+    const workers = workerJobs.map(jobs => worker(jobs));
+    await Promise.all(workers);
+    
+    // Delay between waves
+    if (waveEnd < count) {
+      await new Promise((r) => setTimeout(r, waveDelay));
+    }
+  }
+  
+  return {
+    results,
+    failures,
+    stats: {
+      total: count,
+      success: successCount,
+      fail: failCount,
+      successRate: ((successCount / count) * 100).toFixed(2) + "%",
+    },
+  };
 }
 
 // ── Real-time subscriptions ──
@@ -238,8 +395,6 @@ export async function fetchMessages(address, limit = 100) {
 
   return data || [];
 }
-
-
 
 // ── Wait for OTP (polling + realtime) ──
 
