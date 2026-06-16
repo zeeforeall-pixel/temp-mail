@@ -5,7 +5,7 @@
  * all render functions. The app.js module wires events to API calls.
  */
 
-import { ICONS, getMailServerInfo, PREMIUM_DOMAINS } from './config.js';
+import { ICONS, getMailServerInfo, CROWN_DOMAINS } from './config.js';
 import {
   currentInbox,
   messages,
@@ -240,7 +240,7 @@ function renderDomainSelector(id) {
   if (!$sel.dataset.domain) $sel.dataset.domain = "__random__";
   all.forEach((d) => {
     const el = document.createElement("span");
-    const isPremium = PREMIUM_DOMAINS.includes(d.domain);
+    const isPremium = CROWN_DOMAINS.includes(d.domain);
     el.className = "domain-chip" + (d.domain === $sel.dataset.domain ? " active" : "") + (isPremium ? " domain-premium" : "");
     el.dataset.domain = d.domain;
     if (d.domain === "__random__") { el.innerHTML = ICONS.dice + " Random"; }
@@ -350,7 +350,7 @@ export function renderInboxHistory() {
         ? `<span class="hist-count">${count}</span>`
         : '';
       const domain = h.address.split('@')[1] || '';
-      const premiumBadge = PREMIUM_DOMAINS.includes(domain)
+      const premiumBadge = CROWN_DOMAINS.includes(domain)
         ? '<span class="premium-tag">' + ICONS.crown + '</span>'
         : '';
 
