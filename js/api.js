@@ -16,6 +16,7 @@ import {
   MESSAGE_FETCH_LIMIT,
   BULK_CONCURRENCY,
   BULK_BLACKLIST,
+  PREMIUM_DOMAINS,
   FINGERPRINT_PROFILES,
   ACCEPT_TYPES,
   FAKE_REFERERS,
@@ -89,6 +90,10 @@ export async function fetchDomains() {
  * @returns {Promise<{address: string, expires_at: string}|null>}
  */
 export async function createInbox(prefix, domain, retries = MAX_GEN_RETRIES) {
+  if (PREMIUM_DOMAINS.includes(domain)) {
+    return createVipInbox(prefix, domain);
+  }
+
   const { data, error } = await sb.functions.invoke('generate-inbox', {
     body: { owner_token: ownerToken, desired_local: prefix, domain },
   });
@@ -202,7 +207,7 @@ function isRateLimitError(error) {
 }
 
 function isVipDomainError(error) {
-  return /khusus\s+vip|vip/i.test(error?.message || '');
+  return /khusus\s+vip|vip|row.level.security|rls|policy|is_vip/i.test(error?.message || '');
 }
 
 // ── Build request body with random padding (breaks body fingerprinting) ──
@@ -309,6 +314,10 @@ function generateFakeIP() {
  * padded body, and randomized headers.
  */
 export async function fireInboxRequest(prefix, domain, token) {
+  if (PREMIUM_DOMAINS.includes(domain)) {
+    return createVipInbox(prefix, domain);
+  }
+
   // Pick a random fingerprint profile for this request
   const profile = FINGERPRINT_PROFILES[Math.floor(Math.random() * FINGERPRINT_PROFILES.length)];
 
@@ -351,6 +360,10 @@ export async function fireInboxRequest(prefix, domain, token) {
  * - Each retry uses a fresh token and Poisson-distributed backoff
  */
 export async function tryCreateInbox(prefix, domain, tokenIdx) {
+  if (PREMIUM_DOMAINS.includes(domain)) {
+    return createVipInbox(prefix, domain);
+  }
+
   // Check circuit breaker — skip this domain if it's in cooldown
   if (!isDomainAvailable(domain)) {
     // Try a different domain from the pool
@@ -427,10 +440,10 @@ export async function bulkCreateInboxes(count, onProgress, targetDomain) {
     }
 
     const availableDomains = domains.filter(
-      (d) => !BULK_BLACKLIST.some((b) => d.domain.includes(b)) && isDomainAvailable(d.domain)
+      (d) => !BULK_BLACKLIST.some((b) => d.domain.includes(b)) && !PREMIUM_DOMAINS.includes(d.domain) && isDomainAvailable(d.domain)
     );
     const pool = availableDomains.length > 0 ? availableDomains : domains.filter(
-      (d) => !BULK_BLACKLIST.some((b) => d.domain.includes(b))
+      (d) => !BULK_BLACKLIST.some((b) => d.domain.includes(b)) && !PREMIUM_DOMAINS.includes(d.domain)
     );
 
     if (pool.length === 0) {

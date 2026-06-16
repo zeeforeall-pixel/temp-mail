@@ -270,14 +270,32 @@ async function handleBulkCreate(count, domain) {
   }
 
   try {
-    const results = await bulkCreateInboxes(count, updateProgress, domain);
-    for (const inbox of results) {
-      addHistoryEntry(inbox);
+    let results;
+    if (domain && PREMIUM_DOMAINS.includes(domain)) {
+      const vipResult = await bulkCreateVipInboxes(count, {
+        domain,
+        concurrency: Math.min(count, MAX_VIP_BULK_COUNT),
+        onProgress: updateProgress,
+      });
+      results = vipResult.results;
+      const failures = vipResult.failures;
+      for (const inbox of results) {
+        addHistoryEntry(inbox);
+      }
+      if (results.length > 0) {
+        selectInbox(results[0]);
+      }
+      toastSafe(results.length + '/' + count + ' VIP inboxes created' + (failures.length ? ' (' + failures.length + ' failed)' : ''));
+    } else {
+      results = await bulkCreateInboxes(count, updateProgress, domain);
+      for (const inbox of results) {
+        addHistoryEntry(inbox);
+      }
+      if (results.length > 0) {
+        selectInbox(results[0]);
+      }
+      toastSafe(results.length + '/' + count + ' inboxes created');
     }
-    if (results.length > 0) {
-      selectInbox(results[0]);
-    }
-    toastSafe(results.length + '/' + count + ' inboxes created');
   } catch (e) {
     console.error('Bulk creation failed:', e);
     toastSafe('Bulk creation failed');
