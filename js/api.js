@@ -693,9 +693,9 @@ export async function createVipInbox(prefix, domain) {
     .replace(/^[._-]+|[._-]{2,}|[._-]+$/g, '');
 
   // Lifetime Pro creation goes through serverless function (server-side, no secrets in client)
-  const res = await fetch('/api/create-vip', {
+  const res = await fetch('/api/create-inbox', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-priority': '1' },
     body: JSON.stringify({ owner_token: ownerToken, desired_local: local, domain: targetDomain }),
   });
 

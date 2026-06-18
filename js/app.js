@@ -255,7 +255,7 @@ async function handleVipInbox() {
       addHistoryEntry(inbox);
       selectInbox(inbox);
       renderVipCredentials();
-      toast("Email+PW created · 疯子 xscope0");
+      toast("Email+PW created · xscope0");
     }
   } catch (e) {
       console.error("Failed to create Lifetime Pro inbox:", e);
@@ -439,7 +439,7 @@ async function handleBulkVipCreate(count, domain) {
 
 const I18N = {
   zh: {
-    tagline: '一次性邮箱 · 由 疯子 xscope0 制作',
+    tagline: '一次性邮箱 · 由 xscope0 制作',
     inboxTitle: '收件箱',
     search: '搜索收件箱…',
     newInbox: '新收件箱',
@@ -491,7 +491,7 @@ const I18N = {
     ghSetup2fa: '在 GitHub 上设置 2FA',
   },
   en: {
-    tagline: 'Disposable inbox · by 疯子 xscope0',
+    tagline: 'Disposable inbox · by xscope0',
     inboxTitle: 'Inboxes',
     search: 'Search inboxes…',
     newInbox: 'New inbox',
@@ -542,7 +542,7 @@ const I18N = {
     ghSetup2fa: 'Setup 2FA on GitHub',
   },
   id: {
-    tagline: 'Email sementara · oleh 疯子 xscope0',
+    tagline: 'Email sementara · oleh xscope0',
     inboxTitle: 'Inboxes',
     search: 'Cari inbox…',
     newInbox: 'Inbox baru',
@@ -994,8 +994,7 @@ function wireEvents() {
 
 // ── Advanced Settings ──
 let _pollMs = parseInt(localStorage.getItem('tm_poll_ms') || '5000', 10);
-// Safety: reset extreme values on page load — user can still pick low ms in-session
-if (!isFinite(_pollMs) || _pollMs < 500) { _pollMs = 5000; localStorage.setItem('tm_poll_ms', '5000'); }
+if (!isFinite(_pollMs) || _pollMs < 1) { _pollMs = 5000; localStorage.setItem('tm_poll_ms', '5000'); }
 
 function initAdvancedSettings() {
   const $toggle = $('advancedToggle');
