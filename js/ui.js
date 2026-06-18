@@ -5,7 +5,7 @@
  * all render functions. The app.js module wires events to API calls.
  */
 
-import { ICONS, getMailServerInfo, CROWN_DOMAINS, addUppercaseLetter } from './config.js?v=1781752600';
+import { ICONS, getMailServerInfo, CROWN_DOMAINS, addUppercaseLetter } from './config.js?v=1781753400';
 import {
   currentInbox,
   messages,
@@ -17,9 +17,9 @@ import {
   setSelectedDomain,
   isMessageSeen,
   messageCounts,
-} from './state.js?v=1781752600';
-import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1781752600';
-import { sanitizeEmailHtml } from './sanitizer.js?v=1781752600';
+} from './state.js?v=1781753400';
+import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1781753400';
+import { sanitizeEmailHtml } from './sanitizer.js?v=1781753400';
 
 // ── DOM helper ──
 

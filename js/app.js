@@ -9,7 +9,7 @@ import {
   PREMIUM_DOMAINS,
   genHumanPrefix,
   getMailServerInfo,
-} from './config.js?v=1781752600';
+} from './config.js?v=1781753400';
 
 import {
   domains as stateDomains,
@@ -30,7 +30,7 @@ import {
   setMessages,
   setDomains,
   setMessageCounts,
-} from './state.js?v=1781752600';
+} from './state.js?v=1781753400';
 
 import {
   sb,
@@ -44,7 +44,7 @@ import {
   fetchMessageCounts,
   lookupSharedInbox,
   createVipInbox,
-} from './api.js?v=1781752600';
+} from './api.js?v=1781753400';
 
 import {
   $,
@@ -74,9 +74,9 @@ import {
   formatDisplayAddress,
   isUppercaseDisplayEnabled,
   setUppercaseDisplayEnabled,
-} from './ui.js?v=1781752600';
+} from './ui.js?v=1781753400';
 
-import { handleUrlApi } from './agent-api.js?v=1781752600';
+import { handleUrlApi } from './agent-api.js?v=1781753400';
 
 // ── Inbox selection ──
 
@@ -639,7 +639,6 @@ function wireEvents() {
   $('deleteBtn').addEventListener('click', async () => {
     if (!currentInbox) return;
     const addr = currentInbox.address;
-    if (!confirm('Delete ' + addr + ' and all its messages?')) return;
     try {
       await TempMailAPI.deleteInbox(addr);
       toast('Inbox deleted');
