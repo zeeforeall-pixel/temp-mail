@@ -9,7 +9,7 @@ import {
   PREMIUM_DOMAINS,
   genHumanPrefix,
   getMailServerInfo,
-} from './config.js?v=1781748237';
+} from './config.js?v=1781752600';
 
 import {
   domains as stateDomains,
@@ -30,7 +30,7 @@ import {
   setMessages,
   setDomains,
   setMessageCounts,
-} from './state.js?v=1781748237';
+} from './state.js?v=1781752600';
 
 import {
   sb,
@@ -44,7 +44,7 @@ import {
   fetchMessageCounts,
   lookupSharedInbox,
   createVipInbox,
-} from './api.js?v=1781748237';
+} from './api.js?v=1781752600';
 
 import {
   $,
@@ -71,11 +71,12 @@ import {
   formatExpiry,
   escapeHtml,
   renderVipCredentials,
+  formatDisplayAddress,
   isUppercaseDisplayEnabled,
   setUppercaseDisplayEnabled,
-} from './ui.js?v=1781748237';
+} from './ui.js?v=1781752600';
 
-import { handleUrlApi } from './agent-api.js?v=1781748237';
+import { handleUrlApi } from './agent-api.js?v=1781752600';
 
 // ── Inbox selection ──
 
@@ -632,7 +633,7 @@ function wireEvents() {
     if (e.target === $('apiModal')) closeModal('apiModal');
   });
   $('copyBtn').addEventListener('click', () => {
-    if (currentInbox) copyText(currentInbox.address);
+    if (currentInbox) copyText(formatDisplayAddress(currentInbox.address));
   });
 
   $('deleteBtn').addEventListener('click', async () => {
@@ -779,7 +780,7 @@ function wireEvents() {
     if (inboxHistory[idx]?.address !== currentInbox?.address) {
       selectInbox(inboxHistory[idx]);
     }
-    copyText(currentInbox.address);
+    if (currentInbox) copyText(formatDisplayAddress(currentInbox.address));
   });
 
   $('msgList').addEventListener('click', (e) => {
@@ -891,6 +892,7 @@ function wireEvents() {
         if (inbox) {
           addHistoryEntry(inbox);
           selectInbox(inbox);
+          const displayEmail = formatDisplayAddress(inbox.address);
 
           $ghCredResult.style.display = 'block';
           $ghCredResult.innerHTML = `
@@ -906,10 +908,10 @@ function wireEvents() {
             </div>
             <div class="gh-cred-row">
               <span class="gh-cred-label">Email</span>
-              <span class="gh-cred-value gh-cred-clickable" data-copy="${escapeHtml(inbox.address)}" title="Click to copy">${escapeHtml(inbox.address)}</span>
-              <button class="gh-cred-copy" data-copy="${escapeHtml(inbox.address)}">Copy</button>
+              <span class="gh-cred-value gh-cred-clickable" data-copy="${escapeHtml(displayEmail)}" title="Click to copy">${escapeHtml(displayEmail)}</span>
+              <button class="gh-cred-copy" data-copy="${escapeHtml(displayEmail)}">Copy</button>
             </div>
-          `;
+            `;
 
           // Wire copy buttons + click-to-copy on values
           $ghCredResult.querySelectorAll('[data-copy]').forEach(el => {
@@ -919,7 +921,7 @@ function wireEvents() {
           // ── Update "Open GitHub Signup" link with credential payload ──
           const signupLink = $('ghSignupLink');
           if (signupLink) {
-            const credPayload = btoa(JSON.stringify({ email: inbox.address, password, username }));
+            const credPayload = btoa(JSON.stringify({ email: displayEmail, password, username }));
             signupLink.href = 'https://github.com/join#mocafill=' + encodeURIComponent(credPayload);
           }
 

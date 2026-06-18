@@ -5,7 +5,7 @@
  * all render functions. The app.js module wires events to API calls.
  */
 
-import { ICONS, getMailServerInfo, CROWN_DOMAINS, addUppercaseLetter } from './config.js?v=1781748237';
+import { ICONS, getMailServerInfo, CROWN_DOMAINS, addUppercaseLetter } from './config.js?v=1781752600';
 import {
   currentInbox,
   messages,
@@ -17,9 +17,9 @@ import {
   setSelectedDomain,
   isMessageSeen,
   messageCounts,
-} from './state.js?v=1781748237';
-import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1781748237';
-import { sanitizeEmailHtml } from './sanitizer.js?v=1781748237';
+} from './state.js?v=1781752600';
+import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1781752600';
+import { sanitizeEmailHtml } from './sanitizer.js?v=1781752600';
 
 // ── DOM helper ──
 
@@ -476,7 +476,7 @@ export function initKeyboardShortcuts() {
     if (e.key === 'c' || e.key === 'C') {
       e.preventDefault();
       if (currentInbox) {
-        copyText(currentInbox.address);
+        copyText(formatDisplayAddress(currentInbox.address));
       }
     }
   });
@@ -588,11 +588,12 @@ export function renderVipCredentials() {
   $panel.style.display = 'block';
 
   const addr = currentInbox.address;
+  const displayAddr = formatDisplayAddress(addr);
   const pw = currentInbox.password_plain;
   const domain = addr.split('@')[1] || '';
   const server = getMailServerInfo(domain);
 
-  $('vipEmail').textContent = addr;
+  $('vipEmail').textContent = displayAddr;
   $('vipPassword').textContent = pw;
   $('vipImapHost').textContent = server.imap.host;
   $('vipImapPort').textContent = String(server.imap.port);
@@ -614,7 +615,7 @@ export function renderVipCredentials() {
   if ($copyAll) {
     $copyAll.onclick = () => {
       const text = [
-        `Email: ${addr}`,
+        `Email: ${displayAddr}`,
         `Password: ${pw}`,
         `IMAP: ${server.imap.host}:${server.imap.port} (${server.imap.encryption})`,
         `SMTP: ${server.smtp.host}:${server.smtp.port} (${server.smtp.encryption})`,

@@ -25,7 +25,7 @@ import {
   fetchMessages as apiFetchMessages,
   deleteInbox as apiDeleteInbox,
   createVipInbox,
-} from './api.js?v=1781748237';
+} from './api.js?v=1781752600';
 
 import {
   currentInbox,
@@ -37,10 +37,11 @@ import {
   setMessages,
   removeHistoryEntry,
   ownerToken,
-} from './state.js?v=1781748237';
+} from './state.js?v=1781752600';
 
-import { genHumanPrefix, generateInboxPassword, getMailServerInfo } from './config.js?v=1781748237';
-import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1781748237';
+import { genHumanPrefix, generateInboxPassword, getMailServerInfo } from './config.js?v=1781752600';
+import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1781752600';
+import { formatDisplayAddress } from './ui.js?v=1781752600';
 
 const DEFAULT_OTP_TIMEOUT_MS = 120_000;
 const POLL_MS = 50;
@@ -345,18 +346,19 @@ function getDomains() {
 
 async function copyEmail() {
   if (!currentInbox) throw new Error('No current inbox');
+  const displayAddress = formatDisplayAddress(currentInbox.address);
   try {
-    await navigator.clipboard.writeText(currentInbox.address);
+    await navigator.clipboard.writeText(displayAddress);
   } catch {
     // fallback for non-HTTPS contexts
     const ta = document.createElement('textarea');
-    ta.value = currentInbox.address;
+    ta.value = displayAddress;
     document.body.appendChild(ta);
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
   }
-  return currentInbox.address;
+  return displayAddress;
 }
 
 // ── URL-based API mode ──
