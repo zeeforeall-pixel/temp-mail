@@ -477,3 +477,27 @@ header > div {
     max-height: 50vh;
   }
 }
+
+/* ── Smaller buttons on mobile ── */
+@media (max-width: 600px) {
+  .header-tools .btn,
+  .header-tools .btn-ghost,
+  .header-tools .btn-vip {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.45rem;
+    min-height: 32px;
+    gap: 0.2rem;
+  }
+  .header-tools .btn .icon {
+    width: 13px;
+    height: 13px;
+  }
+  .lang-btn {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.35rem;
+  }
+  .inbox-actions .btn {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.5rem;
+  }
+}

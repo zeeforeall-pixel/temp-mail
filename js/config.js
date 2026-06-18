@@ -8,11 +8,10 @@
 
 // ── Supabase credentials ──
 
-export const SB_URL = 'https://ijrccpgiulrmfpavazsl.supabase.co';
+export const SB_URL = atob('aHR0cHM6Ly9panJjY3BnaXVscm1mcGF2YXpzbC5zdXBhYmFzZS5jbw==');
 
 // WARNING: anon keys in client code are public. Use RLS policies.
-export const SB_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqcmNjcGdpdWxybWZwYXZhenNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDMwNTUsImV4cCI6MjA4ODIxOTA1NX0.ljpHFR3iy8hIqU2ddOCwKmP77xbN8-lk8MpCpuPO6tc';
+export const SB_ANON_KEY = atob('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW1scWNtTmpjR2RwZFd4eWJXWndZWFpoZW5Oc0lpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTnpJMk5ETXdOVFVzSW1WNGNDSTZNakE0T0RJeE9UQTFOWDAubGpwSEZSM2l5OGhJcVUyZGRPQ3dLbVA3N3hiTjgtbGs4TXBDcHVQTzZ0Yw==');
 
 // Runtime guard: warn if someone accidentally pastes a service_role key
 if (SB_ANON_KEY.includes('service_role')) {
@@ -31,7 +30,7 @@ export const BULK_CONCURRENCY = 100;
 export const MAX_INBOX_RETRIES = 12;
 export const MAX_GEN_RETRIES = 5;
 export const RETRY_DELAY_MS = 300;
-export const POLL_INTERVAL_MS = 10;
+export const POLL_INTERVAL_MS = 5000;
 export const MESSAGE_FETCH_LIMIT = 100;
 export const TOKEN_POOL_SIZE = 100;
 export const EXPIRY_WARNING_MS = 10 * 60 * 1000;       // 10 minutes
@@ -82,6 +81,8 @@ const ADJECTIVES = [
   'balanced','crafty','divine','epic','fresh','glib','humble',
   'intrepid','jovial','keen','lucid','modest','nippy','odd',
   'primal','regal','subtle','trim','utter','vexed','wary','young',
+  // Chinese characters
+  '灵','快','静','暗','明','烈','柔','刚','寒','暖','远','深','高','轻','重','锐','钝','新','古','奇','玄','妙','幽','清','澈','浑','厚','薄','密','疏',
 ];
 
 const NOUNS = [
@@ -108,6 +109,8 @@ const NOUNS = [
   'ivory','lance','maple','nexus','oasis','osprey','otter','panda',
   'phoenix','pixel','raven','robin','sable','scarab','shadow','slate',
   'sparrow','stork','tiger','topaz','tulip','viper','willow','zephyr',
+  // Chinese characters
+  '龙','凤','虎','鹤','狐','鹰','狼','鹿','蛇','蝶','云','风','雷','雨','雪','月','星','山','海','河','林','石','玉','金','银','铁','剑','琴','棋','书',
 ];
 
 const SUFFIX_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -207,6 +210,27 @@ export const ICONS = {
 
 const usedPrefixes = new Set();
 
+
+/**
+ * Inject one random uppercase letter into a prefix string.
+ * Purely cosmetic — mail servers are case-insensitive.
+ */
+export function addUppercaseLetter(prefix) {
+  if (!prefix || prefix.length < 2) return prefix;
+  const pos = 1 + Math.floor(Math.random() * (prefix.length - 1));
+  const ch = prefix[pos];
+  if (ch >= 'a' && ch <= 'z') {
+    return prefix.slice(0, pos) + ch.toUpperCase() + prefix.slice(pos + 1);
+  }
+  // If the char at pos is not a letter, try another position
+  for (let i = 0; i < prefix.length; i++) {
+    if (prefix[i] >= 'a' && prefix[i] <= 'z') {
+      return prefix.slice(0, i) + prefix[i].toUpperCase() + prefix.slice(i + 1);
+    }
+  }
+  return prefix;
+}
+
 export function genHumanPrefix() {
   const maxAttempts = 50;
   for (let i = 0; i < maxAttempts; i++) {
@@ -222,7 +246,10 @@ export function genHumanPrefix() {
       const pos = Math.floor(Math.random() * suffix.length);
       suffix = suffix.slice(0, pos) + Math.floor(Math.random() * 10) + suffix.slice(pos + 1);
     }
-    const prefix = `${adj}.${noun}.${suffix}`;
+    let prefix = `${adj}.${noun}.${suffix}`
+      .replace(/[^a-z0-9._-]/gi, '')
+      .replace(/^[._-]+|[._-]{2,}|[._-]+$/g, '');
+    if (!prefix) continue;
     if (!usedPrefixes.has(prefix)) {
       usedPrefixes.add(prefix);
       return prefix;
@@ -231,7 +258,9 @@ export function genHumanPrefix() {
   // Fallback: append timestamp if somehow exhausted (virtually impossible)
   const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
   const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
-  return `${adj}.${noun}.${Date.now().toString(36)}`;
+  return `${adj}.${noun}.${Date.now().toString(36)}`
+    .replace(/[^a-z0-9._-]/gi, '')
+    .replace(/^[._-]+|[._-]{2,}|[._-]+$/g, '');
 }
 
 /**
@@ -252,7 +281,7 @@ export const SMTP_ENCRYPTION = 'SSL/TLS';
 export const SMTP_PORT_ALT = 587;
 export const SMTP_ENCRYPTION_ALT = 'STARTTLS';
 
-// ── Password generator for VIP inboxes ──
+// ── Password generator for Lifetime Pro inboxes ──
 
 const PW_CHARS_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
 const PW_CHARS_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

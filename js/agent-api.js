@@ -25,7 +25,7 @@ import {
   fetchMessages as apiFetchMessages,
   deleteInbox as apiDeleteInbox,
   createVipInbox,
-} from './api.js';
+} from './api.js?v=1781748237';
 
 import {
   currentInbox,
@@ -37,10 +37,10 @@ import {
   setMessages,
   removeHistoryEntry,
   ownerToken,
-} from './state.js';
+} from './state.js?v=1781748237';
 
-import { genHumanPrefix, generateInboxPassword, getMailServerInfo } from './config.js';
-import { extractOTP, extractVerifyLink, extractVerification } from './otp.js';
+import { genHumanPrefix, generateInboxPassword, getMailServerInfo } from './config.js?v=1781748237';
+import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1781748237';
 
 const DEFAULT_OTP_TIMEOUT_MS = 120_000;
 const POLL_MS = 50;
@@ -397,7 +397,7 @@ async function handleUrlApi() {
       case 'credentials': {
         const address = params.get('address');
         const creds = getVipCredentials(address);
-        jsonResponse(creds || { error: 'No VIP credentials found for this address' });
+        jsonResponse(creds || { error: 'No Lifetime Pro credentials found for this address' });
         return true;
       }
 
@@ -470,12 +470,25 @@ async function handleUrlApi() {
         return true;
       }
 
+      case 'vip': {
+        const vipPrefix = params.get('prefix');
+        const vipDomain = params.get('domain');
+        const result = await generateVipEmail(vipPrefix, vipDomain);
+        if (!result) {
+          jsonResponse({ error: 'Failed to generate Lifetime Pro email' });
+          return true;
+        }
+        jsonResponse(result);
+        return true;
+      }
+
       default:
         jsonResponse({
           error: 'Unknown API action',
-          available: ['generate', 'messages', 'otp', 'wait', 'inboxes', 'domains', 'email', 'delete'],
+          available: ['generate', 'vip', 'messages', 'otp', 'wait', 'inboxes', 'domains', 'email', 'delete'],
           usage: {
             generate: '?api=generate[&prefix=x][&domain=y]',
+            vip: '?api=vip[&prefix=x][&domain=y] → Lifetime Pro {address, password, is_vip, imap, smtp}',
             messages: '?api=messages[&address=x]',
             otp: '?api=otp[&address=x]',
             wait: '?api=wait[&address=x][&t=60]',
@@ -523,7 +536,7 @@ const TempMailAPI = {
   copyEmail,
   deleteInbox,
 
-  // VIP features
+  // Lifetime Pro features
   generateVipEmail,
   getVipCredentials,
 
@@ -553,6 +566,7 @@ const TempMailAPI = {
       },
       urlApi: {
         '?api=generate': 'Generate new email → JSON',
+        '?api=vip[&prefix=x][&domain=y]': 'Generate Lifetime Pro email with IMAP/SMTP credentials → JSON',
         '?api=messages&address=x': 'Get messages → JSON',
         '?api=otp&address=x': 'Get OTP → JSON',
         '?api=wait&address=x&t=60': 'Wait for OTP (seconds) → JSON',

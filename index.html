@@ -3,18 +3,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy"
-  content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' https://esm.sh https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://ijrccpgiulrmfpavazsl.supabase.co wss://ijrccpgiulrmfpavazsl.supabase.co https://esm.sh;">
+
 <title>临时邮局</title>
 <link rel="icon" href="/favicon.png" type="image/png" />
 <link rel="apple-touch-icon" href="/favicon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=VT323&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/theme.css" />
-<link rel="stylesheet" href="tokens.css" />
-<link rel="stylesheet" href="css/layout.css" />
-<link rel="stylesheet" href="css/components.css" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=VT323&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=VT323&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=VT323&display=swap" rel="stylesheet" /></noscript></noscript>
+<link rel="stylesheet" href="css/theme.css?v=1781707333" />
+<link rel="stylesheet" href="tokens.css?v=1781707333" />
+<link rel="stylesheet" href="css/layout.css?v=1781707333" />
+<link rel="stylesheet" href="css/components.css?v=1781707333" />
 <script>if(localStorage.getItem('tm_dark')!=='0')document.documentElement.classList.add('dark');</script>
 <!-- AI Agent API Discovery -->
 <!-- API available at window.TempMailAPI - see /agent-api.json for full reference -->
@@ -30,11 +31,11 @@
     <div class="header-tools">
       <p data-i18n="tagline">Disposable inbox · by 疯子 xscope0</p>
       <nav class="lang-switch" aria-label="language switcher">
-        <button class="lang-btn" data-lang="zh" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> CN</button>
-        <button class="lang-btn active" data-lang="en" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> US</button>
-        <button class="lang-btn" data-lang="id" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> ID</button>
+        <button class="lang-btn" data-lang="zh" type="button">🇨🇳 CN</button>
+        <button class="lang-btn active" data-lang="en" type="button">🇺🇸 US</button>
+        <button class="lang-btn" data-lang="id" type="button">🇮🇩 ID</button>
       </nav>
-      <button class="btn btn-ghost" id="ghHelperBtn" title="GitHub Helper" style="padding:0.35rem 0.6rem;font-size:0.8rem;gap:0.3rem;"><svg viewBox="0 0 24 24" fill="currentColor" class="icon" style="width:16px;height:16px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg> GitHub</button>
+      <button class="btn btn-ghost" id="ghHelperBtn" title="GitHub Temp" style="padding:0.35rem 0.6rem;font-size:0.8rem;gap:0.3rem;"><svg viewBox="0 0 24 24" fill="currentColor" class="icon" style="width:16px;height:16px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg> <span data-i18n="github">GitHub</span></button>
       <button class="btn btn-ghost" id="apiBtn" title="Agent API documentation" style="padding:0.35rem 0.6rem;font-size:0.8rem;gap:0.3rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:16px;height:16px;"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg> API</button>
       <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -62,19 +63,19 @@
     </div>
     <div class="actions">
       <button class="btn" id="newBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New inbox
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> <span data-i18n="newInbox">New inbox</span>
       </button>
       <button class="btn btn-outline" id="bulkBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Bulk
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> <span data-i18n="bulk">Bulk</span>
       </button>
-      <button class="btn btn-vip" id="vipBtn" title="Create Email+PW inbox with IMAP/SMTP credentials">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Email+PW
+      <button class="btn btn-vip" id="vipBtn" title="Create Email+PW inbox with Imap/Smtp Credentials">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> <span data-i18n="emailPw">Email+PW</span>
       </button>
-      <button class="btn btn-vip" id="bulkVipBtn" title="Create VIP inboxes and export CSV">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20 6 9 17l-5-5"/><path d="M15 6h5v5"/><path d="M20 6 11 15"/></svg> Bulk VIP
+      <button class="btn btn-vip" id="bulkVipBtn" title="Create inboxes and export CSV">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20 6 9 17l-5-5"/><path d="M15 6h5v5"/><path d="M20 6 11 15"/></svg> <span data-i18n="bulkCsv">Bulk CSV</span>
       </button>
       <button class="btn btn-outline" id="refreshBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> <span data-i18n="refresh">Refresh</span>
       </button>
       <button class="btn btn-ghost" id="shareBtn" title="Copy share link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -86,17 +87,17 @@
   </div>
 
 
-  <!-- VIP Credentials Panel (hidden by default) -->
+  <!-- Lifetime Pro Credentials Panel (hidden by default) -->
   <div class="card vip-card" id="vipPanel" style="display:none;">
     <div class="card-title">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-      IMAP/SMTP credentials <span class="vip-badge">VIP · 疯子 xscope0</span>
+      Imap/Smtp Credentials <span class="vip-badge">Lifetime Pro · 疯子 xscope0</span>
       
     </div>
     <div class="vip-free-banner">
       <span class="vip-free-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></span>
-      <strong>Cracked — 疯子 xscope0</strong>
-      <p>Complete Email + Password credentials for IMAP/SMTP login. Dark mode stays locked.</p>
+      <strong>Lifetime Pro — 疯子 xscope0</strong>
+      <p>Complete Email + Password Credentials for Imap/Smtp login. Dark mode stays locked.</p>
     </div>
     <div class="vip-credentials">
       <div class="vip-row">
@@ -110,7 +111,7 @@
         <button class="btn btn-icon vip-copy" data-copy="vipPassword" title="Copy"></button>
       </div>
       <div class="vip-divider"></div>
-      <div class="vip-section-title">IMAP (Incoming)</div>
+      <div class="vip-section-title">Imap (Incoming)</div>
       <div class="vip-row">
         <span class="vip-label">Server</span>
         <span class="vip-value vip-mono" id="vipImapHost">—</span>
@@ -121,7 +122,7 @@
         <span class="vip-tag">SSL/TLS</span>
       </div>
       <div class="vip-divider"></div>
-      <div class="vip-section-title">SMTP (Outgoing)</div>
+      <div class="vip-section-title">Smtp (Outgoing)</div>
       <div class="vip-row">
         <span class="vip-label">Server</span>
         <span class="vip-value vip-mono" id="vipSmtpHost">—</span>
@@ -138,7 +139,7 @@
       </div>
     </div>
     <div class="vip-actions">
-      <button class="btn btn-sm" id="vipCopyAll">Copy all credentials</button>
+      <button class="btn btn-sm" id="vipCopyAll">Copy all Credentials</button>
     </div>
   </div>
   <!-- Inbox history card -->
@@ -154,7 +155,7 @@
     </div>
     <input class="history-search" id="historySearch" type="text" placeholder="Search inboxes…" />
     <div id="inboxHistoryList" style="display:flex;flex-wrap:wrap;gap:0.4rem;">
-      <span style="color:hsl(var(--text2));font-size:0.85rem;">No inboxes yet</span>
+      <span style="color:hsl(var(--text2));font-size:0.85rem;" data-i18n="noInboxes">No inboxes yet</span>
     </div>
   </div>
 
@@ -177,37 +178,35 @@
   </div>
   </div><!-- /mainView -->
 
-  <!-- GitHub Helper View -->
+  <!-- GitHub Temp View -->
   <div id="ghView" style="display:none;">
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
         <span>
           <svg viewBox="0 0 24 24" fill="currentColor" class="icon" style="width:1.1em;height:1.1em;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-          GitHub Helper
+          GitHub Temp
         </span>
-        <button class="btn btn-ghost" id="ghBackBtn" style="font-size:0.75rem;padding:0.3rem 0.6rem;">Back to Inbox</button>
       </div>
-      <p style="font-size:0.82rem;color:hsl(var(--text2));margin-bottom:1rem;">Generate username, password &amp; verification email for your GitHub account.</p>
+      <p style="font-size:0.82rem;color:hsl(var(--text2));margin-bottom:1rem;" data-i18n="ghDesc">Generate username, password &amp; verification email for your GitHub account.</p>
 
       <!-- Step 1 -->
       <div class="gh-step">
         <div class="gh-step-header">
           <span class="gh-step-num">1</span>
-          <span class="gh-step-title">Generate Credential</span>
+          <span class="gh-step-title" data-i18n="ghStep1Title">Generate Credentials</span>
         </div>
-        <p>Confirm this account is for yourself &amp; you don't have a GitHub account yet.</p>
         <div style="margin-top:0.5rem;">
-          <label class="input-label">Email verification mode</label>
+          <label class="input-label" data-i18n="ghModeLabel">Email verification mode</label>
           <div class="gh-mode-row">
-            <button class="btn btn-outline btn-sm gh-mode-btn active" data-mode="random">Auto Random</button>
-            <button class="btn btn-outline btn-sm gh-mode-btn" data-mode="custom">Custom Prefix</button>
+            <button class="btn btn-outline btn-sm gh-mode-btn active" data-mode="random" data-i18n="ghModeRandom">Auto Random</button>
+            <button class="btn btn-outline btn-sm gh-mode-btn" data-mode="custom" data-i18n="ghModeCustom">Custom Prefix</button>
           </div>
         </div>
         <div id="ghPrefixCustom" style="display:none;margin-top:0.5rem;">
-          <label class="input-label">Custom prefix</label>
+          <label class="input-label" data-i18n="ghCustomPrefix">Custom prefix</label>
           <input class="modal-input" id="ghPrefixInput" placeholder="e.g. john.doe" />
         </div>
-        <button class="btn" id="ghGenerateBtn" style="margin-top:0.75rem;width:100%;">Generate Credential</button>
+        <button class="btn" id="ghGenerateBtn" style="margin-top:0.75rem;width:100%;" data-i18n="ghGenerateBtn">Generate Credentials</button>
         <div id="ghCredResult" style="display:none;margin-top:0.75rem;"></div>
       </div>
 
@@ -215,57 +214,58 @@
       <div class="gh-step">
         <div class="gh-step-header">
           <span class="gh-step-num">2</span>
-          <span class="gh-step-title">Auto-Fill GitHub Form</span>
+          <span class="gh-step-title" data-i18n="ghStep2Title">Auto-Fill GitHub Form</span>
           <span class="gh-step-tag">NEW</span>
         </div>
-        <p>Setup once — drag to bookmark bar, use anytime.</p>
+        <p data-i18n="ghStep2Desc">Setup once — drag to bookmark bar, use anytime.</p>
         <div class="gh-sub-steps">
-          <div class="gh-sub-step"><span class="gh-sub-num">1</span> Click <strong>"Open GitHub Signup"</strong> below</div>
-          <div class="gh-sub-step"><span class="gh-sub-num">2</span> On the GitHub tab, click bookmarklet <strong>"🚀 Moca Auto-Fill"</strong> → fields auto-fill (~5s)</div>
-          <div class="gh-sub-step"><span class="gh-sub-num">3</span> Solve captcha (puzzle, ~10s) → click <strong>Create account</strong></div>
-          <div class="gh-sub-step"><span class="gh-sub-num">4</span> Come back here — OTP appears automatically in Step 3</div>
+          <div class="gh-sub-step"><span class="gh-sub-num">1</span> <span data-i18n="ghSub1">Click <strong>"Open GitHub Signup"</strong> below</span></div>
+          <div class="gh-sub-step"><span class="gh-sub-num">2</span> <span data-i18n="ghSub2">On the GitHub tab, click bookmarklet <strong>"Auto-Fill Script"</strong> → fields auto-fill (~5s)</span></div>
+          <div class="gh-sub-step"><span class="gh-sub-num">3</span> <span data-i18n="ghSub3">Solve captcha (puzzle, ~10s) → click <strong>Create account</strong></span></div>
+          <div class="gh-sub-step"><span class="gh-sub-num">4</span> <span data-i18n="ghSub4">Come back here — OTP appears automatically in Step 3</span></div>
         </div>
         <div class="gh-checklist">
-          <div>✓ Turn off VPN/proxy — use personal network (4G / home WiFi)</div>
-          <div>✓ Don't use Incognito — use your daily browser profile</div>
-          <div>✓ Disable aggressive privacy extensions (uBlock, Brave Shield max)</div>
-          <div>✓ Don't rush — solve captcha slowly</div>
-          <div>✓ If "unusual activity" appears: wait 24h / switch network</div>
+          <div data-i18n="ghCheck1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Turn off VPN/proxy — use personal network (4G / home WiFi)</div>
+          <div data-i18n="ghCheck2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Don't use Incognito — use your daily browser profile</div>
+          <div data-i18n="ghCheck3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Disable aggressive privacy extensions (uBlock, Brave Shield max)</div>
+          <div data-i18n="ghCheck4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Don't rush — solve captcha slowly</div>
+          <div data-i18n="ghCheck5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> If "unusual activity" appears: wait 24h / switch network</div>
         </div>
-        <a href="https://github.com/signup" target="_blank" rel="noopener" class="btn" style="display:inline-block;margin-top:0.75rem;text-align:center;width:100%;text-decoration:none;">Open GitHub Signup</a>
+<a href="javascript:(function()%7Btry%7Bvar%20h%3Dlocation.hash.match(%2Fmocafill%3D(%5B%5E%26%5D%2B)%2F)%3Bif(!h)%7Balert('Open%20GitHub%20Signup%20from%20GitHub%20Temp%20first%20(URL%20must%20contain%20%23mocafill%3D...)')%3Breturn%3B%7Dvar%20d%3DJSON.parse(atob(decodeURIComponent(h%5B1%5D)))%3Bvar%20P%3DObject.getOwnPropertyDescriptor(window.HTMLInputElement.prototype%2C'value')%3Bvar%20rnd%3Dfunction(a%2Cb)%7Breturn%20Math.floor(a%2BMath.random()*(b-a))%3B%7D%3Bvar%20sleep%3Dfunction(ms)%7Breturn%20new%20Promise(function(r)%7BsetTimeout(r%2Cms)%3B%7D)%3B%7D%3Bvar%20setNative%3Dfunction(el%2Cval)%7Bif(P%26%26P.set)P.set.call(el%2Cval)%3Belse%20el.value%3Dval%3Bel.dispatchEvent(new%20Event('input'%2C%7Bbubbles%3Atrue%7D))%3Bel.dispatchEvent(new%20Event('change'%2C%7Bbubbles%3Atrue%7D))%3B%7D%3Bvar%20typeHuman%3Dasync%20function(sel%2Cval)%7Bvar%20el%3Ddocument.querySelector(sel)%3Bif(!el)return%20false%3Bel.focus()%3Bel.dispatchEvent(new%20Event('focus'%2C%7Bbubbles%3Atrue%7D))%3Bawait%20sleep(rnd(200%2C500))%3Bvar%20cur%3D''%3Bfor(var%20i%3D0%3Bi%3Cval.length%3Bi%2B%2B)%7Bcur%2B%3Dval%5Bi%5D%3BsetNative(el%2Ccur)%3Bawait%20sleep(rnd(40%2C140))%3B%7Del.dispatchEvent(new%20Event('blur'%2C%7Bbubbles%3Atrue%7D))%3Breturn%20true%3B%7D%3B(async%20function()%7Bvar%20fields%3D%5B%5B'%23email'%2Cd.email%5D%2C%5B'%23password'%2Cd.password%5D%2C%5B'%23login'%2Cd.username%5D%5D%3Bvar%20ok%3D0%3Bfor(var%20i%3D0%3Bi%3Cfields.length%3Bi%2B%2B)%7Bvar%20f%3Dfields%5Bi%5D%3Bif(await%20typeHuman(f%5B0%5D%2Cf%5B1%5D))ok%2B%2B%3Bawait%20sleep(rnd(700%2C1400))%3B%7Dvar%20note%3Ddocument.createElement('div')%3Bnote.style.cssText%3D'position%3Afixed%3Btop%3A16px%3Bright%3A16px%3Bz-index%3A99999%3Bbackground%3A%230d1117%3Bcolor%3A%23fff%3Bborder%3A2px%20solid%20%232ea043%3Bborder-radius%3A8px%3Bpadding%3A12px%2016px%3Bfont%3A600%2013px%20system-ui%3Bbox-shadow%3A0%208px%2024px%20rgba(0%2C0%2C0%2C.4)%3Bmax-width%3A320px'%3Bnote.innerHTML%3D'Auto-Fill%20Script%20%3Cb%3E'%2Bok%2B'%2F'%2Bfields.length%2B'%3C%2Fb%3E%20fields%20filled.%3Cbr%3E%3Cspan%20style%3D%22font-weight%3A400%3Bopacity%3A.8%22%3ESolve%20captcha%20slowly%20then%20click%20%3Cb%3ECreate%20account%3C%2Fb%3E.%3C%2Fspan%3E'%3Bdocument.body.appendChild(note)%3BsetTimeout(function()%7Bnote.remove()%3B%7D%2C8000)%3B%7D)()%3B%7Dcatch(e)%7Balert('Auto-Fill%20error%3A%20'%2Be.message)%3B%7D%7D)()%3B" class="btn btn-outline" style="display:inline-block;margin-top:0.5rem;text-align:center;width:100%;text-decoration:none;font-size:0.75rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Auto-Fill Script <span style="font-size:0.65rem;opacity:0.7;" data-i18n="ghDragBookmark">(drag to bookmark bar)</span></a>
+        <a id="ghSignupLink" href="https://github.com/join" target="_blank" rel="noopener" class="btn" style="display:inline-block;margin-top:0.5rem;text-align:center;width:100%;text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="ghOpenSignup">Open GitHub Signup</span></a>
       </div>
 
       <!-- Step 3 -->
       <div class="gh-step">
         <div class="gh-step-header">
           <span class="gh-step-num">3</span>
-          <span class="gh-step-title">OTP Verification</span>
+          <span class="gh-step-title" data-i18n="ghStep3Title">OTP Verification</span>
         </div>
-        <p>After completing Step 2 on GitHub, the OTP code will appear here automatically.</p>
+        <p data-i18n="ghStep3Desc">After completing Step 2 on GitHub, the OTP code will appear here automatically.</p>
         <div id="ghOtpDisplay" style="margin-top:0.5rem;padding:0.75rem;background:hsl(var(--surface2));border:1px dashed hsl(var(--border));border-radius:var(--radius-sm);text-align:center;color:hsl(var(--text2));font-size:0.85rem;">
-          Waiting for OTP…
+          <span data-i18n="ghWaitOtp">Waiting for OTP…</span>
         </div>
       </div>
 
-      <!-- Step 5 (skip step 4) -->
+      <!-- Step 4 -->
       <div class="gh-step">
         <div class="gh-step-header">
-          <span class="gh-step-num">5</span>
-          <span class="gh-step-title">Setup 2FA (Required!)</span>
+          <span class="gh-step-num">4</span>
+          <span class="gh-step-title" data-i18n="ghStep4Title">Setup 2FA (Required!)</span>
           <span class="gh-step-tag gh-step-warn">30 DAYS</span>
         </div>
-        <p>GitHub requires 2FA within 30 days of signup. Past the deadline = account locked.</p>
+        <p data-i18n="ghStep4Desc">GitHub requires 2FA within 30 days of signup. Past the deadline = account locked.</p>
         <div class="gh-sub-steps">
-          <div class="gh-sub-step"><span class="gh-sub-num">1</span> <strong>Install authenticator app</strong> — Recommended: Aegis (Android, open-source) or Raivo (iOS). Avoid Google Authenticator (no export/backup).</div>
-          <div class="gh-sub-step"><span class="gh-sub-num">2</span> <strong>Open GitHub 2FA settings</strong></div>
-          <div class="gh-sub-step"><span class="gh-sub-num">3</span> <strong>Scan QR code → enter 6-digit code</strong> — Open authenticator app, tap +, scan the QR shown on GitHub.</div>
+          <div class="gh-sub-step"><span class="gh-sub-num">1</span> <span data-i18n="gh2fa1"><strong>Install authenticator app</strong> — Recommended: Aegis (Android, open-source) or Raivo (iOS). Avoid Google Authenticator (no export/backup).</span></div>
+          <div class="gh-sub-step"><span class="gh-sub-num">2</span> <span data-i18n="gh2fa2"><strong>Open GitHub 2FA settings</strong></span></div>
+          <div class="gh-sub-step"><span class="gh-sub-num">3</span> <span data-i18n="gh2fa3"><strong>Scan QR code → enter 6-digit code</strong> — Open authenticator app, tap +, scan the QR shown on GitHub.</span></div>
         </div>
         <div class="gh-warning">
-          ⚠️ <strong>Save Recovery Codes!</strong><br>
-          GitHub gives you 16 recovery codes — screenshot or download &amp; store somewhere safe (password manager / cloud notes). Without these, if you lose your phone the account is gone forever.
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> <strong data-i18n="ghSaveRecovery">Save Recovery Codes!</strong><br>
+          <span data-i18n="ghRecoveryDesc">GitHub gives you 16 recovery codes — screenshot or download &amp; store somewhere safe (password manager / cloud notes). Without these, if you lose your phone the account is gone forever.</span>
         </div>
-        <p style="font-size:0.78rem;color:hsl(var(--text2));margin-top:0.5rem;">Bonus: after 2FA is active, add SSH key &amp; Personal Access Token so you can git push without password.</p>
-        <a href="https://github.com/settings/security" target="_blank" rel="noopener" class="btn btn-outline" style="display:inline-block;margin-top:0.75rem;text-align:center;width:100%;text-decoration:none;">Setup 2FA on GitHub</a>
+        <p style="font-size:0.78rem;color:hsl(var(--text2));margin-top:0.5rem;" data-i18n="ghBonus">Bonus: after 2FA is active, add SSH key &amp; Personal Access Token so you can git push without password.</p>
+        <a href="https://github.com/settings/security" target="_blank" rel="noopener" class="btn btn-outline" style="display:inline-block;margin-top:0.75rem;text-align:center;width:100%;text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span data-i18n="ghSetup2fa">Setup 2FA on GitHub</span></a>
       </div>
     </div>
   </div><!-- /ghView -->
@@ -329,13 +329,13 @@
   </div>
 </div>
 
-<!-- Bulk VIP Create Modal -->
+<!-- Bulk Lifetime Pro Create Modal -->
 <div class="modal-overlay" id="bulkVipModal">
   <div class="modal" style="max-width:380px;">
     <div class="modal-head">
       <h3>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-        Bulk VIP Email + Password
+        Bulk Lifetime Pro Email + Password
       </h3>
       <button class="modal-close" id="bulkVipModalClose">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -344,10 +344,10 @@
     <div class="modal-body">
       <div class="vip-feature-copy">
         <strong>Email + Password</strong>
-        <p>Generate complete inboxes with automatic passwords for IMAP/SMTP login.</p>
-        <span>VIP only — create up to 100 VIP inboxes in one click and export CSV.</span>
+        <p>Generate complete inboxes with automatic passwords for Imap/Smtp login.</p>
+        <span>Lifetime Pro — create up to 100 inboxes in one click and export CSV.</span>
       </div>
-      <label class="input-label" style="margin-bottom:0.4rem;">VIP How many inboxes?</label>
+      <label class="input-label" style="margin-bottom:0.4rem;">How many inboxes?</label>
       <input class="modal-input" id="bulkVipCountInput" type="number" min="1" max="100" value="25" />
       <div style="margin-top:0.75rem;">
         <label class="input-label" style="margin-bottom:0.5rem;">Domain</label>
@@ -414,7 +414,46 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<footer class="site-credit">[credits] <a href="https://t.me/xscope0" target="_blank" rel="noopener">@xscope0</a> · 疯子 xscope0 · 黑夜邮局</footer>
+
+<!-- Advanced Settings -->
+
+
+<!-- Advanced Settings (compact) -->
+<div style="margin-top:0.3rem;padding:0.3rem 0.5rem;font-size:0.72rem;color:hsl(var(--text2));border-top:1px solid hsl(var(--border));">
+  <span style="cursor:pointer;user-select:none;" id="advancedToggle" >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon" style="width:11px;height:11px;vertical-align:middle;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span data-i18n="advancedTitle">Advanced</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon" id="advancedArrow" style="width:10px;height:10px;vertical-align:middle;transition:transform 0.15s;"><polyline points="6 9 12 15 18 9"/></svg>
+  </span>
+  <span id="advancedBody" style="display:none;">
+    &nbsp;·&nbsp;
+    <label style="cursor:pointer;" title="Cosmetic only; backend address stays lowercase">
+      <input id="uppercaseToggle" type="checkbox" style="vertical-align:middle;margin:0 0.2rem 0 0;" />
+      <span data-i18n="uppercaseLabel">Random uppercase display</span>
+    </label>
+    &nbsp;·&nbsp;
+    <label>
+      <span data-i18n="refreshLabel">Refresh</span>
+      <select id="refreshIntervalSelect" style="font-size:0.7rem;padding:1px 3px;border-radius:3px;border:1px solid hsl(var(--border));background:hsl(var(--surface));color:hsl(var(--text));vertical-align:middle;">
+        <option value="5000" selected>5s</option>
+        <option value="3000">3s</option>
+        <option value="2000">2s</option>
+        <option value="1000">1s</option>
+        <option value="500">500ms</option>
+        <option value="100">100ms</option>
+        <option value="50">50ms</option>
+        <option value="10">10ms</option>
+      </select>
+    </label>
+    <span id="refreshWarn" style="display:none;color:hsl(var(--danger,0 84% 60%));" title="Rate limit risk">
+      &nbsp;
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon" style="width:10px;height:10px;vertical-align:middle;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span data-i18n="refreshWarn" style="font-size:0.65rem;">Rate limit risk</span>
+    </span>
+  </span>
+</div>
+
+<footer class="site-credit">[xscope0] <a href="https://t.me/xscope0" target="_blank" rel="noopener">@xscope0</a> · 疯子 xscope0 · 黑夜邮局</footer>
 <!-- API Docs Modal -->
 <div class="modal-overlay" id="apiModal">
   <div class="modal" style="max-width:520px;">
@@ -494,6 +533,6 @@ console.log('OTP:', otp.otp);</code></pre>
 </div>
 
 
-<script type="module" src="./js/app.js"></script>
+<script type="module" src="./js/app.js?v=1781748237"></script>
 </body>
 </html>

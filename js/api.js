@@ -26,7 +26,7 @@ import {
   genHumanPrefix,
   generateInboxPassword,
   resetPrefixDedup,
-} from './config.js';
+} from './config.js?v=1781748237';
 
 import {
   domains,
@@ -36,7 +36,7 @@ import {
   rotateOwnerToken,
   rotatePoolToken,
   saveTokenPool,
-} from './state.js';
+} from './state.js?v=1781748237';
 
 // ── Supabase client ──
 
@@ -94,23 +94,33 @@ export async function createInbox(prefix, domain, retries = MAX_GEN_RETRIES) {
     return createVipInbox(prefix, domain);
   }
 
-  const { data, error } = await sb.functions.invoke('generate-inbox', {
-    body: { owner_token: ownerToken, desired_local: prefix, domain },
-  });
+  try {
+    const res = await fetch('/api/create-inbox', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ owner_token: ownerToken, desired_local: prefix, domain }),
+    });
 
-  if (error || data?.error) {
-    if (isVipDomainError({ message: data?.error || error?.message || '' })) {
-      return createVipInbox(prefix, domain);
+    const data = await res.json();
+    if (!res.ok || data?.error) {
+      if (isVipDomainError({ message: data?.error || '' })) {
+        return createVipInbox(prefix, domain);
+      }
+      if (retries <= 0) {
+        throw new Error(data?.error || 'Failed to create inbox');
+      }
+      rotateOwnerToken();
+      await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+      return createInbox(prefix, domain, retries - 1);
     }
-    if (retries <= 0) {
-      throw new Error(data?.error || error?.message || 'Failed to create inbox');
-    }
+
+    return { address: data.address, expires_at: data.expires_at };
+  } catch (err) {
+    if (retries <= 0) throw err;
     rotateOwnerToken();
     await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
     return createInbox(prefix, domain, retries - 1);
   }
-
-  return { address: data.address, expires_at: data.expires_at };
 }
 
 // ── Inbox creation (bulk — max-aggressive stealth pipeline) ──
@@ -318,30 +328,16 @@ export async function fireInboxRequest(prefix, domain, token) {
     return createVipInbox(prefix, domain);
   }
 
-  // Pick a random fingerprint profile for this request
-  const profile = FINGERPRINT_PROFILES[Math.floor(Math.random() * FINGERPRINT_PROFILES.length)];
-
-  // Multi-layer cache-busting: timestamp + random nonce + profile hash
-  const bust = `_cb=${Date.now()}_${Math.random().toString(36).slice(2, 10)}_${profile.platform.slice(0, 3)}`;
-  const url = `${SB_FUNC_URL}?${bust}`;
-
-  const headers = buildStealthHeaders(profile);
-  const body = buildBodyWithPadding(prefix, domain, token);
-
-  // Randomize fetch options
-  const res = await fetch(url, {
+  // Route through Vercel serverless (bypasses Supabase DNS issues from browser)
+  const res = await fetch('/api/create-inbox', {
     method: 'POST',
-    headers,
-    body,
-    cache: 'no-store',
-    mode: 'cors',
-    credentials: Math.random() > 0.5 ? 'omit' : 'same-origin',
-    keepalive: Math.random() > 0.7,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ owner_token: token, desired_local: prefix, domain }),
   });
 
   const data = await res.json();
   if (!res.ok) {
-    const error = new Error(data.error || data.message || `HTTP ${res.status}`);
+    const error = new Error(data.error || `HTTP ${res.status}`);
     error.status = res.status;
     throw error;
   }
@@ -475,7 +471,8 @@ export async function bulkCreateInboxes(count, onProgress, targetDomain) {
       if (!job) break;
 
       await waitForBulkThrottle();
-      const r = await tryCreateInbox(job.prefix, job.domain, job.tokenIndex);
+      const finalPrefix = job.prefix;
+      const r = await tryCreateInbox(finalPrefix, job.domain, job.tokenIndex);
       if (r) {
         results.push(r);
         reportBulkSuccess();
@@ -678,10 +675,10 @@ export async function deleteInbox(address, ownerTokenArg) {
   return { ok: true };
 }
 
-// ── VIP Inbox Creation (with auto-generated IMAP/SMTP password) ──
+// ── Lifetime Pro Inbox Creation (with auto-generated IMAP/SMTP password) ──
 
 /**
- * Create a VIP inbox with an auto-generated password for IMAP/SMTP login.
+ * Create a Lifetime Pro inbox with an auto-generated password for IMAP/SMTP login.
  * Creates the inbox via edge function, then updates it with password_plain + is_vip.
  *
  * @param {string} prefix - Desired local part of the email.
@@ -689,34 +686,30 @@ export async function deleteInbox(address, ownerTokenArg) {
  * @returns {Promise<{address: string, expires_at: string, password_plain: string, is_vip: true}|null>}
  */
 export async function createVipInbox(prefix, domain) {
-  const password = generateInboxPassword();
   const targetDomain = domain || getEffDomain();
+  const local = (prefix || genHumanPrefix())
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, '')
+    .replace(/^[._-]+|[._-]{2,}|[._-]+$/g, '');
 
-  for (let attempt = 0; attempt < MAX_GEN_RETRIES; attempt++) {
-    const local = (attempt === 0 && prefix ? prefix : genHumanPrefix())
-      .toLowerCase()
-      .replace(/[^a-z0-9._-]/g, '');
-    const address = `${local}@${targetDomain}`;
+  // Lifetime Pro creation goes through serverless function (server-side, no secrets in client)
+  const res = await fetch('/api/create-vip', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ owner_token: ownerToken, desired_local: local, domain: targetDomain }),
+  });
 
-    const { data, error } = await sb
-      .from('temp_inboxes')
-      .insert({
-        address,
-        domain: targetDomain,
-        owner_token: ownerToken,
-        password_plain: password,
-        is_vip: true,
-      })
-      .select('address, expires_at, password_plain, is_vip')
-      .single();
-
-    if (!error) return data;
-    if (!/duplicate|already exists|unique/i.test(error.message || '')) {
-      throw new Error(error.message || 'Failed to create VIP inbox');
-    }
+  const data = await res.json();
+  if (!res.ok || data.error) {
+    throw new Error(data.error || 'Failed to create Lifetime Pro inbox');
   }
 
-  throw new Error('Failed to create VIP inbox: duplicate prefixes exhausted');
+  return {
+    address: data.address,
+    expires_at: data.expires_at,
+    password_plain: data.password,
+    is_vip: data.is_vip,
+  };
 }
 
 export async function bulkCreateVipInboxes(count, opts = {}) {
@@ -742,7 +735,8 @@ export async function bulkCreateVipInboxes(count, opts = {}) {
       if (index >= count) break;
 
       try {
-        const inbox = await createVipInbox(genHumanPrefix(), pickDomain());
+        const _prefix = genHumanPrefix();
+        const inbox = await createVipInbox(_prefix, pickDomain());
         results.push(inbox);
       } catch (e) {
         failures.push({ index, error: e.message });

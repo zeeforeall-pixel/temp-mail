@@ -692,7 +692,7 @@ header h1 .icon { width: 1.2em; height: 1.2em; margin-right: 0.15em; vertical-al
   }
 }
 
-/* ── VIP Button & Credentials Panel ── */
+/* ── Lifetime Pro Button & Credentials Panel ── */
 
 .btn-vip {
   background: linear-gradient(135deg, hsl(45, 90%, 50%), hsl(35, 95%, 45%));
@@ -837,7 +837,7 @@ header h1 .icon { width: 1.2em; height: 1.2em; margin-right: 0.15em; vertical-al
   to { transform: rotate(360deg); }
 }
 
-/* ── VIP Free Banner ── */
+/* ── Lifetime Pro Banner ── */
 
 .vip-free-banner {
   display: flex;
@@ -1059,7 +1059,7 @@ html.dark .vip-feature-copy span {
 }
 
 .modal-head h3::before {
-  content: '[modal] ';
+  content: '[xscope0] ';
   color: hsl(var(--primary));
 }
 
@@ -1405,20 +1405,21 @@ html:not(.dark) .theme-toggle:hover {
   word-break: break-all;
   flex: 1;
   text-align: right;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s;
+}
+
+.gh-cred-value:hover {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+}
+
+.gh-cred-value:active {
+  background: hsl(var(--primary) / 0.2);
 }
 
 .gh-cred-copy {
-  margin-left: 0.5rem;
-  padding: 0.2rem 0.4rem;
-  font-size: 0.7rem;
-  cursor: pointer;
-  background: transparent;
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius-sm);
-  color: hsl(var(--text2));
-}
-
-.gh-cred-copy:hover {
-  border-color: hsl(var(--primary));
-  color: hsl(var(--primary));
+  display: none;
 }

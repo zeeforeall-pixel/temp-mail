@@ -5,3 +5,8 @@ node_modules/
 *.log
 .vercel
 .venv/
+# Added by code-review-graph
+.code-review-graph/
+output/
+preview-*.png
+preview-test.mjs

@@ -5,7 +5,7 @@
  * all render functions. The app.js module wires events to API calls.
  */
 
-import { ICONS, getMailServerInfo, CROWN_DOMAINS } from './config.js';
+import { ICONS, getMailServerInfo, CROWN_DOMAINS, addUppercaseLetter } from './config.js?v=1781748237';
 import {
   currentInbox,
   messages,
@@ -17,9 +17,9 @@ import {
   setSelectedDomain,
   isMessageSeen,
   messageCounts,
-} from './state.js';
-import { extractOTP, extractVerifyLink, extractVerification } from './otp.js';
-import { sanitizeEmailHtml } from './sanitizer.js';
+} from './state.js?v=1781748237';
+import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1781748237';
+import { sanitizeEmailHtml } from './sanitizer.js?v=1781748237';
 
 // ── DOM helper ──
 
@@ -35,6 +35,50 @@ const _escapeEl = document.createElement('div');
 export function escapeHtml(str) {
   _escapeEl.textContent = str || '';
   return _escapeEl.innerHTML;
+}
+
+// ── Cosmetic email display ──
+
+const LS_UPPERCASE_DISPLAY = 'tm_uppercase_display';
+const LS_DISPLAY_CASE_MAP = 'tm_display_case';
+
+function readDisplayCaseMap() {
+  try {
+    const map = JSON.parse(localStorage.getItem(LS_DISPLAY_CASE_MAP) || '{}');
+    return map && typeof map === 'object' ? map : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveDisplayCaseMap(map) {
+  try {
+    localStorage.setItem(LS_DISPLAY_CASE_MAP, JSON.stringify(map));
+  } catch {
+    // Cosmetic cache only; display can fall back without affecting the real address.
+  }
+}
+
+export function isUppercaseDisplayEnabled() {
+  return localStorage.getItem(LS_UPPERCASE_DISPLAY) === '1';
+}
+
+export function setUppercaseDisplayEnabled(enabled) {
+  localStorage.setItem(LS_UPPERCASE_DISPLAY, enabled ? '1' : '0');
+}
+
+export function formatDisplayAddress(address) {
+  if (!address || !isUppercaseDisplayEnabled()) return address || '—';
+
+  const [local, domain] = address.split('@');
+  if (!local || !domain) return address;
+
+  const map = readDisplayCaseMap();
+  if (!map[address]) {
+    map[address] = `${addUppercaseLetter(local)}@${domain}`;
+    saveDisplayCaseMap(map);
+  }
+  return map[address];
 }
 
 // ── Toast notifications ──
@@ -167,7 +211,7 @@ export function renderInbox() {
     return;
   }
 
-  $addr.textContent = currentInbox.address;
+  $addr.textContent = formatDisplayAddress(currentInbox.address);
 
   // Expiry countdown
   if ($expiry) {
@@ -340,10 +384,13 @@ export function renderInboxHistory() {
       const active = currentInbox?.address === h.address;
       const displayNumber = realIdx + 1;
       const local = h.address.split('@')[0];
+      const displayAddress = formatDisplayAddress(h.address);
+      const displayLocal = displayAddress.split('@')[0];
+      const displayDomain = displayAddress.split('@')[1] || '';
       const label =
         local.length > 12
-          ? local.slice(0, 10) + '…' + h.address.split('@')[1]
-          : h.address;
+          ? displayLocal.slice(0, 10) + '…' + displayDomain
+          : displayAddress;
 
       const count = messageCounts.get(h.address) || 0;
       const badge = count > 0
@@ -448,7 +495,7 @@ export function showMessageModal(message) {
 
   $msgModalSubj.textContent = message.subject || '(no subject)';
   $msgModalFrom.textContent = 'From: ' + (message.from_address || message.sender_address || '—');
-  $msgModalTo.textContent = 'To: ' + (currentInbox?.address || '—');
+  $msgModalTo.textContent = 'To: ' + formatDisplayAddress(currentInbox?.address);
   $msgModalTime.textContent =
     'Received: ' +
     (message.received_at
@@ -522,11 +569,11 @@ export function debounce(fn, delay) {
 export const debouncedRenderInboxHistory = debounce(renderInboxHistory, 150);
 export const debouncedRenderMessages = debounce(renderMessages, 100);
 
-// ── VIP Credentials Panel ──
+// ── Lifetime Pro Credentials Panel ──
 
 
 /**
- * Render the VIP credentials panel for the current inbox.
+ * Render the Lifetime Pro credentials panel for the current inbox.
  * Shows IMAP/SMTP connection info if the inbox has a password.
  */
 export function renderVipCredentials() {
@@ -551,9 +598,9 @@ export function renderVipCredentials() {
   $('vipImapPort').textContent = String(server.imap.port);
   $('vipSmtpHost').textContent = server.smtp.host;
   $('vipSmtpPort').textContent = String(server.smtp.port);
-  $('vipSmtpUser').textContent = addr;
+  $('vipSmtpUser').textContent = addr.toLowerCase();
 
-  // Wire copy buttons inside VIP panel
+  // Wire copy buttons inside Lifetime Pro panel
   $panel.querySelectorAll('.vip-copy').forEach(btn => {
     btn.onclick = () => {
       const targetId = btn.dataset.copy;

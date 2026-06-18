@@ -7,3 +7,16 @@ node_modules
 .DS_Store
 scripts
 js/__tests__
+agent-api.json
+index.html.bak
+AGENTS.md
+README.md
+.hallmark/
+package.json
+package-lock.json
+favicon_backup.png
+supabase/
+ROLLBACK_GUIDE.md
+preview-*.png
+preview-test.mjs
+output/
