@@ -338,6 +338,12 @@ function addCandidate(candidates, val, priority, context) {
 
   // Mixed alphanumeric (e.g., A5G, 9F8R4)
   if (/[a-zA-Z]/.test(cleanVal) && /\d/.test(cleanVal)) {
+    // Real OTPs interleave letters/digits (A5G2, 9F8R4). Garbage clusters them (SHI79466, 79466DON).
+    let transitions = 0;
+    for (let i = 1; i < cleanVal.length; i++) {
+      if (/[a-zA-Z]/.test(cleanVal[i]) !== /[a-zA-Z]/.test(cleanVal[i - 1])) transitions++;
+    }
+    if (transitions < 2) return;
     candidates.push({ val: cleanVal.toUpperCase(), priority, context });
     return;
   }
@@ -518,6 +524,12 @@ function scanFallback(strippedText, existingCandidates) {
         .slice(Math.max(0, wordIdx - 50), wordIdx)
         .trim();
       if (/[#$]\s*$/.test(before) || NON_OTP_KEYWORDS.test(before)) continue;
+      // Skip words near HTML/CSS artifacts (=, #, ;, :, . without space)
+      const ctxBefore = strippedText.slice(Math.max(0, wordIdx - 15), wordIdx);
+      const ctxAfter = strippedText.slice(wordIdx + w.length, Math.min(strippedText.length, wordIdx + w.length + 15));
+      const aroundWord = ctxBefore + w + ctxAfter;
+      if (/[=#;]/.test(aroundWord)) continue;
+      if (/[:.]/.test(aroundWord) && !/[:.]\s/.test(aroundWord)) continue;
       const wideContext = strippedText.slice(
         Math.max(0, wordIdx - 30),
         Math.min(strippedText.length, wordIdx + w.length + 30)
