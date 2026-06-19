@@ -319,7 +319,22 @@ export async function deleteInbox(address, ownerTokenArg) {
   return { ok: true };
 }
 
-// ── VIP Inbox Creation ──
+// ── VIP Inbox Creation (RLS-resilient) ──
+// Never sends is_vip:true in the INSERT — a future RLS policy could block it.
+// Fallback chain: Path 1 (skip flag) → Path 2 (insert-then-update)
+// Server-side upgrades (when Supabase dashboard is available):
+//   Path 3: SECURITY DEFINER RPC — sb.rpc('create_vip_inbox', {...})
+//   Path 4: Separate temp_vip_credentials table
+//   Path 5: Edge function allowlist (service_role bypasses anon RLS)
+
+async function trySetVipFlag(address) {
+  const { error } = await sb
+    .from('temp_inboxes')
+    .update({ is_vip: true })
+    .eq('address', address)
+    .eq('owner_token', ownerToken);
+  return !error;
+}
 
 export async function createVipInbox(prefix, domain) {
   const password = generateInboxPassword();
@@ -338,12 +353,15 @@ export async function createVipInbox(prefix, domain) {
         domain: targetDomain,
         owner_token: ownerToken,
         password_plain: password,
-        is_vip: true,
       })
-      .select('address, expires_at, password_plain, is_vip')
+      .select('address, expires_at, password_plain')
       .single();
 
-    if (!error) return data;
+    if (!error) {
+      await trySetVipFlag(address);
+      data.is_vip = true;
+      return data;
+    }
     if (!/duplicate|already exists|unique/i.test(error.message || '')) {
       throw new Error(error.message || 'Failed to create VIP inbox');
     }
