@@ -11,10 +11,8 @@ import {
   LS_HISTORY,
   LS_DOMAIN,
   LS_DARK_MODE,
-  LS_TOKEN_POOL,
   LS_SEEN_MESSAGES,
   MAX_INBOX_HISTORY,
-  TOKEN_POOL_SIZE,
 } from './config.js';
 
 // ── Mutable state ──
@@ -25,7 +23,6 @@ export let messages = [];
 export let inboxHistory = [];
 export let selectedDomain = null;
 export let ownerToken = '';
-export let tokenPool = [];
 export let seenMessages = {};
 export let messageCounts = new Map();
 
@@ -64,39 +61,6 @@ export function initOwnerToken() {
 export function rotateOwnerToken() {
   ownerToken = generateToken();
   localStorage.setItem(LS_OWNER_TOKEN, ownerToken);
-}
-
-export function resetOwnerToken() {
-  ownerToken = generateToken();
-  localStorage.setItem(LS_OWNER_TOKEN, ownerToken);
-  // Also rotate all pool tokens so bulk uses fresh identities
-  tokenPool = tokenPool.map(() => generateToken());
-  saveTokenPool();
-}
-
-// ── Token pool (50 identities for aggressive rate-limit bypass) ──
-
-export function initTokenPool() {
-  try {
-    const p = JSON.parse(localStorage.getItem(LS_TOKEN_POOL));
-    if (Array.isArray(p) && p.length > 0) {
-      tokenPool = p;
-    }
-  } catch (e) {
-    // Corrupted pool — rebuild
-  }
-  while (tokenPool.length < TOKEN_POOL_SIZE) {
-    tokenPool.push(generateToken());
-  }
-  saveTokenPool();
-}
-
-export function saveTokenPool() {
-  localStorage.setItem(LS_TOKEN_POOL, JSON.stringify(tokenPool));
-}
-
-export function rotatePoolToken(index) {
-  tokenPool[index] = generateToken();
 }
 
 // ── Inbox history ──

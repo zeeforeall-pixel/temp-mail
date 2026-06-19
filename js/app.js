@@ -18,7 +18,6 @@ import {
   inboxHistory,
   messages as stateMessages,
   initOwnerToken,
-  initTokenPool,
   initHistory,
   initSelectedDomain,
   initDarkMode,
@@ -476,7 +475,7 @@ function wireEvents() {
   $('shareBtn').addEventListener('click', () => {
     if (currentInbox) {
       copyText(
-        'https://mocasus.my.id/temp-mail?inbox=' + encodeURIComponent(currentInbox.address)
+        window.location.origin + window.location.pathname + '?inbox=' + encodeURIComponent(currentInbox.address)
       );
     }
   });

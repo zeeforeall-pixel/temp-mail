@@ -1,8 +1,8 @@
 /**
  * agent-api.js — Programmatic API for AI agents and browser automation.
  *
- * Exposes window.TempMailAPI so any script, console session, Playwright/Puppeteer
- * automation, or AI agent can use TempMail without clicking UI elements.
+ * Exposes window.TempMailAPI so any script, console session, or automation
+ * can use TempMail without clicking UI elements.
  *
  * Usage (browser console or automation script):
  *   const api = window.TempMailAPI;

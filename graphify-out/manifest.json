@@ -1,0 +1,127 @@
+{
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/agent-api.json": {
+    "mtime": 1781756470.42936,
+    "ast_hash": "4bfdc8fe91d724aa364bf8ad9394b360",
+    "semantic_hash": "4bfdc8fe91d724aa364bf8ad9394b360"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/vercel.json": {
+    "mtime": 1781756470.4468114,
+    "ast_hash": "46cd8bac84f4603a2d7b3a8dc6c24fe7",
+    "semantic_hash": "46cd8bac84f4603a2d7b3a8dc6c24fe7"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/package.json": {
+    "mtime": 1781756470.437048,
+    "ast_hash": "8750691fb4c889e9ab84578b4aed4761",
+    "semantic_hash": "8750691fb4c889e9ab84578b4aed4761"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/js/otp.js": {
+    "mtime": 1781756470.4343355,
+    "ast_hash": "dc11fc751bf902fa2f374dc838dcf071",
+    "semantic_hash": "dc11fc751bf902fa2f374dc838dcf071"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/js/ui.js": {
+    "mtime": 1781756470.435262,
+    "ast_hash": "dfaff219c48ff8a0092396af4a378a04",
+    "semantic_hash": "dfaff219c48ff8a0092396af4a378a04"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/js/agent-api.js": {
+    "mtime": 1781756470.432994,
+    "ast_hash": "84233c79bf0171ff60fc262829294172",
+    "semantic_hash": "84233c79bf0171ff60fc262829294172"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/js/sanitizer.js": {
+    "mtime": 1781756470.4345915,
+    "ast_hash": "5cda789dcd59aadec9e91d62948d01b8",
+    "semantic_hash": "5cda789dcd59aadec9e91d62948d01b8"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/js/config.js": {
+    "mtime": 1781756470.4340074,
+    "ast_hash": "e5b4096eaab659a3fbdc0229fe799645",
+    "semantic_hash": "e5b4096eaab659a3fbdc0229fe799645"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/js/state.js": {
+    "mtime": 1781756470.4350069,
+    "ast_hash": "dd24d52cce95c1b6a611ca8e4e2a958b",
+    "semantic_hash": "dd24d52cce95c1b6a611ca8e4e2a958b"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/js/api.js": {
+    "mtime": 1781756470.4333408,
+    "ast_hash": "ab8b4527a2a8397c2667e0f591489d3d",
+    "semantic_hash": "ab8b4527a2a8397c2667e0f591489d3d"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/js/app.js": {
+    "mtime": 1781756470.433719,
+    "ast_hash": "f61fff64428f11796007435b9558e693",
+    "semantic_hash": "f61fff64428f11796007435b9558e693"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/.well-known/ai-plugin.json": {
+    "mtime": 1781756470.4286776,
+    "ast_hash": "c2fdaec6026451e148bb3cca5d889e63",
+    "semantic_hash": "c2fdaec6026451e148bb3cca5d889e63"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/scripts/otp-extractor.mjs": {
+    "mtime": 1781756470.442005,
+    "ast_hash": "7ae51b58bed64419d6fa941d196e193b",
+    "semantic_hash": "7ae51b58bed64419d6fa941d196e193b"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/scripts/ghost-browser.mjs": {
+    "mtime": 1781756470.4386954,
+    "ast_hash": "0ca8a6eaa2ecee35362d82e8c73626f8",
+    "semantic_hash": "0ca8a6eaa2ecee35362d82e8c73626f8"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/scripts/ghost-init.mjs": {
+    "mtime": 1781756470.439368,
+    "ast_hash": "1b31f10c4c0bfa4ab08a089e790ef432",
+    "semantic_hash": "1b31f10c4c0bfa4ab08a089e790ef432"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/scripts/ghost-run.mjs": {
+    "mtime": 1781756470.441392,
+    "ast_hash": "2eef30dc720099247c677166be6d18fd",
+    "semantic_hash": "2eef30dc720099247c677166be6d18fd"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/scripts/ghost-postinstall.mjs": {
+    "mtime": 1781756470.4408135,
+    "ast_hash": "d7f4b8795dac426111f0c19e98bd5435",
+    "semantic_hash": "d7f4b8795dac426111f0c19e98bd5435"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/scripts/supabase-client.mjs": {
+    "mtime": 1781756470.4461899,
+    "ast_hash": "b5b15ffe12296faca43e37712f9857bc",
+    "semantic_hash": "b5b15ffe12296faca43e37712f9857bc"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/scripts/stealth.mjs": {
+    "mtime": 1781756470.4422534,
+    "ast_hash": "8395b323f8b3a5ea0ca450c9ccc3fdfb",
+    "semantic_hash": "8395b323f8b3a5ea0ca450c9ccc3fdfb"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/scripts/invisible-browser.py": {
+    "mtime": 1781756470.441614,
+    "ast_hash": "644a1b3fc6c20fdef736f84d0d7e9763",
+    "semantic_hash": "644a1b3fc6c20fdef736f84d0d7e9763"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/.hallmark/log.json": {
+    "mtime": 1781756470.428189,
+    "ast_hash": "f72c7ae1537c853d577a70c2d5362146",
+    "semantic_hash": "f72c7ae1537c853d577a70c2d5362146"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/index.html": {
+    "mtime": 1781756470.4321356,
+    "ast_hash": "baf4527cd4b3e0d82dff5eb246a7850a",
+    "semantic_hash": "baf4527cd4b3e0d82dff5eb246a7850a"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/README.md": {
+    "mtime": 1781756470.4291623,
+    "ast_hash": "ab09655f577775a02d22e77e841e4878",
+    "semantic_hash": "ab09655f577775a02d22e77e841e4878"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/AGENTS.md": {
+    "mtime": 1781756470.4289405,
+    "ast_hash": "a6612032ab4ab120893074a1ce52b1c4",
+    "semantic_hash": "a6612032ab4ab120893074a1ce52b1c4"
+  },
+  "/Users/blessed/Documents/antigravity/goofy-carson/.claude/worktrees/frosty-buck-c02347/favicon.png": {
+    "mtime": 1781756470.4317102,
+    "ast_hash": "23225d70d5c10d4b0ade24a4d1a7b219",
+    "semantic_hash": "23225d70d5c10d4b0ade24a4d1a7b219"
+  }
+}

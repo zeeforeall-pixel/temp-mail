@@ -1,26 +1,20 @@
 /**
  * api.js — Supabase client, inbox generation, and message fetching.
  *
- * All network calls live here. Uses direct fetch for bulk creation
- * (to enable stealth headers and cache-busting) and the Supabase JS
- * client for standard CRUD and realtime subscriptions.
+ * All network calls live here. Uses the Supabase JS client for
+ * standard CRUD and realtime subscriptions.
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import {
   SB_URL,
   SB_ANON_KEY,
-  MAX_INBOX_RETRIES,
   MAX_GEN_RETRIES,
   RETRY_DELAY_MS,
   MESSAGE_FETCH_LIMIT,
   BULK_CONCURRENCY,
   BULK_BLACKLIST,
   PREMIUM_DOMAINS,
-  FINGERPRINT_PROFILES,
-  ACCEPT_TYPES,
-  FAKE_REFERERS,
-  TOKEN_QUARANTINE_MS,
   DOMAIN_CIRCUIT_BREAKER_THRESHOLD,
   DOMAIN_CIRCUIT_BREAKER_COOLDOWN_MS,
   genHumanPrefix,
@@ -32,10 +26,7 @@ import {
   domains,
   selectedDomain,
   ownerToken,
-  tokenPool,
   rotateOwnerToken,
-  rotatePoolToken,
-  saveTokenPool,
 } from './state.js';
 
 // ── Supabase client ──
@@ -46,9 +37,6 @@ export const sb = createClient(SB_URL, SB_ANON_KEY, {
 
 // ── Helpers ──
 
-/**
- * Pick the effective domain: the selected one if valid, else random.
- */
 export function getEffDomain() {
   if (!selectedDomain || selectedDomain === '__random__') {
     return domains[Math.floor(Math.random() * domains.length)]?.domain || '';
@@ -60,10 +48,6 @@ export function getEffDomain() {
 
 // ── Load available domains ──
 
-/**
- * Fetch active domains from the database.
- * @returns {Promise<Array>} Array of { domain, label } objects.
- */
 export async function fetchDomains() {
   const { data, error } = await sb
     .from('temp_domains')
@@ -78,17 +62,8 @@ export async function fetchDomains() {
   return data || [];
 }
 
-// ── Inbox creation (standard — via Supabase Edge Function) ──
+// ── Inbox creation (standard) ──
 
-/**
- * Create an inbox using the Supabase JS client.
- * Used for single manual/random creation.
- *
- * @param {string} prefix - Desired local part of the email.
- * @param {string} domain - Domain to use.
- * @param {number} retries - Remaining retry attempts.
- * @returns {Promise<{address: string, expires_at: string}|null>}
- */
 export async function createInbox(prefix, domain, retries = MAX_GEN_RETRIES) {
   if (PREMIUM_DOMAINS.includes(domain)) {
     return createVipInbox(prefix, domain);
@@ -113,46 +88,10 @@ export async function createInbox(prefix, domain, retries = MAX_GEN_RETRIES) {
   return { address: data.address, expires_at: data.expires_at };
 }
 
-// ── Inbox creation (bulk — max-aggressive stealth pipeline) ──
+// ── Bulk inbox creation (concurrent workers) ──
 
-const SB_FUNC_URL = `${SB_URL}/functions/v1/generate-inbox`;
-
-// ── Token quarantine & domain circuit breaker state ──
-
-const tokenQuarantine = new Map();     // token → cooldown expiry timestamp
-const domainFailCount = new Map();     // domain → consecutive failure count
-const domainCooldown = new Map();      // domain → cooldown expiry timestamp
-let bulkThrottleMs = 0;
-let bulkThrottleUntil = 0;
-
-function isTokenQuarantined(token) {
-  const until = tokenQuarantine.get(token);
-  if (!until) return false;
-  if (Date.now() >= until) {
-    tokenQuarantine.delete(token);
-    return false;
-  }
-  return true;
-}
-
-function quarantineToken(token) {
-  tokenQuarantine.set(token, Date.now() + TOKEN_QUARANTINE_MS);
-}
-
-function getAvailableToken(idx) {
-  // Try the assigned token first, then scan the pool for a non-quarantined one
-  const primary = tokenPool[idx % tokenPool.length];
-  if (!isTokenQuarantined(primary)) return primary;
-
-  // Scan pool for any available token
-  const shuffled = [...tokenPool].sort(() => Math.random() - 0.5);
-  for (const tk of shuffled) {
-    if (!isTokenQuarantined(tk)) return tk;
-  }
-  // All quarantined — rotate a fresh one
-  rotatePoolToken(idx % tokenPool.length);
-  return tokenPool[idx % tokenPool.length];
-}
+const domainFailCount = new Map();
+const domainCooldown = new Map();
 
 function isDomainAvailable(domain) {
   const until = domainCooldown.get(domain);
@@ -178,342 +117,74 @@ function reportDomainSuccess(domain) {
   domainFailCount.delete(domain);
 }
 
-async function waitForBulkThrottle() {
-  const waitMs = bulkThrottleUntil - Date.now();
-  if (waitMs > 0) {
-    await new Promise((r) => setTimeout(r, waitMs + poissonDelay(25)));
-  }
-}
-
-function reportBulkRateLimit() {
-  bulkThrottleMs = Math.min(3000, Math.max(250, bulkThrottleMs * 1.5 || 250));
-  bulkThrottleUntil = Date.now() + bulkThrottleMs;
-}
-
-function reportBulkSuccess() {
-  bulkThrottleMs = Math.max(0, bulkThrottleMs * 0.85 - 25);
-  if (bulkThrottleMs === 0) bulkThrottleUntil = 0;
-}
-
-// ── Poisson-distributed delay (models natural arrival patterns) ──
-
-function poissonDelay(lambda) {
-  // Exponential inter-arrival time with mean = lambda ms
-  return -Math.log(1 - Math.random()) * lambda;
-}
-
-function isRateLimitError(error) {
-  return error?.status === 429 || /rate\s*limit|too many requests/i.test(error?.message || '');
-}
-
 function isVipDomainError(error) {
   return /khusus\s+vip|vip|row.level.security|rls|policy|is_vip/i.test(error?.message || '');
 }
 
-// ── Build request body with random padding (breaks body fingerprinting) ──
-
-const PADDING_KEYS = [
-  '_t', '_r', '_n', '_v', '_x', '_c', '_p', '_q', '_z',
-  'nonce', 'ts', 'ref', 'seq', 'client_id', 'session_hint',
-];
-
-function buildBodyWithPadding(prefix, domain, token) {
-  const body = { owner_token: token, desired_local: prefix, domain };
-
-  // Add 1–3 random padding fields with harmless values
-  const padCount = 1 + Math.floor(Math.random() * 3);
-  const usedKeys = new Set();
-  for (let i = 0; i < padCount; i++) {
-    let key;
-    do {
-      key = PADDING_KEYS[Math.floor(Math.random() * PADDING_KEYS.length)];
-    } while (usedKeys.has(key));
-    usedKeys.add(key);
-
-    // Mix of value types: numbers, short strings, booleans, timestamps
-    const variant = Math.random();
-    if (variant < 0.25) body[key] = Date.now() + Math.floor(Math.random() * 1000);
-    else if (variant < 0.5) body[key] = Math.random().toString(36).slice(2, 8);
-    else if (variant < 0.75) body[key] = Math.random() > 0.5;
-    else body[key] = Math.floor(Math.random() * 99999);
-  }
-
-  // Randomize key ordering — JSON.stringify preserves insertion order
-  const keys = Object.keys(body);
-  for (let i = keys.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [keys[i], keys[j]] = [keys[j], keys[i]];
-  }
-  const ordered = {};
-  for (const k of keys) ordered[k] = body[k];
-  return JSON.stringify(ordered);
-}
-
-// ── Build stealth headers from a fingerprint profile ──
-
-function buildStealthHeaders(profile) {
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${SB_ANON_KEY}`,
-    apikey: SB_ANON_KEY,
-    Accept: ACCEPT_TYPES[Math.floor(Math.random() * ACCEPT_TYPES.length)],
-    'Accept-Language': profile.locale,
-  };
-
-  // Sec-CH-UA hints (Chrome/Edge only — Safari/Firefox don't send these)
-  if (profile.secUA) {
-    headers['Sec-CH-UA'] = profile.secUA;
-    headers['Sec-CH-UA-Platform'] = profile.secPlatform;
-    headers['Sec-CH-UA-Mobile'] = profile.secMobile;
-  }
-
-  // Sec-Fetch headers (Chrome/Edge/Firefox — not Safari)
-  if (!profile.safari) {
-    headers['Sec-Fetch-Mode'] = 'cors';
-    headers['Sec-Fetch-Site'] = Math.random() > 0.5 ? 'cross-site' : 'same-site';
-    headers['Sec-Fetch-Dest'] = 'empty';
-  }
-
-  // Fake Referer (randomly included — ~60% of requests)
-  const referer = FAKE_REFERERS[Math.floor(Math.random() * FAKE_REFERERS.length)];
-  if (referer) {
-    headers['Referer'] = referer;
-  }
-
-  // Random extras
-  const rand = Math.random();
-  if (rand > 0.5) headers['X-Request-Id'] = crypto.randomUUID();
-  if (rand > 0.8) headers['X-Forwarded-For'] = generateFakeIP();
-  if (rand > 0.9) headers['DNT'] = '1';
-  if (rand > 0.85) headers['Accept-Encoding'] = 'gzip, deflate, br';
-
-  return headers;
-}
-
-// ── Fake IP generator (for X-Forwarded-For — mostly ignored by servers,
-//    but adds entropy to the request fingerprint) ──
-
-function generateFakeIP() {
-  const octets = [
-    1 + Math.floor(Math.random() * 223),  // avoid 0.x and multicast
-    Math.floor(Math.random() * 256),
-    Math.floor(Math.random() * 256),
-    1 + Math.floor(Math.random() * 254),
-  ];
-  // Avoid private ranges that would look suspicious
-  if (octets[0] === 10 || octets[0] === 127) octets[0] = 44;
-  if (octets[0] === 192 && octets[1] === 168) octets[1] = 1;
-  return octets.join('.');
-}
-
-// ── Fire a single request with full stealth ──
-
-/**
- * Fire a single inbox creation request with maximum stealth.
- * Each request gets a unique fingerprint profile, cache-busted URL,
- * padded body, and randomized headers.
- */
-export async function fireInboxRequest(prefix, domain, token) {
-  if (PREMIUM_DOMAINS.includes(domain)) {
-    return createVipInbox(prefix, domain);
-  }
-
-  // Pick a random fingerprint profile for this request
-  const profile = FINGERPRINT_PROFILES[Math.floor(Math.random() * FINGERPRINT_PROFILES.length)];
-
-  // Multi-layer cache-busting: timestamp + random nonce + profile hash
-  const bust = `_cb=${Date.now()}_${Math.random().toString(36).slice(2, 10)}_${profile.platform.slice(0, 3)}`;
-  const url = `${SB_FUNC_URL}?${bust}`;
-
-  const headers = buildStealthHeaders(profile);
-  const body = buildBodyWithPadding(prefix, domain, token);
-
-  // Randomize fetch options
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body,
-    cache: 'no-store',
-    mode: 'cors',
-    credentials: Math.random() > 0.5 ? 'omit' : 'same-origin',
-    keepalive: Math.random() > 0.7,
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    const error = new Error(data.error || data.message || `HTTP ${res.status}`);
-    error.status = res.status;
-    throw error;
-  }
-  if (data?.error) {
-    throw new Error(data.error);
-  }
-  return { address: data.address, expires_at: data.expires_at };
-}
-
-// ── Retry with quarantine + circuit breaker ──
-
-/**
- * Try to create a single inbox with aggressive retry logic.
- * - Tokens that fail get quarantined (temporary cooldown)
- * - Domains that fail repeatedly trigger a circuit breaker
- * - Each retry uses a fresh token and Poisson-distributed backoff
- */
-export async function tryCreateInbox(prefix, domain, tokenIdx) {
-  if (PREMIUM_DOMAINS.includes(domain)) {
-    return createVipInbox(prefix, domain);
-  }
-
-  // Check circuit breaker — skip this domain if it's in cooldown
-  if (!isDomainAvailable(domain)) {
-    // Try a different domain from the pool
-    const available = domains.filter(
-      (d) => !BULK_BLACKLIST.some(b => d.domain.includes(b)) && isDomainAvailable(d.domain)
-    );
-    if (available.length > 0) {
-      domain = available[Math.floor(Math.random() * available.length)].domain;
-    }
-  }
-
-  for (let attempt = 0; attempt < MAX_INBOX_RETRIES; attempt++) {
-    const p = attempt === 0 ? prefix : genHumanPrefix();
-    const tk = attempt === 0
-      ? getAvailableToken(tokenIdx)
-      : (() => {
-          rotatePoolToken(tokenIdx);
-          return tokenPool[tokenIdx];
-        })();
-
-    try {
-      // Poisson-distributed backoff: mean grows exponentially with attempt
-      if (attempt > 0) {
-        const meanDelay = Math.min(800, 20 * Math.pow(1.5, attempt));
-        const delay = poissonDelay(meanDelay) + Math.random() * 10;
-        await new Promise((r) => setTimeout(r, delay));
-      }
-      const result = await fireInboxRequest(p, domain, tk);
-      reportDomainSuccess(domain);
-      return result;
-    } catch (e) {
-      if (isVipDomainError(e)) {
-        return createVipInbox(p, domain);
-      }
-      quarantineToken(tk);
-      reportDomainFailure(domain);
-      if (isRateLimitError(e)) {
-        reportBulkRateLimit();
-      }
-      if (attempt < MAX_INBOX_RETRIES - 1) {
-        console.warn(`Attempt ${attempt + 1}/${MAX_INBOX_RETRIES} failed (${e.message}) — quarantined token, retrying`);
-      }
-    }
-  }
-  return null;
-}
-
-// ── Wave-based bulk dispatch ──
-
-/**
- * Bulk-create inboxes using staggered waves with Poisson timing.
- * Requests are dispatched in waves to avoid burst detection.
- * Each wave has a random size and inter-wave delay.
- */
 export async function bulkCreateInboxes(count, onProgress, targetDomain) {
-  // Reset dedup set and circuit breakers for a fresh batch
   resetPrefixDedup();
-  tokenQuarantine.clear();
   domainFailCount.clear();
   domainCooldown.clear();
-  bulkThrottleMs = 0;
-  bulkThrottleUntil = 0;
 
   const results = [];
   const failures = [];
   const concurrency = Math.min(count, BULK_CONCURRENCY);
-  let active = 0;
-  let attempts = 0;
-  const maxAttempts = count + Math.max(BULK_CONCURRENCY, Math.ceil(count * 0.25));
+  let nextIndex = 0;
 
   function pickDomain() {
     if (targetDomain && domains.some((d) => d.domain === targetDomain) && isDomainAvailable(targetDomain)) {
       return targetDomain;
     }
-
-    const availableDomains = domains.filter(
+    const available = domains.filter(
       (d) => !BULK_BLACKLIST.some((b) => d.domain.includes(b)) && !PREMIUM_DOMAINS.includes(d.domain) && isDomainAvailable(d.domain)
     );
-    const pool = availableDomains.length > 0 ? availableDomains : domains.filter(
+    const pool = available.length > 0 ? available : domains.filter(
       (d) => !BULK_BLACKLIST.some((b) => d.domain.includes(b)) && !PREMIUM_DOMAINS.includes(d.domain)
     );
-
-    if (pool.length === 0) {
-      return targetDomain || domains[0]?.domain || '';
-    }
-
+    if (pool.length === 0) return targetDomain || domains[0]?.domain || '';
     return pool[Math.floor(Math.random() * pool.length)]?.domain || '';
   }
 
-  function nextJob() {
-    if (results.length + active >= count || attempts >= maxAttempts) return null;
-    active++;
-    attempts++;
-    return {
-      prefix: genHumanPrefix(),
-      domain: pickDomain(),
-      tokenIndex: attempts % tokenPool.length,
-    };
-  }
-
   async function worker() {
-    // Staggered startup — each worker starts at a Poisson-distributed offset
-    await new Promise((r) => setTimeout(r, poissonDelay(25)));
-
     while (true) {
-      if (results.length >= count || attempts >= maxAttempts) break;
+      const index = nextIndex++;
+      if (index >= count) break;
 
-      const job = nextJob();
-      if (!job) break;
+      const prefix = genHumanPrefix();
+      const domain = pickDomain();
 
-      await waitForBulkThrottle();
-      const r = await tryCreateInbox(job.prefix, job.domain, job.tokenIndex);
-      if (r) {
-        results.push(r);
-        reportBulkSuccess();
-      } else {
-        failures.push({
-          prefix: job.prefix,
-          domain: job.domain,
-          error: 'exhausted retries',
-        });
+      try {
+        const result = await createInbox(prefix, domain);
+        results.push(result);
+        reportDomainSuccess(domain);
+      } catch (e) {
+        if (isVipDomainError(e)) {
+          try {
+            const vip = await createVipInbox(prefix, domain);
+            results.push(vip);
+            continue;
+          } catch {}
+        }
+        reportDomainFailure(domain);
+        failures.push({ prefix, domain, error: e.message });
       }
-      active--;
+
       onProgress(Math.min(results.length, count), count);
-
-      // Poisson-distributed inter-request delay (mean ~40ms)
-      // This creates natural-looking traffic instead of uniform bursts
-      await new Promise((r) => setTimeout(r, poissonDelay(12)));
-
-      if (results.length >= count) break;
     }
   }
 
   await Promise.all(
-    Array.from({ length: concurrency }, (_, i) => worker(i))
+    Array.from({ length: concurrency }, () => worker())
   );
-  saveTokenPool();
+
   if (results.length < count) {
-    console.warn(`Bulk inbox creation completed ${results.length}/${count}; ${failures.length} refill attempts exhausted`);
+    console.warn(`Bulk creation completed ${results.length}/${count}; ${failures.length} failures`);
   }
   return results.slice(0, count);
 }
 
 // ── Message fetching ──
 
-/**
- * Fetch messages for the current inbox.
- * @param {string} inboxAddress - The inbox email address.
- * @returns {Promise<Array>} Array of message objects.
- */
 export async function fetchMessages(inboxAddress) {
   if (!inboxAddress) return [];
   try {
@@ -535,14 +206,6 @@ export async function fetchMessages(inboxAddress) {
   }
 }
 
-// ── Parallel / batch message fetching ──
-
-/**
- * Fetch messages for multiple inbox addresses in a single query.
- * Uses .in() filter for batch retrieval.
- * @param {string[]} addresses - Array of inbox addresses.
- * @returns {Promise<Map<string, Array>>} Map of address → messages.
- */
 export async function fetchMessagesForAddresses(addresses) {
   if (!addresses || addresses.length === 0) return new Map();
   const map = new Map();
@@ -571,12 +234,6 @@ export async function fetchMessagesForAddresses(addresses) {
   }
 }
 
-/**
- * Fetch message counts for multiple addresses in a single query.
- * Lighter than fetching full messages — uses count option.
- * @param {string[]} addresses - Array of inbox addresses.
- * @returns {Promise<Map<string, number>>} Map of address → count.
- */
 export async function fetchMessageCounts(addresses) {
   if (!addresses || addresses.length === 0) return new Map();
   const map = new Map();
@@ -592,7 +249,6 @@ export async function fetchMessageCounts(addresses) {
     }
 
     for (const addr of addresses) map.set(addr, 0);
-
     if (!data || data.length === 0) return map;
     for (const row of data) {
       map.set(row.inbox_address, (map.get(row.inbox_address) || 0) + 1);
@@ -606,11 +262,6 @@ export async function fetchMessageCounts(addresses) {
 
 // ── Shared inbox lookup ──
 
-/**
- * Look up or create an inbox from a shared URL parameter.
- * @param {string} sharedAddress - The shared email address.
- * @returns {Promise<{address: string, expires_at: string}|null>}
- */
 export async function lookupSharedInbox(sharedAddress) {
   let { data, error } = await sb
     .from('temp_inboxes')
@@ -643,18 +294,9 @@ export async function lookupSharedInbox(sharedAddress) {
   return data || null;
 }
 
+// ── Inbox deletion ──
 
-// ── Inbox deletion (via Supabase RLS) ──
-
-/**
- * Delete an inbox and all its messages via Supabase.
- *
- * @param {string} address - Inbox email address.
- * @param {string} ownerTokenArg - Owner token for the inbox.
- * @returns {Promise<{ok: boolean}>}
- */
 export async function deleteInbox(address, ownerTokenArg) {
-  // Delete messages first (foreign key constraint)
   const { error: msgError } = await sb
     .from('temp_messages')
     .delete()
@@ -664,7 +306,6 @@ export async function deleteInbox(address, ownerTokenArg) {
     throw new Error('Failed to delete messages: ' + msgError.message);
   }
 
-  // Delete inbox
   const { error: inboxError } = await sb
     .from('temp_inboxes')
     .delete()
@@ -678,16 +319,8 @@ export async function deleteInbox(address, ownerTokenArg) {
   return { ok: true };
 }
 
-// ── VIP Inbox Creation (with auto-generated IMAP/SMTP password) ──
+// ── VIP Inbox Creation ──
 
-/**
- * Create a VIP inbox with an auto-generated password for IMAP/SMTP login.
- * Creates the inbox via edge function, then updates it with password_plain + is_vip.
- *
- * @param {string} prefix - Desired local part of the email.
- * @param {string} domain - Domain to use.
- * @returns {Promise<{address: string, expires_at: string, password_plain: string, is_vip: true}|null>}
- */
 export async function createVipInbox(prefix, domain) {
   const password = generateInboxPassword();
   const targetDomain = domain || getEffDomain();
@@ -720,12 +353,7 @@ export async function createVipInbox(prefix, domain) {
 }
 
 export async function bulkCreateVipInboxes(count, opts = {}) {
-  const {
-    domain,
-    concurrency = 10,
-    onProgress,
-  } = opts;
-
+  const { domain, concurrency = 10, onProgress } = opts;
   const results = [];
   const failures = [];
   let nextIndex = 0;
@@ -740,14 +368,12 @@ export async function bulkCreateVipInboxes(count, opts = {}) {
     while (true) {
       const index = nextIndex++;
       if (index >= count) break;
-
       try {
         const inbox = await createVipInbox(genHumanPrefix(), pickDomain());
         results.push(inbox);
       } catch (e) {
         failures.push({ index, error: e.message });
       }
-
       onProgress?.(results.length + failures.length, count, {
         success: results.length,
         fail: failures.length,

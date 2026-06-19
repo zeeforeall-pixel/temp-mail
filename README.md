@@ -10,7 +10,7 @@ Disposable email client with real-time message delivery, automatic OTP extractio
 - **OTP auto-detection** extracts verification codes from incoming messages
 - **Verification link detection** identifies confirm/activate URLs
 - **Multi-inbox support** to manage several temporary addresses at once
-- **Bulk inbox creation** with stealth pipeline (token rotation, circuit breakers)
+- **Bulk inbox creation** with concurrent workers and retry logic
 - **Persistent history** with message counts stored in localStorage
 - **Dark mode** toggle
 - **Keyboard shortcuts** — `R` to refresh, `C` to copy address, `Esc` to close modals

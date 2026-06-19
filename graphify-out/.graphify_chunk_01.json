@@ -1,0 +1,745 @@
+{
+  "nodes": [
+    {
+      "id": "goofy_carson_readme",
+      "label": "README (TempMail)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "goofy_carson_agents",
+      "label": "AGENTS.md (Anti-Detection Playwright)",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "goofy_carson_index",
+      "label": "index.html (TempMail UI)",
+      "file_type": "code",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "goofy_carson_favicon",
+      "label": "favicon.png (App Icon)",
+      "file_type": "image",
+      "source_file": "favicon.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "css_theme",
+      "label": "theme.css (CSS Variables, Dark Mode)",
+      "file_type": "code",
+      "source_file": "css/theme.css",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "css_layout",
+      "label": "layout.css (Body, Container, Cards)",
+      "file_type": "code",
+      "source_file": "css/layout.css",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "css_components",
+      "label": "components.css (Buttons, Modals, Toasts)",
+      "file_type": "code",
+      "source_file": "css/components.css",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_config",
+      "label": "config.js (Constants, Supabase Config, Word Lists)",
+      "file_type": "code",
+      "source_file": "js/config.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_state",
+      "label": "state.js (App State, localStorage Persistence)",
+      "file_type": "code",
+      "source_file": "js/state.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_api",
+      "label": "api.js (Supabase Client, Inbox/Message API)",
+      "file_type": "code",
+      "source_file": "js/api.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_otp",
+      "label": "otp.js (OTP + Verification Link Extraction)",
+      "file_type": "code",
+      "source_file": "js/otp.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_sanitizer",
+      "label": "sanitizer.js (HTML Email Sanitizer)",
+      "file_type": "code",
+      "source_file": "js/sanitizer.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_ui",
+      "label": "ui.js (DOM Rendering, Events, Theme, Keyboard Shortcuts)",
+      "file_type": "code",
+      "source_file": "js/ui.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_agent_api",
+      "label": "agent-api.js (Programmatic Agent API, window.TempMailAPI)",
+      "file_type": "code",
+      "source_file": "js/agent-api.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_app",
+      "label": "app.js (Init, Wiring, Polling, Realtime Subscriptions)",
+      "file_type": "code",
+      "source_file": "js/app.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "test_otp_test",
+      "label": "otp.test.mjs (OTP Extraction Test Suite, 79 Tests)",
+      "file_type": "code",
+      "source_file": "test/otp.test.mjs",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concepts_anti_detection_playwright",
+      "label": "Anti-Detection Playwright",
+      "file_type": "concept",
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concepts_stealth",
+      "label": "Stealth Module (Fingerprint Spoofing)",
+      "file_type": "concept",
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rationale_zero_build",
+      "label": "Zero Build Step Design",
+      "file_type": "rationale",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Runs directly in the browser with native ES module imports — no bundler, no transpiler, no build pipeline. Reduces complexity and deployment friction."
+    },
+    {
+      "id": "rationale_anti_detection",
+      "label": "Anti-Detection Design Rationale",
+      "file_type": "rationale",
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Playwright is patched at node_modules level to automatically apply stealth plugins (playwright-ghost + patchright) so any code importing playwright gets anti-detection by default. Purpose: pass bot detection on fingerprint-heavy sites like WhatsApp Web."
+    },
+    {
+      "id": "rationale_csp_whitelist",
+      "label": "CSP Domain Whitelist Design",
+      "file_type": "rationale",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Content-Security-Policy restricts connect-src to only the Supabase project domain and esm.sh CDN, limiting outbound network access to trusted backends only."
+    },
+    {
+      "id": "concept_supabase",
+      "label": "Supabase (PostgreSQL, Realtime, RLS)",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_netlify",
+      "label": "Netlify (Hosting, Deployment)",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_agent_api",
+      "label": "Agent API (Programmatic / URL-mode for AI agents)",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_bot_detection",
+      "label": "Bot Detection Evasion (SannySoft, Canvas, WebGL)",
+      "file_type": "concept",
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "goofy_carson_index",
+      "target": "css_theme",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": "line 14",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_index",
+      "target": "css_layout",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": "line 16",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_index",
+      "target": "css_components",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": "line 17",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_index",
+      "target": "js_app",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": "line 497",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_index",
+      "target": "goofy_carson_favicon",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": "line 9-10",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_index",
+      "target": "concept_supabase",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": "line 7",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_index",
+      "target": "concept_agent_api",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": "lines 19-24",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_index",
+      "target": "rationale_csp_whitelist",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": "line 6-7",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_agents",
+      "target": "concepts_anti_detection_playwright",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": "line 3",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_agents",
+      "target": "concepts_stealth",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": "lines 27-44",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_agents",
+      "target": "rationale_anti_detection",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_app",
+      "target": "js_config",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_app",
+      "target": "js_state",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_app",
+      "target": "js_api",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_app",
+      "target": "js_otp",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_app",
+      "target": "js_sanitizer",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_app",
+      "target": "js_ui",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_agent_api",
+      "target": "js_api",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_otp",
+      "target": "js_api",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_ui",
+      "target": "js_state",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "test_otp_test",
+      "target": "js_otp",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_agent_api",
+      "target": "concept_agent_api",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_api",
+      "target": "concept_supabase",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "concept_supabase",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 9",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "concept_netlify",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 11",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "js_app",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 44",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "js_config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 38",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "js_state",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 39",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "js_api",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 40",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "js_otp",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 41",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "js_sanitizer",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 42",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "js_ui",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 43",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "js_agent_api",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 44",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "test_otp_test",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 46",
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "rationale_zero_build",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 12",
+      "weight": 1.0
+    },
+    {
+      "source": "concept_bot_detection",
+      "target": "concepts_stealth",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_otp",
+      "target": "js_sanitizer",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_readme",
+      "target": "goofy_carson_agents",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.55,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "goofy_carson_agents",
+      "target": "concept_bot_detection",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": "lines 128-136",
+      "weight": 1.0
+    },
+    {
+      "source": "concepts_anti_detection_playwright",
+      "target": "concepts_stealth",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "tempmail_app_modules",
+      "label": "TempMail Application Module System",
+      "nodes": [
+        "js_app",
+        "js_config",
+        "js_state",
+        "js_api",
+        "js_otp",
+        "js_sanitizer",
+        "js_ui",
+        "js_agent_api"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md"
+    },
+    {
+      "id": "tempmail_css_stylesheets",
+      "label": "TempMail CSS Stylesheet System",
+      "nodes": [
+        "css_theme",
+        "css_layout",
+        "css_components"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html"
+    },
+    {
+      "id": "stealth_system",
+      "label": "Stealth / Anti-Detection System",
+      "nodes": [
+        "concepts_anti_detection_playwright",
+        "concepts_stealth",
+        "concept_bot_detection",
+        "rationale_anti_detection"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "tempmail_backend",
+      "label": "TempMail Backend Infrastructure",
+      "nodes": [
+        "concept_supabase",
+        "concept_netlify"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

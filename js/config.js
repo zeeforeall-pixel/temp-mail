@@ -33,7 +33,6 @@ export const MAX_GEN_RETRIES = 5;
 export const RETRY_DELAY_MS = 300;
 export const POLL_INTERVAL_MS = 10;
 export const MESSAGE_FETCH_LIMIT = 100;
-export const TOKEN_POOL_SIZE = 100;
 export const EXPIRY_WARNING_MS = 10 * 60 * 1000;       // 10 minutes
 export const EXPIRY_TICK_INTERVAL_MS = 30 * 1000;       // 30 seconds
 
@@ -43,15 +42,14 @@ export const LS_OWNER_TOKEN = 'tm_owner';
 export const LS_HISTORY = 'tm_history';
 export const LS_DOMAIN = 'tm_domain';
 export const LS_DARK_MODE = 'tm_dark';
-export const LS_TOKEN_POOL = 'tm_token_pool';
 export const LS_SEEN_MESSAGES = 'tm_seen_messages';
 
 // ── Domain blacklist (skipped during bulk creation only) ──
 
 export const BULK_BLACKLIST = ['moymoy.me', 'openfile.id'];
 
-export const PREMIUM_DOMAINS = ['moyzel.foo', 'moymoy.me', 'openfile.id'];
-export const CROWN_DOMAINS = ['moyzel.foo'];
+export const PREMIUM_DOMAINS = ['moyzel.foo', 'moymoy.me', 'openfile.id', 'moyvip.com'];
+export const CROWN_DOMAINS = ['moyzel.foo', 'moyvip.com'];
 // ── Word lists for human-readable prefix generation ──
 // Two large word pools: adjectives and nouns. Combined with a random
 // suffix to guarantee uniqueness across billions of combinations.
@@ -112,69 +110,8 @@ const NOUNS = [
 
 const SUFFIX_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
-// ── Stealth fingerprint profiles (for bulk creation) ──
-// Each profile is a coherent "persona" — platform, locale, and browser
-// hints that look like a real user. Requests pick a random profile so
-// every request looks like it comes from a different device/region.
+// ── Domain circuit breaker thresholds ──
 
-export const FINGERPRINT_PROFILES = [
-  // Chrome on Windows — US
-  { platform: 'Windows', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Windows"', secMobile: '?0', locale: 'en-US,en;q=0.9', tz: 'America/New_York' },
-  { platform: 'Windows', secUA: '"Chromium";v="131", "Google Chrome";v="131", "Not_A Brand";v="24"', secPlatform: '"Windows"', secMobile: '?0', locale: 'en-US,en;q=0.9', tz: 'America/Chicago' },
-  { platform: 'Windows', secUA: '"Chromium";v="130", "Not?A_Brand";v="24"', secPlatform: '"Windows"', secMobile: '?0', locale: 'en-US,en;q=0.85,es;q=0.75', tz: 'America/Los_Angeles' },
-  // Chrome on macOS — US/UK
-  { platform: 'macOS', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"macOS"', secMobile: '?0', locale: 'en-US,en;q=0.9', tz: 'America/New_York' },
-  { platform: 'macOS', secUA: '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"macOS"', secMobile: '?0', locale: 'en-GB,en;q=0.9', tz: 'Europe/London' },
-  { platform: 'macOS', secUA: '"Chromium";v="130", "Not?A_Brand";v="99"', secPlatform: '"macOS"', secMobile: '?0', locale: 'en-AU,en;q=0.9', tz: 'Australia/Sydney' },
-  // Chrome on Linux
-  { platform: 'Linux', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Linux"', secMobile: '?0', locale: 'en-US,en;q=0.9', tz: 'America/Toronto' },
-  { platform: 'Linux', secUA: '"Chromium";v="130", "Not?A_Brand";v="24"', secPlatform: '"Linux"', secMobile: '?0', locale: 'en-GB,en;q=0.9,fr;q=0.8', tz: 'Europe/Paris' },
-  // Chrome on Android
-  { platform: 'Android', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Android"', secMobile: '?1', locale: 'en-US,en;q=0.9', tz: 'Asia/Singapore' },
-  { platform: 'Android', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Android"', secMobile: '?1', locale: 'en-IN,en;q=0.9,hi;q=0.8', tz: 'Asia/Kolkata' },
-  { platform: 'Android', secUA: '"Chromium";v="130", "Not?A_Brand";v="24"', secPlatform: '"Android"', secMobile: '?1', locale: 'en-PH,en;q=0.9', tz: 'Asia/Manila' },
-  // Safari on macOS/iOS — no Sec-CH-UA headers (Safari doesn't send them)
-  { platform: 'macOS', secUA: null, secPlatform: null, secMobile: null, locale: 'en-US,en;q=0.9', tz: 'America/Los_Angeles', safari: true },
-  { platform: 'iOS', secUA: null, secPlatform: null, secMobile: null, locale: 'en-GB,en;q=0.9', tz: 'Europe/London', safari: true },
-  { platform: 'iOS', secUA: null, secPlatform: null, secMobile: null, locale: 'en-AU,en;q=0.9', tz: 'Australia/Melbourne', safari: true },
-  // Firefox — no Sec-CH-UA headers
-  { platform: 'Windows', secUA: null, secPlatform: null, secMobile: null, locale: 'en-US,en;q=0.8,de;q=0.7', tz: 'Europe/Berlin', firefox: true },
-  { platform: 'Windows', secUA: null, secPlatform: null, secMobile: null, locale: 'en-US,en;q=0.9', tz: 'America/New_York', firefox: true },
-  { platform: 'macOS', secUA: null, secPlatform: null, secMobile: null, locale: 'en-CA,en;q=0.9,fr-CA;q=0.8', tz: 'America/Montreal', firefox: true },
-  // Edge on Windows
-  { platform: 'Windows', secUA: '"Microsoft Edge";v="131", "Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Windows"', secMobile: '?0', locale: 'en-US,en;q=0.9', tz: 'America/Denver' },
-  { platform: 'Windows', secUA: '"Microsoft Edge";v="130", "Chromium";v="130", "Not?A_Brand";v="24"', secPlatform: '"Windows"', secMobile: '?0', locale: 'en-GB,en;q=0.9', tz: 'Europe/Dublin' },
-  // More regional diversity
-  { platform: 'Windows', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Windows"', secMobile: '?0', locale: 'en-NZ,en;q=0.9', tz: 'Pacific/Auckland' },
-  { platform: 'Windows', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Windows"', secMobile: '?0', locale: 'en-ZA,en;q=0.9,af;q=0.8', tz: 'Africa/Johannesburg' },
-  { platform: 'Windows', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Windows"', secMobile: '?0', locale: 'en-IE,en;q=0.9', tz: 'Europe/Dublin' },
-  { platform: 'macOS', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"macOS"', secMobile: '?0', locale: 'en-SG,en;q=0.9', tz: 'Asia/Singapore' },
-  { platform: 'Linux', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Linux"', secMobile: '?0', locale: 'en-US,en;q=0.9,nl;q=0.8', tz: 'Europe/Amsterdam' },
-  { platform: 'Windows', secUA: '"Chromium";v="131", "Not_A Brand";v="24"', secPlatform: '"Windows"', secMobile: '?0', locale: 'en-US,en;q=0.9,sv;q=0.8', tz: 'Europe/Stockholm' },
-];
-
-export const ACCEPT_TYPES = [
-  'application/json',
-  '*/*',
-  'application/json, text/plain, */*',
-  'application/json;q=0.9, text/plain;q=0.8',
-];
-
-// Fake Referer origins that look like the user navigated from a real page
-export const FAKE_REFERERS = [
-  'https://www.google.com/',
-  'https://www.google.com/search?q=temp+mail',
-  'https://www.google.com/search?q=disposable+email',
-  'https://www.bing.com/',
-  'https://duckduckgo.com/',
-  'https://github.com/',
-  'https://stackoverflow.com/',
-  null, // ~30% of requests have no referer (direct navigation)
-  null,
-];
-
-// Token quarantine: failed tokens get cooled down before reuse
-export const TOKEN_QUARANTINE_MS = 2000;
 export const DOMAIN_CIRCUIT_BREAKER_THRESHOLD = 4;
 export const DOMAIN_CIRCUIT_BREAKER_COOLDOWN_MS = 8000;
 
