@@ -43,6 +43,7 @@ export const LS_HISTORY = 'tm_history';
 export const LS_DOMAIN = 'tm_domain';
 export const LS_DARK_MODE = 'tm_dark';
 export const LS_SEEN_MESSAGES = 'tm_seen_messages';
+export const LS_VIP_PASSWORDS = 'tm_vip_pw';
 
 // ── Domain blacklist (skipped during bulk creation only) ──
 

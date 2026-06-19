@@ -37,6 +37,7 @@ import {
   setMessages,
   removeHistoryEntry,
   ownerToken,
+  getVipPassword,
 } from './state.js';
 
 import { genHumanPrefix, generateInboxPassword, getMailServerInfo } from './config.js';
@@ -112,7 +113,7 @@ async function generateVipEmail(prefix, domain) {
   return {
     address: inbox.address,
     expires_at: inbox.expires_at,
-    password: inbox.password_plain,
+    password: inbox.password_plain || getVipPassword(inbox.address),
     is_vip: true,
     imap: serverInfo.imap,
     smtp: serverInfo.smtp,
@@ -123,11 +124,12 @@ function getVipCredentials(address) {
   const addr = address || currentInbox?.address;
   if (!addr) return null;
   const inbox = inboxHistory.find((h) => h.address === addr);
-  if (!inbox?.password_plain) return null;
+  const pw = inbox?.password_plain || getVipPassword(addr);
+  if (!pw) return null;
   const serverInfo = getMailServerInfo(addr.split("@")[1]);
   return {
     address: addr,
-    password: inbox.password_plain,
+    password: pw,
     is_vip: true,
     imap: serverInfo.imap,
     smtp: serverInfo.smtp,

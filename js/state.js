@@ -12,6 +12,7 @@ import {
   LS_DOMAIN,
   LS_DARK_MODE,
   LS_SEEN_MESSAGES,
+  LS_VIP_PASSWORDS,
   MAX_INBOX_HISTORY,
 } from './config.js';
 
@@ -161,3 +162,23 @@ export function removeHistoryEntry(address) {
   inboxHistory = inboxHistory.filter((h) => h.address !== address);
   saveHistory();
 }
+
+// ── VIP password localStorage backup (Path 3) ──
+
+export function saveVipPassword(address, password) {
+  const pwMap = JSON.parse(localStorage.getItem(LS_VIP_PASSWORDS) || '{}');
+  pwMap[address] = password;
+  localStorage.setItem(LS_VIP_PASSWORDS, JSON.stringify(pwMap));
+}
+
+export function getVipPassword(address) {
+  const pwMap = JSON.parse(localStorage.getItem(LS_VIP_PASSWORDS) || '{}');
+  return pwMap[address] || null;
+}
+
+export function removeVipPassword(address) {
+  const pwMap = JSON.parse(localStorage.getItem(LS_VIP_PASSWORDS) || '{}');
+  delete pwMap[address];
+  localStorage.setItem(LS_VIP_PASSWORDS, JSON.stringify(pwMap));
+}
+

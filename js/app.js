@@ -30,6 +30,7 @@ import {
   setMessages,
   setDomains,
   setMessageCounts,
+  getVipPassword,
 } from './state.js';
 
 import {
@@ -328,9 +329,10 @@ function exportVipCsv(inboxes) {
   const rows = inboxes.map((inbox) => {
     const domain = inbox.address.split('@')[1] || '';
     const server = getMailServerInfo(domain);
+    const pw = inbox.password_plain || getVipPassword(inbox.address);
     return [
       inbox.address,
-      inbox.password_plain,
+      pw,
       server.imap.host,
       server.imap.port,
       server.imap.encryption,

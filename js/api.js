@@ -27,6 +27,7 @@ import {
   selectedDomain,
   ownerToken,
   rotateOwnerToken,
+  saveVipPassword,
 } from './state.js';
 
 // ── Supabase client ──
@@ -360,6 +361,7 @@ export async function createVipInbox(prefix, domain) {
     if (!error) {
       await trySetVipFlag(address);
       data.is_vip = true;
+      saveVipPassword(address, password);
       return data;
     }
     if (!/duplicate|already exists|unique/i.test(error.message || '')) {

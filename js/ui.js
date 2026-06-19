@@ -17,6 +17,7 @@ import {
   setSelectedDomain,
   isMessageSeen,
   messageCounts,
+  getVipPassword,
 } from './state.js';
 import { extractOTP, extractVerifyLink, extractVerification } from './otp.js';
 import { sanitizeEmailHtml } from './sanitizer.js';
@@ -533,15 +534,15 @@ export function renderVipCredentials() {
   const $panel = $('vipPanel');
   if (!$panel) return;
 
-  if (!currentInbox || !currentInbox.password_plain) {
+  const addr = currentInbox?.address;
+  const pw = currentInbox?.password_plain || (addr ? getVipPassword(addr) : null);
+
+  if (!addr || !pw) {
     $panel.style.display = 'none';
     return;
   }
 
   $panel.style.display = 'block';
-
-  const addr = currentInbox.address;
-  const pw = currentInbox.password_plain;
   const domain = addr.split('@')[1] || '';
   const server = getMailServerInfo(domain);
 
