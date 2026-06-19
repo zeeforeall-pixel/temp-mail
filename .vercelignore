@@ -7,3 +7,4 @@ node_modules
 .DS_Store
 scripts
 js/__tests__
+graphify-out/

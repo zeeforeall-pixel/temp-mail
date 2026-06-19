@@ -756,6 +756,14 @@ async function init() {
   ];
 
   const [doms, preloadedMsgs] = await Promise.all(parallelTasks);
+  // Fallback VIP domains (visible even without DB row) — DB takes priority when present
+  const fallbackVIPs = [
+    { domain: 'moyzel.foo', label: '@moyzel.foo' },
+    { domain: 'moyvip.com', label: '@moyvip.com' },
+  ];
+  for (const vip of fallbackVIPs) {
+    if (!doms.some((d) => d.domain === vip.domain)) doms.push(vip);
+  }
   setDomains(doms);
   renderDomains();
 
