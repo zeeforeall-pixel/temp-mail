@@ -1,11 +1,5 @@
 {
   "buildCommand": "",
   "outputDirectory": ".",
-  "installCommand": "",
-  "functions": {
-    "api/vip.js": {
-      "memory": 128,
-      "maxDuration": 10
-    }
-  }
+  "installCommand": ""
 }
