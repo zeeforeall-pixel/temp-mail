@@ -730,7 +730,7 @@ function wireEvents() {
 async function init() {
   initDarkMode();
   initOwnerToken();
-  initTokenPool();
+
   initHistory();
   initSelectedDomain();
   initSeenMessages();
