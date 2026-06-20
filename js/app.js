@@ -169,25 +169,16 @@ function subscribe() {
 
 // ── Polling ──
 
-let _pollBackoffMs = 0;
-
 function startPoll() {
   stopPoll();
   if (currentInbox) {
     const gen = ++_pollGen;
     pollInterval = setTimeout(async () => {
       if (gen !== _pollGen) return;
-      const prevCount = stateMessages.length;
       await fetchAndRenderMessages();
       if (gen !== _pollGen) return;
-      // Adaptive polling: speed up when new messages arrive, back off when quiet
-      if (stateMessages.length > prevCount) {
-        _pollBackoffMs = 0; // Reset on new messages
-      } else {
-        _pollBackoffMs = Math.min(30000, _pollBackoffMs + 500); // Back off up to 30s
-      }
       startPoll();
-    }, getPollMs() + _pollBackoffMs);
+    }, getPollMs());
   }
 }
 
@@ -1007,7 +998,7 @@ function initAdvancedSettings() {
   if ($toggle && $body) {
     $toggle.addEventListener('click', () => {
       const open = $body.style.display === 'none';
-      $body.style.display = open ? 'inline' : 'none';
+      $body.style.display = open ? 'block' : 'none';
       if ($arrow) $arrow.style.transform = open ? 'rotate(180deg)' : 'rotate(0)';
     });
   }
