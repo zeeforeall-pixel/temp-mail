@@ -102,6 +102,7 @@ module.exports = async function handler(req, res) {
           expires_at: inbox.expires_at,
         };
         if (isVip) {
+          result.is_vip = true;
           result.password = password;
           result.imap = { host: `mail.${domain}`, port: 993, encryption: "SSL/TLS" };
           result.smtp = { host: `mail.${domain}`, port: 465, portAlt: 587, encryption: "SSL/TLS", encryptionAlt: "STARTTLS" };
