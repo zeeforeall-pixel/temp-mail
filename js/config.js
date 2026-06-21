@@ -49,8 +49,8 @@ export const LS_SEEN_MESSAGES = 'tm_seen_messages';
 
 export const BULK_BLACKLIST = ['moymoy.me', 'openfile.id'];
 
-export const PREMIUM_DOMAINS = ['moyzel.foo', 'moymoy.me', 'openfile.id'];
-export const CROWN_DOMAINS = ['moyzel.foo'];
+export const PREMIUM_DOMAINS = ['moyzel.foo', 'moyvip.com', 'moymoy.me', 'openfile.id'];
+export const CROWN_DOMAINS = ['moyzel.foo', 'moyvip.com'];
 // ── Word lists for human-readable prefix generation ──
 // Two large word pools: adjectives and nouns. Combined with a random
 // suffix to guarantee uniqueness across billions of combinations.

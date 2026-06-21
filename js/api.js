@@ -17,9 +17,6 @@ import {
   BULK_CONCURRENCY,
   BULK_BLACKLIST,
   PREMIUM_DOMAINS,
-  FINGERPRINT_PROFILES,
-  ACCEPT_TYPES,
-  FAKE_REFERERS,
   TOKEN_QUARANTINE_MS,
   DOMAIN_CIRCUIT_BREAKER_THRESHOLD,
   DOMAIN_CIRCUIT_BREAKER_COOLDOWN_MS,
@@ -90,10 +87,6 @@ export async function fetchDomains() {
  * @returns {Promise<{address: string, expires_at: string}|null>}
  */
 export async function createInbox(prefix, domain, retries = MAX_GEN_RETRIES) {
-  if (PREMIUM_DOMAINS.includes(domain)) {
-    return createVipInbox(prefix, domain);
-  }
-
   try {
     const res = await fetch('/api/create-inbox', {
       method: 'POST',
@@ -103,9 +96,6 @@ export async function createInbox(prefix, domain, retries = MAX_GEN_RETRIES) {
 
     const data = await res.json();
     if (!res.ok || data?.error) {
-      if (isVipDomainError({ message: data?.error || '' })) {
-        return createVipInbox(prefix, domain);
-      }
       if (retries <= 0) {
         throw new Error(data?.error || 'Failed to create inbox');
       }
@@ -124,8 +114,6 @@ export async function createInbox(prefix, domain, retries = MAX_GEN_RETRIES) {
 }
 
 // ── Inbox creation (bulk — max-aggressive stealth pipeline) ──
-
-const SB_FUNC_URL = `${SB_URL}/functions/v1/generate-inbox`;
 
 // ── Token quarantine & domain circuit breaker state ──
 
@@ -216,119 +204,10 @@ function isRateLimitError(error) {
   return error?.status === 429 || /rate\s*limit|too many requests/i.test(error?.message || '');
 }
 
-function isVipDomainError(error) {
-  return /khusus\s+vip|vip|row.level.security|rls|policy|is_vip/i.test(error?.message || '');
-}
-
-// ── Build request body with random padding (breaks body fingerprinting) ──
-
-const PADDING_KEYS = [
-  '_t', '_r', '_n', '_v', '_x', '_c', '_p', '_q', '_z',
-  'nonce', 'ts', 'ref', 'seq', 'client_id', 'session_hint',
-];
-
-function buildBodyWithPadding(prefix, domain, token) {
-  const body = { owner_token: token, desired_local: prefix, domain };
-
-  // Add 1–3 random padding fields with harmless values
-  const padCount = 1 + Math.floor(Math.random() * 3);
-  const usedKeys = new Set();
-  for (let i = 0; i < padCount; i++) {
-    let key;
-    do {
-      key = PADDING_KEYS[Math.floor(Math.random() * PADDING_KEYS.length)];
-    } while (usedKeys.has(key));
-    usedKeys.add(key);
-
-    // Mix of value types: numbers, short strings, booleans, timestamps
-    const variant = Math.random();
-    if (variant < 0.25) body[key] = Date.now() + Math.floor(Math.random() * 1000);
-    else if (variant < 0.5) body[key] = Math.random().toString(36).slice(2, 8);
-    else if (variant < 0.75) body[key] = Math.random() > 0.5;
-    else body[key] = Math.floor(Math.random() * 99999);
-  }
-
-  // Randomize key ordering — JSON.stringify preserves insertion order
-  const keys = Object.keys(body);
-  for (let i = keys.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [keys[i], keys[j]] = [keys[j], keys[i]];
-  }
-  const ordered = {};
-  for (const k of keys) ordered[k] = body[k];
-  return JSON.stringify(ordered);
-}
-
-// ── Build stealth headers from a fingerprint profile ──
-
-function buildStealthHeaders(profile) {
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${SB_ANON_KEY}`,
-    apikey: SB_ANON_KEY,
-    Accept: ACCEPT_TYPES[Math.floor(Math.random() * ACCEPT_TYPES.length)],
-    'Accept-Language': profile.locale,
-  };
-
-  // Sec-CH-UA hints (Chrome/Edge only — Safari/Firefox don't send these)
-  if (profile.secUA) {
-    headers['Sec-CH-UA'] = profile.secUA;
-    headers['Sec-CH-UA-Platform'] = profile.secPlatform;
-    headers['Sec-CH-UA-Mobile'] = profile.secMobile;
-  }
-
-  // Sec-Fetch headers (Chrome/Edge/Firefox — not Safari)
-  if (!profile.safari) {
-    headers['Sec-Fetch-Mode'] = 'cors';
-    headers['Sec-Fetch-Site'] = Math.random() > 0.5 ? 'cross-site' : 'same-site';
-    headers['Sec-Fetch-Dest'] = 'empty';
-  }
-
-  // Fake Referer (randomly included — ~60% of requests)
-  const referer = FAKE_REFERERS[Math.floor(Math.random() * FAKE_REFERERS.length)];
-  if (referer) {
-    headers['Referer'] = referer;
-  }
-
-  // Random extras
-  const rand = Math.random();
-  if (rand > 0.5) headers['X-Request-Id'] = crypto.randomUUID();
-  if (rand > 0.8) headers['X-Forwarded-For'] = generateFakeIP();
-  if (rand > 0.9) headers['DNT'] = '1';
-  if (rand > 0.85) headers['Accept-Encoding'] = 'gzip, deflate, br';
-
-  return headers;
-}
-
-// ── Fake IP generator (for X-Forwarded-For — mostly ignored by servers,
-//    but adds entropy to the request fingerprint) ──
-
-function generateFakeIP() {
-  const octets = [
-    1 + Math.floor(Math.random() * 223),  // avoid 0.x and multicast
-    Math.floor(Math.random() * 256),
-    Math.floor(Math.random() * 256),
-    1 + Math.floor(Math.random() * 254),
-  ];
-  // Avoid private ranges that would look suspicious
-  if (octets[0] === 10 || octets[0] === 127) octets[0] = 44;
-  if (octets[0] === 192 && octets[1] === 168) octets[1] = 1;
-  return octets.join('.');
-}
-
-// ── Fire a single request with full stealth ──
-
-/**
- * Fire a single inbox creation request with maximum stealth.
- * Each request gets a unique fingerprint profile, cache-busted URL,
- * padded body, and randomized headers.
+// ── Fire inbox creation request ──
  */
 export async function fireInboxRequest(prefix, domain, token) {
-  if (PREMIUM_DOMAINS.includes(domain)) {
-    return createVipInbox(prefix, domain);
-  }
-
-  // Route through Vercel serverless (bypasses Supabase DNS issues from browser)
+  // Route through Vercel serverless; server decides standard vs VIP internally
   const res = await fetch('/api/create-inbox', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -356,10 +235,6 @@ export async function fireInboxRequest(prefix, domain, token) {
  * - Each retry uses a fresh token and Poisson-distributed backoff
  */
 export async function tryCreateInbox(prefix, domain, tokenIdx) {
-  if (PREMIUM_DOMAINS.includes(domain)) {
-    return createVipInbox(prefix, domain);
-  }
-
   // Check circuit breaker — skip this domain if it's in cooldown
   if (!isDomainAvailable(domain)) {
     // Try a different domain from the pool
@@ -391,9 +266,6 @@ export async function tryCreateInbox(prefix, domain, tokenIdx) {
       reportDomainSuccess(domain);
       return result;
     } catch (e) {
-      if (isVipDomainError(e)) {
-        return createVipInbox(p, domain);
-      }
       quarantineToken(tk);
       reportDomainFailure(domain);
       if (isRateLimitError(e)) {
@@ -695,7 +567,7 @@ export async function createVipInbox(prefix, domain) {
   // Lifetime Pro creation goes through serverless function (server-side, no secrets in client)
   const res = await fetch('/api/create-inbox', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-priority': '1' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ owner_token: ownerToken, desired_local: local, domain: targetDomain }),
   });
 
