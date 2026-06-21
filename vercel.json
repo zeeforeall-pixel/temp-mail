@@ -3,6 +3,13 @@
   "buildCommand": "",
   "outputDirectory": ".",
   "installCommand": "",
+  "devCommand": "",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "github": {
+    "autoJobCancelation": true,
+    "silent": false
+  },
   "rewrites": [],
   "headers": [
     {
