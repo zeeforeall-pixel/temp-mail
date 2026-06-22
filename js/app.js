@@ -266,7 +266,7 @@ async function handleCustomInbox(prefix, domain) {
     return;
   }
   try {
-    const inbox = await createInbox(finalLocal || undefined, d);
+    const inbox = await createInbox(local || undefined, d);
     addHistoryEntry(inbox);
     debouncedRenderInboxHistory();
     closeModal('newInboxModal');

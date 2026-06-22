@@ -209,7 +209,6 @@ function isRateLimitError(error) {
 }
 
 // ── Fire inbox creation request ──
- */
 export async function fireInboxRequest(prefix, domain, token) {
   // Route through Vercel serverless; server decides standard vs VIP internally
   const res = await fetch('/api/create-inbox', {
