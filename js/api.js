@@ -17,6 +17,7 @@ import {
   BULK_CONCURRENCY,
   BULK_BLACKLIST,
   PREMIUM_DOMAINS,
+  CROWN_DOMAINS,
   TOKEN_QUARANTINE_MS,
   DOMAIN_CIRCUIT_BREAKER_THRESHOLD,
   DOMAIN_CIRCUIT_BREAKER_COOLDOWN_MS,
@@ -68,11 +69,14 @@ export async function fetchDomains() {
     .eq('is_active', true)
     .order('sort_order');
 
-  if (error) {
-    console.warn('Failed to load domains:', error.message);
-    return [];
+  const dbDomains = (error || !data?.length) ? [] : data;
+
+  // Fallback: merge CROWN_DOMAINS from config when DB returns empty
+  if (dbDomains.length === 0 && CROWN_DOMAINS?.length) {
+    return CROWN_DOMAINS.map(d => ({ domain: d, label: d }));
   }
-  return data || [];
+
+  return dbDomains;
 }
 
 // ── Inbox creation (standard — via Supabase Edge Function) ──
