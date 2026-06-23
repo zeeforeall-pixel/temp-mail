@@ -35,16 +35,16 @@ import {
   addHistoryEntry,
   setCurrentInbox,
   setMessages,
+  setDomains,
   removeHistoryEntry,
   ownerToken,
 } from './state.js?v=1782180800';
 
-import { genHumanPrefix, generateInboxPassword, getMailServerInfo } from './config.js?v=1782180800';
+import { genHumanPrefix, getMailServerInfo } from './config.js?v=1782180800';
 import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1782180800';
 import { formatDisplayAddress } from './ui.js?v=1782180800';
 
 const DEFAULT_OTP_TIMEOUT_MS = 120_000;
-const POLL_MS = 50;
 
 let _subscribedAddresses = new Set();
 let _realtimeChannels = new Map();
@@ -90,9 +90,16 @@ function onMessage(address, fn) {
 
 // ── Public API ──
 
+async function ensureDomainsLoaded() {
+  if (stateDomains.length) return;
+  setDomains(await fetchDomains());
+}
+
 async function generateEmail(prefix, domain) {
+  await ensureDomainsLoaded();
   const p = prefix || genHumanPrefix();
   const d = domain || getEffDomain();
+  if (!d) throw new Error('No domain available');
   const inbox = await createInbox(p, d);
   addHistoryEntry(inbox);
   setCurrentInbox(inbox);
@@ -102,9 +109,9 @@ async function generateEmail(prefix, domain) {
 
 
 async function generateVipEmail(prefix, domain) {
+  await ensureDomainsLoaded();
   const p = prefix || genHumanPrefix();
-  const d = domain || getEffDomain();
-  const inbox = await createVipInbox(p, d);
+  const inbox = await createVipInbox(p, domain);
   if (!inbox) return null;
   addHistoryEntry(inbox);
   setCurrentInbox(inbox);
@@ -368,7 +375,7 @@ async function handleUrlApi() {
   const apiAction = params.get('api');
   if (!apiAction) return false;
 
-  const jsonResponse = (data, status = 200) => {
+  const jsonResponse = (data) => {
     document.body.innerHTML = '';
     document.title = 'TempMail API';
     const pre = document.createElement('pre');
@@ -468,18 +475,6 @@ async function handleUrlApi() {
           return true;
         }
         const result = await deleteInbox(address);
-        jsonResponse(result);
-        return true;
-      }
-
-      case 'vip': {
-        const vipPrefix = params.get('prefix');
-        const vipDomain = params.get('domain');
-        const result = await generateVipEmail(vipPrefix, vipDomain);
-        if (!result) {
-          jsonResponse({ error: 'Failed to generate Lifetime Pro email' });
-          return true;
-        }
         jsonResponse(result);
         return true;
       }

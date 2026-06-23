@@ -20,3 +20,10 @@ ROLLBACK_GUIDE.md
 preview-*.png
 preview-test.mjs
 output/
+.claude/
+.fastcontext/
+.mcp.json
+CLAUDE.md
+agent-api-check.mjs
+agent-api-browser-smoke.py
+otp-browser-check.py

@@ -185,8 +185,6 @@ function isNonOtpNumber(val) {
  */
 function isNonOtpByContext(val, context) {
   if (!context) return false;
-  const lower = context.toLowerCase();
-
   // Date context: month name near the number in the same sentence
   if (/\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/i.test(context)) {
     const monthMatch = context.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/i);
@@ -501,6 +499,21 @@ function stripUrls(text) {
   return text.replace(/https?:\/\/[^\s<>"']+/gi, ' ');
 }
 
+function stripUrlsFromNode(node) {
+  if (!node) return;
+  if (node.nodeType === 3) {
+    node.nodeValue = stripUrls(node.nodeValue || '');
+    return;
+  }
+  if (node.nodeType !== 1 && node.nodeType !== 9) return;
+  if (node.removeAttribute) {
+    node.removeAttribute('href');
+    node.removeAttribute('src');
+    node.removeAttribute('action');
+  }
+  for (const child of node.childNodes || []) stripUrlsFromNode(child);
+}
+
 /**
  * Phase 3: Fallback scan over all words in stripped plain text.
  */
@@ -624,8 +637,6 @@ function extractVerifyLinkFromDoc(doc) {
     }
 
     // Boost: link is in a prominent position (early in document)
-    const rect = a.getBoundingClientRect?.();
-    // Can't getBoundingClientRect on parsed doc, so use DOM position
     const allLinks = [...links];
     const linkIndex = allLinks.indexOf(a);
     if (linkIndex <= 2) score += 3; // First 3 links get a boost
@@ -753,6 +764,8 @@ export function extractOTP(text) {
     return null;
   }
 
+  stripUrlsFromNode(doc);
+
   // Phase 1: Prominent elements
   const allCandidates = scanProminentElements(doc);
 
@@ -813,12 +826,15 @@ export function extractVerification(text) {
     return { otp: null, link: null };
   }
 
-  // OTP extraction (reuse parsed doc)
-  const allCandidates = scanProminentElements(doc);
-  allCandidates.push(...scanSplitDigits(doc));
+  const otpDoc = doc.cloneNode(true);
+  stripUrlsFromNode(otpDoc);
 
-  const rawText = doc.body
-    ? getTextWithSpacing(doc.body).replace(/\s+/g, ' ').trim()
+  // OTP extraction (reuse parsed doc)
+  const allCandidates = scanProminentElements(otpDoc);
+  allCandidates.push(...scanSplitDigits(otpDoc));
+
+  const rawText = otpDoc.body
+    ? getTextWithSpacing(otpDoc.body).replace(/\s+/g, ' ').trim()
     : '';
   const strippedText = stripUrls(rawText);
 

@@ -22,7 +22,6 @@ import {
   DOMAIN_CIRCUIT_BREAKER_THRESHOLD,
   DOMAIN_CIRCUIT_BREAKER_COOLDOWN_MS,
   genHumanPrefix,
-  generateInboxPassword,
   resetPrefixDedup,
 } from './config.js?v=1782180800';
 
@@ -561,7 +560,7 @@ export async function deleteInbox(address, ownerTokenArg) {
  * @returns {Promise<{address: string, expires_at: string, password_plain: string, is_vip: true}|null>}
  */
 export async function createVipInbox(prefix, domain) {
-  const targetDomain = domain || getEffDomain();
+  const targetDomain = domain || CROWN_DOMAINS[0] || getEffDomain();
   const local = (prefix || genHumanPrefix())
     .toLowerCase()
     .replace(/[^a-z0-9._-]/g, '')

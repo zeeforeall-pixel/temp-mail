@@ -368,8 +368,8 @@ function exportVipCsv(inboxes) {
       server.smtp.host,
       server.smtp.port,
       server.smtp.encryption,
-      server.smtp.altPort,
-      server.smtp.altEncryption,
+      server.smtp.portAlt,
+      server.smtp.encryptionAlt,
       inbox.address,
       inbox.expires_at,
     ];
