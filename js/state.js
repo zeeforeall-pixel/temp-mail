@@ -15,7 +15,7 @@ import {
   LS_SEEN_MESSAGES,
   MAX_INBOX_HISTORY,
   TOKEN_POOL_SIZE,
-} from './config.js?v=1781753400';
+} from './config.js?v=1782179800';
 
 // ── Mutable state ──
 

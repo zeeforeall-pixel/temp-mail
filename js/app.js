@@ -9,7 +9,7 @@ import {
   PREMIUM_DOMAINS,
   genHumanPrefix,
   getMailServerInfo,
-} from './config.js?v=1781753400';
+} from './config.js?v=1782179800';
 
 import {
   domains as stateDomains,
@@ -30,7 +30,7 @@ import {
   setMessages,
   setDomains,
   setMessageCounts,
-} from './state.js?v=1781753400';
+} from './state.js?v=1782179800';
 
 import {
   sb,
@@ -44,7 +44,7 @@ import {
   fetchMessageCounts,
   lookupSharedInbox,
   createVipInbox,
-} from './api.js?v=1781753400';
+} from './api.js?v=1782179800';
 
 import {
   $,
@@ -74,9 +74,9 @@ import {
   formatDisplayAddress,
   isUppercaseDisplayEnabled,
   setUppercaseDisplayEnabled,
-} from './ui.js?v=1781753400';
+} from './ui.js?v=1782179800';
 
-import { handleUrlApi } from './agent-api.js?v=1781753400';
+import { handleUrlApi } from './agent-api.js?v=1782179800';
 
 // ── Inbox selection ──
 

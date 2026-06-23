@@ -24,7 +24,7 @@ import {
   genHumanPrefix,
   generateInboxPassword,
   resetPrefixDedup,
-} from './config.js?v=1781753400';
+} from './config.js?v=1782179800';
 
 import {
   domains,
@@ -34,7 +34,7 @@ import {
   rotateOwnerToken,
   rotatePoolToken,
   saveTokenPool,
-} from './state.js?v=1781753400';
+} from './state.js?v=1782179800';
 
 // ── Supabase client ──
 
