@@ -24,7 +24,7 @@ import {
   genHumanPrefix,
   generateInboxPassword,
   resetPrefixDedup,
-} from './config.js?v=1782179800';
+} from './config.js?v=1782180800';
 
 import {
   domains,
@@ -34,7 +34,7 @@ import {
   rotateOwnerToken,
   rotatePoolToken,
   saveTokenPool,
-} from './state.js?v=1782179800';
+} from './state.js?v=1782180800';
 
 // ── Supabase client ──
 
@@ -590,7 +590,7 @@ export async function createVipInbox(prefix, domain) {
 export async function bulkCreateVipInboxes(count, opts = {}) {
   const {
     domain,
-    concurrency = 10,
+    concurrency = BULK_CONCURRENCY,
     onProgress,
   } = opts;
 

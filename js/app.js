@@ -5,11 +5,12 @@
 import {
   MAX_BULK_COUNT,
   MAX_VIP_BULK_COUNT,
+  BULK_CONCURRENCY,
   ICONS,
   PREMIUM_DOMAINS,
   genHumanPrefix,
   getMailServerInfo,
-} from './config.js?v=1782179800';
+} from './config.js?v=1782180800';
 
 import {
   domains as stateDomains,
@@ -30,7 +31,7 @@ import {
   setMessages,
   setDomains,
   setMessageCounts,
-} from './state.js?v=1782179800';
+} from './state.js?v=1782180800';
 
 import {
   sb,
@@ -44,7 +45,7 @@ import {
   fetchMessageCounts,
   lookupSharedInbox,
   createVipInbox,
-} from './api.js?v=1782179800';
+} from './api.js?v=1782180800';
 
 import {
   $,
@@ -74,9 +75,9 @@ import {
   formatDisplayAddress,
   isUppercaseDisplayEnabled,
   setUppercaseDisplayEnabled,
-} from './ui.js?v=1782179800';
+} from './ui.js?v=1782180800';
 
-import { handleUrlApi } from './agent-api.js?v=1782179800';
+import { handleUrlApi } from './agent-api.js?v=1782180800';
 
 // ── Inbox selection ──
 
@@ -303,7 +304,7 @@ async function handleBulkCreate(count, domain) {
     if (domain && PREMIUM_DOMAINS.includes(domain)) {
       const vipResult = await bulkCreateVipInboxes(count, {
         domain,
-        concurrency: Math.min(count, MAX_VIP_BULK_COUNT),
+        concurrency: Math.min(count, BULK_CONCURRENCY),
         onProgress: updateProgress,
       });
       results = vipResult.results;
@@ -316,6 +317,7 @@ async function handleBulkCreate(count, domain) {
       }
       toastSafe(results.length + '/' + count + ' inboxes created' + (failures.length ? ' (' + failures.length + ' failed)' : ''));
     } else {
+      results = await bulkCreateInboxes(count, updateProgress, domain);
       for (const inbox of results) {
         addHistoryEntry(inbox);
       }
@@ -408,6 +410,8 @@ async function handleBulkVipCreate(count, domain) {
   try {
     const { results, failures } = await bulkCreateVipInboxes(count, {
       domain,
+      concurrency: Math.min(count, BULK_CONCURRENCY),
+      onProgress: updateProgress,
     });
     for (const inbox of results) addHistoryEntry(inbox);
     if (results.length > 0) {

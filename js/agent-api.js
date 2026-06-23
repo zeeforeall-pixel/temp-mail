@@ -25,7 +25,7 @@ import {
   fetchMessages as apiFetchMessages,
   deleteInbox as apiDeleteInbox,
   createVipInbox,
-} from './api.js?v=1782179800';
+} from './api.js?v=1782180800';
 
 import {
   currentInbox,
@@ -37,11 +37,11 @@ import {
   setMessages,
   removeHistoryEntry,
   ownerToken,
-} from './state.js?v=1782179800';
+} from './state.js?v=1782180800';
 
-import { genHumanPrefix, generateInboxPassword, getMailServerInfo } from './config.js?v=1782179800';
-import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1782179800';
-import { formatDisplayAddress } from './ui.js?v=1782179800';
+import { genHumanPrefix, generateInboxPassword, getMailServerInfo } from './config.js?v=1782180800';
+import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1782180800';
+import { formatDisplayAddress } from './ui.js?v=1782180800';
 
 const DEFAULT_OTP_TIMEOUT_MS = 120_000;
 const POLL_MS = 50;
