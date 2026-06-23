@@ -916,7 +916,7 @@ function wireEvents() {
           const signupLink = $('ghSignupLink');
           if (signupLink) {
             const credPayload = btoa(JSON.stringify({ email: displayEmail, password, username }));
-            signupLink.href = 'https://github.com/join#mocafill=' + encodeURIComponent(credPayload);
+            signupLink.href = 'https://github.com/signup#xscope0fill=' + encodeURIComponent(credPayload);
           }
 
           // ── OTP auto-detection: poll inbox for GitHub verification emails ──
