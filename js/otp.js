@@ -267,8 +267,8 @@ function isVerificationLink(url) {
   // Must be a valid URL
   try {
     const u = new URL(url);
-    // Check for verification keywords in the URL
-    const urlText = u.pathname + u.search;
+    // Check for verification keywords in the URL (including hash for SPA routes)
+    const urlText = u.pathname + u.search + u.hash;
     if (VERIFY_URL_KEYWORDS.test(urlText)) {
       // Make sure it's not an unsubscribe/tracking link
       for (const pattern of NON_VERIFY_URL_PATTERNS) {
@@ -644,7 +644,7 @@ function extractVerifyLinkFromDoc(doc) {
     // Boost: URL path contains strong verification keywords
     try {
       const u = new URL(href);
-      const path = u.pathname.toLowerCase();
+      const path = (u.pathname + u.hash).toLowerCase();
       if (/(verify|confirm|activate|validate|sign.?in|log.?in|auth|token|unlock|approve)/.test(path)) score += 5;
       // Penalize if it looks like an API/tracking endpoint
       if (/api\/|\/webhook|\/pixel|\/track/i.test(path)) score -= 10;
@@ -686,7 +686,7 @@ function extractVerifyLinkFromDoc(doc) {
       try {
         const u = new URL(url);
         if (BLOCKED_LINK_DOMAINS.test(u.hostname)) continue;
-        const urlText = u.pathname + u.search;
+        const urlText = u.pathname + u.search + u.hash;
         let blocked = false;
         for (const pattern of NON_VERIFY_URL_PATTERNS) {
           if (pattern.test(urlText)) { blocked = true; break; }
@@ -710,7 +710,7 @@ function extractVerifyLinkFromDoc(doc) {
           if (BLOCKED_LINK_DOMAINS.test(u.hostname)) continue;
           let blocked = false;
           for (const p of NON_VERIFY_URL_PATTERNS) {
-            if (p.test(u.pathname + u.search)) { blocked = true; break; }
+            if (p.test(u.pathname + u.search + u.hash)) { blocked = true; break; }
           }
           if (blocked) continue;
           if (tokenPathRe.test(u.pathname)) {
@@ -727,7 +727,7 @@ function extractVerifyLinkFromDoc(doc) {
             if (BLOCKED_LINK_DOMAINS.test(u.hostname)) continue;
             let blocked = false;
             for (const p of NON_VERIFY_URL_PATTERNS) {
-              if (p.test(u.pathname + u.search)) { blocked = true; break; }
+              if (p.test(u.pathname + u.search + u.hash)) { blocked = true; break; }
             }
             if (blocked) continue;
             if (tokenPathRe.test(u.pathname)) {
