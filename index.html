@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" class="dark">
+<html lang="en" class="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,7 +12,6 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=VT323&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=VT323&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=VT323&display=swap" rel="stylesheet" /></noscript></noscript>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/theme.css?v=1782180800" />
 <link rel="stylesheet" href="tokens.css?v=1782180800" />
 <link rel="stylesheet" href="css/layout.css?v=1782180800" />
@@ -24,332 +23,22 @@
 <link rel="agent-api" href="/agent-api.json" type="application/json" />
 <meta name="agent-api" content="window.TempMailAPI" />
 <meta name="agent-api-url-mode" content="?api=generate|messages|otp|wait|inboxes|domains" />
-<style id="xscope0-redesign">
-header h1 .title-main, .card-title, .vip-section-title{font-family:'Space Grotesk',sans-serif}
-/* ============ xscope0 · Obsidian Terminal redesign (override layer) ============ */
-:root{
-  --void:#07090B; --void2:#0A0D10;
-  --panel:#0E1216; --panel2:#11161B;
-  --line:#1B232B; --line2:#28323C;
-  --txt:#E8EDF0; --txt2:#8A98A4; --txt3:#5C6872;
-  --sig:#34E891; --sig-dim:#1f8a4d; --sig-glow:rgba(52,232,145,.14);
-  --gold:#C9A24B; --gold-dim:#7d6326;
-  --danger:#ff5d5d;
-  --rad:14px; --rad-sm:9px;
-  --ease:cubic-bezier(.22,.61,.36,1);
-}
-html.light{
-  --void:#F3F1EA; --void2:#ECE9DF;
-  --panel:#FBFAF5; --panel2:#F4F2EA;
-  --line:#DAD5C6; --line2:#C7C0AC;
-  --txt:#1A1C1E; --txt2:#55595c; --txt3:#8a8d90;
-  --sig:#0a7d3e; --sig-dim:#0a7d3e; --sig-glow:rgba(10,125,62,.12);
-  --gold:#9a7414; --gold-dim:#9a7414;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{
-  background:var(--void);
-  color:var(--txt);
-  font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
-  font-size:14px; line-height:1.55;
-  -webkit-font-smoothing:antialiased;
-  letter-spacing:.1px;
-  min-height:100vh;
-  position:relative;
-}
-/* ambient: top signal beam + grain + radial pool */
-body::before{
-  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
-  background:
-    radial-gradient(900px 420px at 50% -8%, var(--sig-glow), transparent 70%),
-    radial-gradient(700px 500px at 100% 0%, rgba(201,162,75,.05), transparent 60%);
-}
-body::after{
-  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
-  background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px);
-}
-html.light body::after{display:none}
-.container{position:relative; z-index:1; max-width:880px; margin:0 auto; padding:2.2rem 1.1rem 4rem}
-
-/* top live beam */
-.container::before{
-  content:""; position:fixed; top:0; left:0; height:2px; width:100%; z-index:50;
-  background:linear-gradient(90deg, transparent, var(--sig) 30%, var(--sig) 70%, transparent);
-  opacity:.0; animation:beam 6s var(--ease) infinite;
-}
-@keyframes beam{0%,100%{opacity:.0}40%{opacity:.55}}
-
-/* ---------- header ---------- */
-header{margin-bottom:1.6rem}
-header h1{
-  display:flex; align-items:baseline; flex-wrap:wrap; gap:.6rem;
-  margin:0 0 .9rem; font-weight:500; font-size:clamp(1.5rem,4vw,2.05rem);
-  letter-spacing:-.5px;
-}
-.ascii-mark{
-  font-family:'VT323',monospace; color:var(--sig); font-size:1.35em;
-  text-shadow:0 0 14px var(--sig-glow); letter-spacing:0;
-}
-.title-main{font-weight:600; color:var(--txt)}
-.title-credit{
-  font-size:.6em; color:var(--txt2); text-decoration:none; align-self:center;
-  border:1px solid var(--line); border-radius:999px; padding:.15em .7em;
-  transition:.2s var(--ease);
-}
-.title-credit:hover{color:var(--sig); border-color:var(--sig-dim)}
-.header-tools{display:flex; align-items:center; flex-wrap:wrap; gap:.55rem}
-.header-tools p{
-  margin:0; color:var(--txt2); font-size:.72rem; text-transform:uppercase;
-  letter-spacing:.22em; flex:1 1 100%;
-}
-.lang-switch{display:inline-flex; gap:0; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:var(--panel)}
-.lang-btn{
-  background:transparent; border:0; color:var(--txt2); cursor:pointer;
-  padding:.32rem .62rem; font:inherit; font-size:.72rem; transition:.18s var(--ease);
-}
-.lang-btn:hover{color:var(--txt)}
-.lang-btn.active{background:var(--sig); color:#04130a; font-weight:600}
-html.light .lang-btn.active{color:#fff}
-
-/* ---------- cards ---------- */
-.card{
-  position:relative; background:var(--panel); border:1px solid var(--line);
-  border-radius:var(--rad); padding:1.15rem 1.2rem; margin-bottom:1rem;
-  box-shadow:0 1px 0 rgba(255,255,255,.02) inset, 0 10px 30px -22px rgba(0,0,0,.9);
-}
-.card-title{
-  display:flex; align-items:center; gap:.5rem; margin-bottom:.95rem;
-  font-size:.7rem; text-transform:uppercase; letter-spacing:.2em; color:var(--txt2);
-  font-weight:600;
-}
-.card-title .icon{width:15px; height:15px; color:var(--sig); opacity:.85}
-
-/* inbox address row */
-.inbox-row{display:flex; align-items:center; gap:.5rem; margin-bottom:.95rem}
-.addr{
-  flex:1; min-width:0; font-size:clamp(.95rem,3vw,1.2rem); font-weight:500;
-  color:var(--txt); background:var(--void2); border:1px solid var(--line);
-  border-radius:var(--rad-sm); padding:.7rem .9rem .7rem 1.9rem; overflow:hidden;
-  text-overflow:ellipsis; white-space:nowrap; position:relative;
-}
-.addr::before{
-  content:""; position:absolute; left:.85rem; top:50%; transform:translateY(-50%);
-  width:7px; height:7px; border-radius:50%; background:var(--sig);
-  box-shadow:0 0 0 0 var(--sig); animation:pulse 2.4s ease-out infinite;
-}
-@keyframes pulse{0%{box-shadow:0 0 0 0 var(--sig-glow)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
-.expiry-badge{
-  margin-left:auto; font-size:.62rem; letter-spacing:.12em; color:var(--gold);
-  border:1px solid var(--gold-dim); border-radius:999px; padding:.1rem .55rem;
-}
-
-/* ---------- buttons ---------- */
-.actions{display:flex; flex-wrap:wrap; gap:.5rem}
-.btn{
-  display:inline-flex; align-items:center; gap:.4rem; cursor:pointer;
-  font:inherit; font-size:.78rem; font-weight:500; letter-spacing:.02em;
-  padding:.55rem .85rem; border-radius:var(--rad-sm);
-  border:1px solid var(--line); background:var(--panel2); color:var(--txt);
-  transition:.18s var(--ease); white-space:nowrap;
-}
-.btn .icon{width:15px; height:15px}
-.btn:hover{border-color:var(--line2); transform:translateY(-1px)}
-.btn:active{transform:translateY(0)}
-.btn:focus-visible{outline:2px solid var(--sig); outline-offset:2px}
-/* primary = New inbox */
-#newBtn, .btn-primary{
-  background:var(--sig); color:#04130a; border-color:var(--sig); font-weight:600;
-  box-shadow:0 0 22px -6px var(--sig-glow);
-}
-html.light #newBtn{color:#fff}
-#newBtn:hover{box-shadow:0 0 28px -4px var(--sig-glow); filter:brightness(1.04)}
-.btn-outline{background:transparent}
-.btn-ghost{background:transparent; border-color:transparent; color:var(--txt2)}
-.btn-ghost:hover{color:var(--txt); border-color:var(--line)}
-.btn-icon{padding:.55rem; width:38px; height:38px; justify-content:center}
-.btn-danger{color:var(--danger); border-color:transparent}
-.btn-danger:hover{border-color:var(--danger)}
-.btn-sm{font-size:.72rem; padding:.4rem .7rem}
-/* VIP / Pro buttons = the one gold accent */
-.btn-vip{
-  background:linear-gradient(180deg, rgba(201,162,75,.16), rgba(201,162,75,.06));
-  border-color:var(--gold-dim); color:var(--gold);
-}
-.btn-vip:hover{border-color:var(--gold); box-shadow:0 0 22px -8px rgba(201,162,75,.5)}
-.theme-toggle{
-  background:var(--panel); border:1px solid var(--line); color:var(--txt2);
-  border-radius:999px; width:38px; height:38px; display:inline-flex;
-  align-items:center; justify-content:center; cursor:pointer; transition:.2s var(--ease);
-}
-.theme-toggle:hover{color:var(--sig); border-color:var(--sig-dim); transform:rotate(-12deg)}
-.theme-toggle .icon{width:17px;height:17px}
-
-/* ---------- VIP / Pro panel : single gold edge ---------- */
-.vip-card{border-color:var(--gold-dim); background:linear-gradient(180deg, rgba(201,162,75,.05), transparent 40%), var(--panel)}
-.vip-card::before{content:""; position:absolute; left:0; top:14px; bottom:14px; width:2px; border-radius:2px; background:linear-gradient(var(--gold), transparent)}
-.vip-badge{margin-left:auto; font-size:.6rem; color:var(--gold); border:1px solid var(--gold-dim); border-radius:999px; padding:.12rem .55rem; letter-spacing:.1em}
-.vip-free-banner{background:var(--void2); border:1px solid var(--line); border-radius:var(--rad-sm); padding:.8rem .9rem; margin-bottom:.9rem}
-.vip-free-banner strong{color:var(--gold); display:block; margin:.2rem 0; font-size:.85rem}
-.vip-free-banner p{margin:0; color:var(--txt2); font-size:.78rem}
-.vip-free-icon .icon{width:16px;height:16px;color:var(--gold)}
-.vip-credentials{display:flex; flex-direction:column; gap:.55rem}
-.vip-row{display:flex; align-items:center; gap:.6rem; font-size:.82rem}
-.vip-label{color:var(--txt3); min-width:74px; font-size:.7rem; text-transform:uppercase; letter-spacing:.12em}
-.vip-value{color:var(--txt); word-break:break-all; flex:1}
-.vip-mono{color:var(--sig)}
-.vip-tag{font-size:.6rem; color:var(--txt2); border:1px solid var(--line); border-radius:4px; padding:.05rem .4rem}
-.vip-tag.alt{color:var(--txt3)}
-.vip-divider, .divider{height:1px; background:var(--line); margin:.5rem 0; border:0}
-.vip-section-title{font-size:.66rem; text-transform:uppercase; letter-spacing:.18em; color:var(--gold); margin-top:.2rem}
-.vip-actions{margin-top:.9rem}
-
-/* ---------- inputs ---------- */
-input[type=text], input[type=number], input.history-search, select, textarea{
-  background:var(--void2); border:1px solid var(--line); color:var(--txt);
-  border-radius:var(--rad-sm); padding:.55rem .7rem; font:inherit; font-size:.82rem;
-  width:100%; transition:.18s var(--ease);
-}
-input:focus, select:focus, textarea:focus{outline:none; border-color:var(--sig-dim); box-shadow:0 0 0 3px var(--sig-glow)}
-.input-label{display:block; color:var(--txt2); font-size:.7rem; text-transform:uppercase; letter-spacing:.14em; margin-bottom:.35rem}
-.history-search{margin-bottom:.7rem}
-
-/* domain selector / inbox chips */
-.domain-selector{display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.4rem}
-.domain-selector .btn, .domain-chip, .inbox-chip, #inboxHistoryList > *{
-  font-size:.74rem;
-}
-#inboxHistoryList .inbox-chip, .inbox-chip{
-  background:var(--void2); border:1px solid var(--line); border-radius:999px;
-  padding:.3rem .7rem; cursor:pointer; transition:.15s var(--ease); color:var(--txt2);
-}
-.inbox-chip:hover{border-color:var(--sig-dim); color:var(--txt)}
-.inbox-chip.active{border-color:var(--sig); color:var(--sig)}
-
-/* ---------- messages ---------- */
-.msg-list{display:flex; flex-direction:column; gap:.5rem}
-.msg-empty{text-align:center; color:var(--txt3); padding:2.4rem 1rem}
-.msg-empty svg{width:38px; height:38px; stroke:var(--line2); margin-bottom:.7rem}
-.msg-item, .msg{
-  background:var(--void2); border:1px solid var(--line); border-radius:var(--rad-sm);
-  padding:.7rem .85rem; cursor:pointer; transition:.15s var(--ease);
-}
-.msg-item:hover, .msg:hover{border-color:var(--sig-dim); transform:translateX(2px)}
-
-/* ---------- modals ---------- */
-.modal, .modal-overlay, [class*="overlay"]{backdrop-filter:blur(6px)}
-.modal-content, .modal-box, .modal > div, dialog{
-  background:var(--panel) !important; border:1px solid var(--line2) !important;
-  border-radius:var(--rad) !important; box-shadow:0 30px 80px -30px #000 !important;
-}
-
-/* footer */
-footer{margin-top:2rem; text-align:center; color:var(--txt3); font-size:.72rem; letter-spacing:.05em}
-footer a{color:var(--txt2); text-decoration:none}
-footer a:hover{color:var(--sig)}
-
-/* code blocks */
-pre, code{font-family:'IBM Plex Mono',monospace}
-pre{background:var(--void2); border:1px solid var(--line); border-radius:var(--rad-sm); padding:.9rem; overflow:auto; font-size:.76rem; color:var(--sig)}
-
-/* expiry / step badges */
-.step-num,[class*="step"] .num{color:var(--sig)}
-
-/* tabs / view toggles inherit btn styling cleanly */
-
-/* progress bar */
-#bulkProgress{height:4px; background:var(--line); border-radius:99px; overflow:hidden; margin-top:.7rem; display:none}
-#bulkBar{height:100%; background:var(--sig); width:0; transition:width .3s var(--ease)}
-
-/* reduced motion */
-@media (prefers-reduced-motion:reduce){
-  *{animation:none !important; transition:none !important}
-}
-@media (max-width:520px){
-  .container{padding:1.4rem .8rem 3rem}
-  .actions{gap:.4rem}
-  .btn{font-size:.74rem; padding:.5rem .65rem}
-}
-
-.btn-icon .icon, .vip-copy .icon{width:16px;height:16px}
-.icon{stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;shape-rendering:geometricPrecision}
-.vip-copy{color:var(--txt2);width:32px;height:32px;padding:.4rem}
-.vip-copy:hover{color:var(--sig);border-color:var(--sig-dim)}
-
-.lang-btn{display:inline-flex;align-items:center;gap:.4rem}
-.flag{width:18px;height:12px;border-radius:2px;display:block;box-shadow:0 0 0 1px rgba(255,255,255,.08);flex:none}
-.lang-code{font-size:.72rem;letter-spacing:.05em}
-.title-main{cursor:pointer}
-.brand-link{text-decoration:none;color:inherit;display:inline-flex;align-items:baseline;gap:.6rem;transition:.2s var(--ease)}.brand-link:hover .ascii-mark{text-shadow:0 0 20px var(--sig)}.brand-link:hover .title-main{color:var(--sig)}
-
-/* API is now a true click-to-open surface, not a visible preview block */
-#apiBtn{
-  position:relative;
-  overflow:hidden;
-  border-color:rgba(201,162,75,.36) !important;
-  background:linear-gradient(180deg, rgba(201,162,75,.11), rgba(52,232,145,.035)) !important;
-  color:var(--gold) !important;
-}
-#apiBtn::after{
-  content:"";
-  position:absolute;
-  inset:-1px;
-  pointer-events:none;
-  background:linear-gradient(110deg, transparent 0 35%, rgba(255,255,255,.18) 48%, transparent 60%);
-  transform:translateX(-120%);
-  transition:transform .7s var(--ease);
-}
-#apiBtn:hover{border-color:var(--gold) !important; box-shadow:0 0 24px -10px rgba(201,162,75,.75)}
-#apiBtn:hover::after{transform:translateX(120%)}
-#apiBtn .icon{filter:drop-shadow(0 0 8px rgba(201,162,75,.32))}
-.modal-overlay{display:none; position:fixed; inset:0; z-index:1000; align-items:center; justify-content:center; padding:1rem; background:rgba(3,5,7,.72)}
-.modal-overlay.active{display:flex}
-.modal{width:min(100%,520px); max-height:min(88vh,760px); overflow:auto}
-body.modal-open{overflow:hidden}
-.api-doc-lede{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.9rem;padding:.8rem;border:1px solid var(--line);border-radius:var(--rad-sm);background:linear-gradient(180deg,rgba(201,162,75,.07),rgba(52,232,145,.035))}
-.api-doc-mark{width:34px;height:34px;flex:none;color:var(--gold);filter:drop-shadow(0 0 12px rgba(201,162,75,.28))}
-@media (max-width:520px){.modal-overlay{align-items:flex-end;padding:.5rem}.modal{max-height:90vh}}
-</style>
-
-<script>
-(function(){
-  function apply(d){
-    document.documentElement.classList.toggle('dark', d);
-    document.documentElement.classList.toggle('light', !d);
-    try{localStorage.setItem('tm_dark', d?'1':'0');}catch(e){}
-  }
-  var saved = null;
-  try{saved = localStorage.getItem('tm_dark');}catch(e){}
-  apply(saved!=='0');
-  document.addEventListener('click', function(e){
-    var t = e.target.closest && e.target.closest('#themeToggle');
-    if(!t) return;
-    e.stopImmediatePropagation();
-    apply(!document.documentElement.classList.contains('dark'));
-  }, true);
-})();
-</script>
 </head>
 <body>
 <div class="container" id="app">
   <header>
-    <h1><a class="brand-link" href="https://t.me/xscope0" target="_blank" rel="noopener" title="@xscope0 on Telegram"><span class="ascii-mark" aria-hidden="true">[xscope0]</span><span class="title-main">临时邮局</span></a><a class="title-credit" href="https://t.me/xscope0" target="_blank" rel="noopener">@xscope0</a></h1>
+    <h1><span class="ascii-mark" aria-hidden="true">[xscope0]</span><span class="title-main">临时邮局</span><a class="title-credit" href="https://t.me/xscope0" target="_blank" rel="noopener">@xscope0</a></h1>
     <div class="header-tools">
       <p data-i18n="tagline">Disposable inbox · by xscope0</p>
       <nav class="lang-switch" aria-label="language switcher">
-        <button class="lang-btn active" data-lang="zh" type="button"><svg class="flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><path d="M4 3l.7 2.1H7l-1.8 1.3.7 2.1L4 7.2 2.1 8.5l.7-2.1L1 5.1h2.3z"/><path d="M9 2.2l-.2.9.8.4-.9.1-.2.9-.4-.8-.9.1.6-.6-.4-.8.8.4z"/><path d="M10.5 4.2l-.5.7.6.6-.8-.3-.5.7v-.9l-.8-.3.9-.2v-.9l.5.7z"/><path d="M10.5 7.2l-.8-.2.3-.8-.6.6-.8-.2.6.6-.3.8.7-.5.6.6-.1-.9z"/><path d="M9 9.2l-.9-.1.4-.8-.6.6-.8-.3.5.7-.4.8.8-.4.7.5-.2-.9z"/></g></svg><span class="lang-code">CN</span></button>
-        <button class="lang-btn" data-lang="en" type="button"><svg class="flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#B22234"/><g fill="#fff"><rect y="1.23" width="24" height="1.23"/><rect y="3.69" width="24" height="1.23"/><rect y="6.15" width="24" height="1.23"/><rect y="8.62" width="24" height="1.23"/><rect y="11.08" width="24" height="1.23"/><rect y="13.54" width="24" height="1.23"/></g><rect width="10" height="8.62" fill="#3C3B6E"/><g fill="#fff"><circle cx="2" cy="2" r=".6"/><circle cx="5" cy="2" r=".6"/><circle cx="8" cy="2" r=".6"/><circle cx="3.5" cy="4.3" r=".6"/><circle cx="6.5" cy="4.3" r=".6"/><circle cx="2" cy="6.6" r=".6"/><circle cx="5" cy="6.6" r=".6"/><circle cx="8" cy="6.6" r=".6"/></g></svg><span class="lang-code">US</span></button>
-        <button class="lang-btn" data-lang="id" type="button"><svg class="flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="8" fill="#CE1126"/><rect y="8" width="24" height="8" fill="#fff"/></svg><span class="lang-code">ID</span></button>
+        <button class="lang-btn" data-lang="zh" type="button">🇨🇳 CN</button>
+        <button class="lang-btn active" data-lang="en" type="button">🇺🇸 US</button>
+        <button class="lang-btn" data-lang="id" type="button">🇮🇩 ID</button>
       </nav>
       <button class="btn btn-ghost" id="ghHelperBtn" title="GitHub Temp" style="padding:0.35rem 0.6rem;font-size:0.8rem;gap:0.3rem;"><svg viewBox="0 0 24 24" fill="currentColor" class="icon" style="width:16px;height:16px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg> <span data-i18n="github">GitHub</span></button>
-      <button class="btn btn-ghost" id="apiBtn" title="Open API agent functions" style="padding:0.35rem 0.65rem;font-size:0.8rem;gap:0.38rem;" aria-controls="apiModal" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:17px;height:17px;">
-        <path d="M12 2.75 19.5 7v8.05L12 21.25 4.5 15.05V7L12 2.75z"/>
-        <path d="M12 8.15v4.1l3.45 2.05"/>
-        <path d="M8.55 14.3 12 12.25l3.45-2.05"/>
-        <path d="M4.5 7 12 11.25 19.5 7"/>
-      </svg> API</button>
+      <button class="btn btn-ghost" id="apiBtn" title="Agent API documentation" style="padding:0.35rem 0.6rem;font-size:0.8rem;gap:0.3rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:16px;height:16px;"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg> API</button>
       <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
     </div>
   </header>
@@ -359,37 +48,37 @@ body.modal-open{overflow:hidden}
   <!-- Inbox card -->
   <div class="card">
     <div class="card-title">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
       <span data-i18n="inboxTitle">Inboxes</span>
       <span class="expiry-badge" id="expiryDisplay" style="display:none;"></span>
     </div>
     <div class="inbox-row" id="inboxRow">
       <div class="addr" id="addrDisplay">—</div>
       <button class="btn btn-icon" id="copyBtn" title="Copy address">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="8" y="8" width="14" height="14" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
       </button>
       <button class="btn btn-icon btn-danger" id="deleteBtn" title="Delete inbox">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M5 7l1 13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-13"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>
     <div class="actions">
       <button class="btn" id="newBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 5v14M5 12h14"/></svg> <span data-i18n="newInbox">New inbox</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> <span data-i18n="newInbox">New inbox</span>
       </button>
       <button class="btn btn-outline" id="bulkBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9z"/></svg> <span data-i18n="bulk">Bulk</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> <span data-i18n="bulk">Bulk</span>
       </button>
       <button class="btn btn-vip" id="vipBtn" title="Create Email+PW inbox with Imap/Smtp Credentials">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4"/><path d="M15 5l3 3"/><path d="M17 7l2.5-2.5"/></svg> <span data-i18n="emailPw">Email+PW</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> <span data-i18n="emailPw">Email+PW</span>
       </button>
       <button class="btn btn-vip" id="bulkVipBtn" title="Create inboxes and export CSV">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 12l5 5L20 6"/><path d="M20 7v5h-5"/></svg> <span data-i18n="bulkCsv">Bulk CSV</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20 6 9 17l-5-5"/><path d="M15 6h5v5"/><path d="M20 6 11 15"/></svg> <span data-i18n="bulkCsv">Bulk CSV</span>
       </button>
       <button class="btn btn-outline" id="refreshBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v4h-4"/></svg> <span data-i18n="refresh">Refresh</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> <span data-i18n="refresh">Refresh</span>
       </button>
       <button class="btn btn-ghost" id="shareBtn" title="Copy share link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
       </button>
     </div>
     <div id="bulkProgress">
@@ -401,25 +90,25 @@ body.modal-open{overflow:hidden}
   <!-- Lifetime Pro Credentials Panel (hidden by default) -->
   <div class="card vip-card" id="vipPanel" style="display:none;">
     <div class="card-title">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
       Imap/Smtp Credentials <span class="vip-badge">Lifetime Pro · xscope0</span>
       
     </div>
     <div class="vip-free-banner">
-      <span class="vip-free-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></span>
+      <span class="vip-free-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></span>
       <strong>Lifetime Pro — xscope0</strong>
-      <p>Complete Email + Password Credentials for Imap/Smtp login.</p>
+      <p>Complete Email + Password Credentials for Imap/Smtp login. Dark mode stays locked.</p>
     </div>
     <div class="vip-credentials">
       <div class="vip-row">
         <span class="vip-label">Email</span>
         <span class="vip-value" id="vipEmail">—</span>
-        <button class="btn btn-icon vip-copy" data-copy="vipEmail" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        <button class="btn btn-icon vip-copy" data-copy="vipEmail" title="Copy"></button>
       </div>
       <div class="vip-row">
         <span class="vip-label">Password</span>
         <span class="vip-value vip-mono" id="vipPassword">—</span>
-        <button class="btn btn-icon vip-copy" data-copy="vipPassword" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        <button class="btn btn-icon vip-copy" data-copy="vipPassword" title="Copy"></button>
       </div>
       <div class="vip-divider"></div>
       <div class="vip-section-title">Imap (Incoming)</div>
@@ -457,11 +146,11 @@ body.modal-open{overflow:hidden}
   <div class="card" style="margin-bottom:1rem;">
     <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
       <span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
         Inboxes
       </span>
       <button class="btn btn-ghost" id="dumpBtn" title="Clear all inboxes" style="font-size:0.7rem;padding:0.2rem 0.5rem;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 7h16"/><path d="M5 7l1 13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-13"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>
     <input class="history-search" id="historySearch" type="text" placeholder="Search inboxes…" />
@@ -474,14 +163,14 @@ body.modal-open{overflow:hidden}
   <div class="card">
     <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
       <span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
         Messages
       </span>
       <span id="msgCount" style="font-size:0.7rem;color:hsl(var(--text2));">0</span>
     </div>
     <div id="msgList" class="msg-list">
       <div class="msg-empty">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
         <div>Waiting for incoming emails…</div>
         <div style="font-size:0.8rem;margin-top:0.3rem;">Send an email to your temp address</div>
       </div>
@@ -536,14 +225,14 @@ body.modal-open{overflow:hidden}
           <div class="gh-sub-step"><span class="gh-sub-num">4</span> <span data-i18n="ghSub4">Come back here — OTP appears automatically in Step 3</span></div>
         </div>
         <div class="gh-checklist">
-          <div data-i18n="ghCheck1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Turn off VPN/proxy — use personal network (4G / home WiFi)</div>
-          <div data-i18n="ghCheck2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Don't use Incognito — use your daily browser profile</div>
-          <div data-i18n="ghCheck3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Disable aggressive privacy extensions (uBlock, Brave Shield max)</div>
-          <div data-i18n="ghCheck4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Don't rush — solve captcha slowly</div>
-          <div data-i18n="ghCheck5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> If "unusual activity" appears: wait 24h / switch network</div>
+          <div data-i18n="ghCheck1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Turn off VPN/proxy — use personal network (4G / home WiFi)</div>
+          <div data-i18n="ghCheck2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Don't use Incognito — use your daily browser profile</div>
+          <div data-i18n="ghCheck3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Disable aggressive privacy extensions (uBlock, Brave Shield max)</div>
+          <div data-i18n="ghCheck4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> Don't rush — solve captcha slowly</div>
+          <div data-i18n="ghCheck5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg> If "unusual activity" appears: wait 24h / switch network</div>
         </div>
-<a href="javascript:(function()%7Btry%7Bvar%20h%3Dlocation.hash.match(%2Fxscope0fill%3D(%5B%5E%26%5D%2B)%2F)%3Bif(!h)%7Balert(%22Open%20GitHub%20Signup%20from%20GitHub%20Temp%20first%20(URL%20must%20contain%20%23xscope0fill%3D...)%22)%3Breturn%3B%7Dvar%20d%3DJSON.parse(atob(decodeURIComponent(h%5B1%5D)))%3Bvar%20P%3DObject.getOwnPropertyDescriptor(window.HTMLInputElement.prototype%2C%22value%22)%3Bvar%20rnd%3Dfunction(a%2Cb)%7Breturn%20Math.floor(a%2BMath.random()*(b-a))%3B%7D%3Bvar%20sleep%3Dfunction(ms)%7Breturn%20new%20Promise(function(r)%7BsetTimeout(r%2Cms)%3B%7D)%3B%7D%3Bvar%20setNative%3Dfunction(el%2Cval)%7Bif(P%26%26P.set)P.set.call(el%2Cval)%3Belse%20el.value%3Dval%3Bel.dispatchEvent(new%20Event(%22input%22%2C%7Bbubbles%3Atrue%7D))%3Bel.dispatchEvent(new%20Event(%22change%22%2C%7Bbubbles%3Atrue%7D))%3B%7D%3Bvar%20typeHuman%3Dasync%20function(sel%2Cval)%7Bvar%20el%3Ddocument.querySelector(sel)%3Bif(!el)return%20false%3Bel.focus()%3Bel.dispatchEvent(new%20Event(%22focus%22%2C%7Bbubbles%3Atrue%7D))%3Bawait%20sleep(rnd(200%2C500))%3Bvar%20cur%3D%22%22%3Bfor(var%20i%3D0%3Bi%3Cval.length%3Bi%2B%2B)%7Bcur%2B%3Dval%5Bi%5D%3BsetNative(el%2Ccur)%3Bawait%20sleep(rnd(40%2C140))%3B%7Del.dispatchEvent(new%20Event(%22blur%22%2C%7Bbubbles%3Atrue%7D))%3Breturn%20true%3B%7D%3B(async%20function()%7Bvar%20fields%3D%5B%5B%22%23email%22%2Cd.email%5D%2C%5B%22%23password%22%2Cd.password%5D%2C%5B%22%23login%22%2Cd.username%5D%5D%3Bvar%20ok%3D0%3Bfor(var%20i%3D0%3Bi%3Cfields.length%3Bi%2B%2B)%7Bvar%20f%3Dfields%5Bi%5D%3Bif(await%20typeHuman(f%5B0%5D%2Cf%5B1%5D))ok%2B%2B%3Bawait%20sleep(rnd(700%2C1400))%3B%7Dvar%20note%3Ddocument.createElement(%22div%22)%3Bnote.style.cssText%3D%22position%3Afixed%3Btop%3A16px%3Bright%3A16px%3Bz-index%3A99999%3Bbackground%3A%230d1117%3Bcolor%3A%23fff%3Bborder%3A2px%20solid%20%232ea043%3Bborder-radius%3A8px%3Bpadding%3A12px%2016px%3Bfont%3A600%2013px%20system-ui%3Bbox-shadow%3A0%208px%2024px%20rgba(0%2C0%2C0%2C.4)%3Bmax-width%3A320px%22%3Bnote.innerHTML%3D%22xscope0fill%20%3Cb%3E%22%2Bok%2B%22%2F%22%2Bfields.length%2B%22%3C%2Fb%3E%20fields%20filled.%3Cbr%3E%3Cspan%20style%3D%22font-weight%3A400%3Bopacity%3A.8%22%3ESolve%20captcha%20slowly%20then%20click%20%3Cb%3ECreate%20account%3C%2Fb%3E.%3C%2Fspan%3E%22%3Bdocument.body.appendChild(note)%3BsetTimeout(function()%7Bnote.remove()%3B%7D%2C8000)%3B%7D)()%3B%7Dcatch(e)%7Balert(%22xscope0fill%20error%3A%20%22%2Be.message)%3B%7D%7D)()%3B" class="btn btn-outline" style="display:inline-block;margin-top:0.5rem;text-align:center;width:100%;text-decoration:none;font-size:0.75rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Auto-Fill Script <span style="font-size:0.65rem;opacity:0.7;" data-i18n="ghDragBookmark">(drag to bookmark bar)</span></a>
-        <a id="ghSignupLink" href="https://github.com/join" target="_blank" rel="noopener" class="btn" style="display:inline-block;margin-top:0.5rem;text-align:center;width:100%;text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="ghOpenSignup">Open GitHub Signup</span></a>
+<a href="javascript:(function()%7Btry%7Bvar%20h%3Dlocation.hash.match(%2Fxscope0fill%3D(%5B%5E%26%5D%2B)%2F)%3Bif(!h)%7Balert(%22Open%20GitHub%20Signup%20from%20GitHub%20Temp%20first%20(URL%20must%20contain%20%23xscope0fill%3D...)%22)%3Breturn%3B%7Dvar%20d%3DJSON.parse(atob(decodeURIComponent(h%5B1%5D)))%3Bvar%20P%3DObject.getOwnPropertyDescriptor(window.HTMLInputElement.prototype%2C%22value%22)%3Bvar%20rnd%3Dfunction(a%2Cb)%7Breturn%20Math.floor(a%2BMath.random()*(b-a))%3B%7D%3Bvar%20sleep%3Dfunction(ms)%7Breturn%20new%20Promise(function(r)%7BsetTimeout(r%2Cms)%3B%7D)%3B%7D%3Bvar%20setNative%3Dfunction(el%2Cval)%7Bif(P%26%26P.set)P.set.call(el%2Cval)%3Belse%20el.value%3Dval%3Bel.dispatchEvent(new%20Event(%22input%22%2C%7Bbubbles%3Atrue%7D))%3Bel.dispatchEvent(new%20Event(%22change%22%2C%7Bbubbles%3Atrue%7D))%3B%7D%3Bvar%20typeHuman%3Dasync%20function(sel%2Cval)%7Bvar%20el%3Ddocument.querySelector(sel)%3Bif(!el)return%20false%3Bel.focus()%3Bel.dispatchEvent(new%20Event(%22focus%22%2C%7Bbubbles%3Atrue%7D))%3Bawait%20sleep(rnd(200%2C500))%3Bvar%20cur%3D%22%22%3Bfor(var%20i%3D0%3Bi%3Cval.length%3Bi%2B%2B)%7Bcur%2B%3Dval%5Bi%5D%3BsetNative(el%2Ccur)%3Bawait%20sleep(rnd(40%2C140))%3B%7Del.dispatchEvent(new%20Event(%22blur%22%2C%7Bbubbles%3Atrue%7D))%3Breturn%20true%3B%7D%3B(async%20function()%7Bvar%20fields%3D%5B%5B%22%23email%22%2Cd.email%5D%2C%5B%22%23password%22%2Cd.password%5D%2C%5B%22%23login%22%2Cd.username%5D%5D%3Bvar%20ok%3D0%3Bfor(var%20i%3D0%3Bi%3Cfields.length%3Bi%2B%2B)%7Bvar%20f%3Dfields%5Bi%5D%3Bif(await%20typeHuman(f%5B0%5D%2Cf%5B1%5D))ok%2B%2B%3Bawait%20sleep(rnd(700%2C1400))%3B%7Dvar%20note%3Ddocument.createElement(%22div%22)%3Bnote.style.cssText%3D%22position%3Afixed%3Btop%3A16px%3Bright%3A16px%3Bz-index%3A99999%3Bbackground%3A%230d1117%3Bcolor%3A%23fff%3Bborder%3A2px%20solid%20%232ea043%3Bborder-radius%3A8px%3Bpadding%3A12px%2016px%3Bfont%3A600%2013px%20system-ui%3Bbox-shadow%3A0%208px%2024px%20rgba(0%2C0%2C0%2C.4)%3Bmax-width%3A320px%22%3Bnote.innerHTML%3D%22xscope0fill%20%3Cb%3E%22%2Bok%2B%22%2F%22%2Bfields.length%2B%22%3C%2Fb%3E%20fields%20filled.%3Cbr%3E%3Cspan%20style%3D%22font-weight%3A400%3Bopacity%3A.8%22%3ESolve%20captcha%20slowly%20then%20click%20%3Cb%3ECreate%20account%3C%2Fb%3E.%3C%2Fspan%3E%22%3Bdocument.body.appendChild(note)%3BsetTimeout(function()%7Bnote.remove()%3B%7D%2C8000)%3B%7D)()%3B%7Dcatch(e)%7Balert(%22xscope0fill%20error%3A%20%22%2Be.message)%3B%7D%7D)()%3B" class="btn btn-outline" style="display:inline-block;margin-top:0.5rem;text-align:center;width:100%;text-decoration:none;font-size:0.75rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Auto-Fill Script <span style="font-size:0.65rem;opacity:0.7;" data-i18n="ghDragBookmark">(drag to bookmark bar)</span></a>
+        <a id="ghSignupLink" href="https://github.com/join" target="_blank" rel="noopener" class="btn" style="display:inline-block;margin-top:0.5rem;text-align:center;width:100%;text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="ghOpenSignup">Open GitHub Signup</span></a>
       </div>
 
       <!-- Step 3 -->
@@ -572,11 +261,11 @@ body.modal-open{overflow:hidden}
           <div class="gh-sub-step"><span class="gh-sub-num">3</span> <span data-i18n="gh2fa3"><strong>Scan QR code → enter 6-digit code</strong> — Open authenticator app, tap +, scan the QR shown on GitHub.</span></div>
         </div>
         <div class="gh-warning">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> <strong data-i18n="ghSaveRecovery">Save Recovery Codes!</strong><br>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> <strong data-i18n="ghSaveRecovery">Save Recovery Codes!</strong><br>
           <span data-i18n="ghRecoveryDesc">GitHub gives you 16 recovery codes — screenshot or download &amp; store somewhere safe (password manager / cloud notes). Without these, if you lose your phone the account is gone forever.</span>
         </div>
         <p style="font-size:0.78rem;color:hsl(var(--text2));margin-top:0.5rem;" data-i18n="ghBonus">Bonus: after 2FA is active, add SSH key &amp; Personal Access Token so you can git push without password.</p>
-        <a href="https://github.com/settings/security" target="_blank" rel="noopener" class="btn btn-outline" style="display:inline-block;margin-top:0.75rem;text-align:center;width:100%;text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span data-i18n="ghSetup2fa">Setup 2FA on GitHub</span></a>
+        <a href="https://github.com/settings/security" target="_blank" rel="noopener" class="btn btn-outline" style="display:inline-block;margin-top:0.75rem;text-align:center;width:100%;text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span data-i18n="ghSetup2fa">Setup 2FA on GitHub</span></a>
       </div>
     </div>
   </div><!-- /ghView -->
@@ -588,11 +277,11 @@ body.modal-open{overflow:hidden}
   <div class="modal">
     <div class="modal-head">
       <h3>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New inbox
       </h3>
       <button class="modal-close" id="newModalClose">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body">
@@ -615,11 +304,11 @@ body.modal-open{overflow:hidden}
   <div class="modal" style="max-width:320px;">
     <div class="modal-head">
       <h3>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
         Bulk create
       </h3>
       <button class="modal-close" id="bulkModalClose">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body">
@@ -632,7 +321,7 @@ body.modal-open{overflow:hidden}
       <div class="modal-actions" style="margin-top:1rem;">
         <button class="btn btn-outline" id="bulkModalCancel">Cancel</button>
         <button class="btn" id="bulkModalGo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
           Go
         </button>
       </div>
@@ -645,11 +334,11 @@ body.modal-open{overflow:hidden}
   <div class="modal" style="max-width:380px;">
     <div class="modal-head">
       <h3>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
         Bulk Lifetime Pro Email + Password
       </h3>
       <button class="modal-close" id="bulkVipModalClose">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body">
@@ -670,7 +359,7 @@ body.modal-open{overflow:hidden}
       <div class="modal-actions" style="margin-top:1rem;">
         <button class="btn btn-outline" id="bulkVipModalCancel">Cancel</button>
         <button class="btn btn-vip" id="bulkVipModalGo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
           Create + CSV
         </button>
       </div>
@@ -684,33 +373,33 @@ body.modal-open{overflow:hidden}
     <div class="modal-head">
       <h3 id="msgModalSubj">(no subject)</h3>
       <button class="modal-close" id="msgModalClose">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body">
       <div id="otpRow">
         <div>
           <div class="otp-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
             Verification code
           </div>
           <div class="otp-code" id="otpCode"></div>
         </div>
         <button class="btn btn-sm" id="copyOtpBtn" title="Copy OTP">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="8" y="8" width="14" height="14" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="8" y="8" width="14" height="14" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
           Copy
         </button>
       </div>
       <div id="verifyRow">
         <div>
           <div class="otp-label" style="color:hsl(var(--success));">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             Verification link
           </div>
           <a class="verify-link-url" id="verifyLink" href="#" target="_blank" rel="noopener"></a>
         </div>
         <button class="btn btn-sm" id="openVerifyBtn" style="background:hsl(var(--success));border-color:hsl(var(--success));">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Open
         </button>
       </div>
@@ -732,9 +421,9 @@ body.modal-open{overflow:hidden}
 <!-- Advanced Settings (compact) -->
 <div style="margin-top:0.3rem;padding:0.3rem 0.5rem;font-size:0.72rem;color:hsl(var(--text2));border-top:1px solid hsl(var(--border));">
   <span style="cursor:pointer;user-select:none;" id="advancedToggle" >
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="icon" style="width:11px;height:11px;vertical-align:middle;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon" style="width:11px;height:11px;vertical-align:middle;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     <span data-i18n="advancedTitle">Advanced</span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="icon" id="advancedArrow" style="width:10px;height:10px;vertical-align:middle;transition:transform 0.15s;"><polyline points="6 9 12 15 18 9"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon" id="advancedArrow" style="width:10px;height:10px;vertical-align:middle;transition:transform 0.15s;"><polyline points="6 9 12 15 18 9"/></svg>
   </span>
   <span id="advancedBody" style="display:none;">
     &nbsp;·&nbsp;
@@ -758,7 +447,7 @@ body.modal-open{overflow:hidden}
     </label>
     <span id="refreshWarn" style="display:none;color:hsl(var(--danger,0 84% 60%));" title="Rate limit risk">
       &nbsp;
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="icon" style="width:10px;height:10px;vertical-align:middle;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon" style="width:10px;height:10px;vertical-align:middle;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span data-i18n="refreshWarn" style="font-size:0.65rem;">Rate limit risk</span>
     </span>
   </span>
@@ -766,22 +455,19 @@ body.modal-open{overflow:hidden}
 
 <footer class="site-credit">[xscope0] <a href="https://t.me/xscope0" target="_blank" rel="noopener">@xscope0</a> · xscope0 · 黑夜邮局</footer>
 <!-- API Docs Modal -->
-<div class="modal-overlay" id="apiModal" aria-hidden="true">
-  <div class="modal" style="max-width:520px;" role="dialog" aria-modal="true" aria-labelledby="apiModalTitle">
+<div class="modal-overlay" id="apiModal">
+  <div class="modal" style="max-width:520px;">
     <div class="modal-head">
-      <h3 id="apiModalTitle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" class="icon" style="color:var(--gold);filter:drop-shadow(0 0 10px rgba(201,162,75,.35));"><path d="M12 2.75 19.5 7v8.05L12 21.25 4.5 15.05V7L12 2.75z"/><path d="M12 8.15v4.1l3.45 2.05"/><path d="M8.55 14.3 12 12.25l3.45-2.05"/><path d="M4.5 7 12 11.25 19.5 7"/></svg>
-        API Agent Functions
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+        Agent API
       </h3>
       <button class="modal-close" id="apiModalClose">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body" style="font-size:0.82rem;">
-      <div class="api-doc-lede">
-        <svg class="api-doc-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.75 19.5 7v8.05L12 21.25 4.5 15.05V7L12 2.75z"/><path d="M12 8.15v4.1l3.45 2.05"/><path d="M8.55 14.3 12 12.25l3.45-2.05"/><path d="M4.5 7 12 11.25 19.5 7"/></svg>
-        <p style="margin:0;opacity:0.86;">Programmatic functions for AI agents and browser automation. Available on <code style="background:rgba(201,162,75,.12);padding:0.1rem 0.3rem;border-radius:4px;color:var(--gold);">window.TempMailAPI</code></p>
-      </div>
+      <p style="margin-bottom:0.6rem;opacity:0.8;">Programmatic API for AI agents and browser automation. Available on <code style="background:hsl(var(--accent)/0.1);padding:0.1rem 0.3rem;border-radius:4px;">window.TempMailAPI</code></p>
 
       <div style="margin-bottom:0.75rem;">
         <div style="font-weight:600;margin-bottom:0.3rem;">Quick Start</div>
@@ -795,7 +481,7 @@ console.log('OTP:', otp.otp);</code></pre>
       </div>
 
       <div style="margin-bottom:0.75rem;">
-        <div style="font-weight:600;margin-bottom:0.3rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;font-size:.72rem;">API Functions</div>
+        <div style="font-weight:600;margin-bottom:0.3rem;">Functions</div>
         <table style="width:100%;font-size:0.78rem;border-collapse:collapse;">
           <tr style="border-bottom:1px solid hsl(var(--border));">
             <td style="padding:0.25rem 0;font-family:monospace;color:hsl(var(--accent));">generateEmail(prefix?, domain?)</td>
@@ -847,34 +533,6 @@ console.log('OTP:', otp.otp);</code></pre>
 </div>
 
 
-<script>
-(function(){
-  var apiBtn = document.getElementById('apiBtn');
-  var apiModal = document.getElementById('apiModal');
-  var apiClose = document.getElementById('apiModalClose');
-  if(!apiBtn || !apiModal) return;
-  function openApi(){
-    apiModal.classList.add('active');
-    apiModal.setAttribute('aria-hidden','false');
-    apiBtn.setAttribute('aria-expanded','true');
-    document.body.classList.add('modal-open');
-    if(apiClose) apiClose.focus();
-  }
-  function closeApi(){
-    apiModal.classList.remove('active');
-    apiModal.setAttribute('aria-hidden','true');
-    apiBtn.setAttribute('aria-expanded','false');
-    document.body.classList.remove('modal-open');
-    apiBtn.focus();
-  }
-  apiBtn.addEventListener('click', openApi);
-  if(apiClose) apiClose.addEventListener('click', closeApi);
-  apiModal.addEventListener('click', function(e){ if(e.target === apiModal) closeApi(); });
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && apiModal.classList.contains('active')) closeApi();
-  });
-})();
-</script>
 <script type="module" src="./js/app.js?v=1782180800"></script>
 </body>
 </html>
