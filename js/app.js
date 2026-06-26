@@ -35,6 +35,7 @@ import {
   archiveMessage,
   unarchiveMessage,
   isMessageArchived,
+  getArchivedMessages,
 } from './state.js?v=1782180800';
 
 import {
@@ -64,6 +65,8 @@ import {
   showLoadingSkeleton,
   hideLoadingSkeleton,
   showMessageModal,
+  setShowArchived,
+  isShowingArchived,
   initThemeToggle,
   initKeyboardShortcuts,
   openModal,
@@ -760,25 +763,36 @@ function wireEvents() {
   });
 
   $('archiveMsgBtn').addEventListener('click', () => {
-    const msg = stateMessages.find(m => m.id === _currentMessage?.id);
+    const msg = stateMessages.find(m => m.id === _currentMessage?.id) ||
+                archivedMessages.find(m => m.id === _currentMessage?.id);
     if (!msg) return;
-    const isArchived = isMessageArchived(msg.id);
-    if (isArchived) {
+    const wasArchived = isMessageArchived(msg.id);
+    if (wasArchived) {
       unarchiveMessage(msg.id);
-      toast(ICONS.check + ' Message unarchived');
+      addHistoryEntry({ address: msg.inbox_address || currentInbox?.address, expires_at: null });
+      toast(ICONS.check + ' Moved back to inbox');
     } else {
       archiveMessage(msg);
-      toast(ICONS.check + ' Message archived');
+      setMessages(stateMessages.filter(m => m.id !== msg.id));
+      toast(ICONS.check + ' Archived — saved permanently');
     }
-    // Update button text
-    const $archiveBtnText = $('archiveBtnText');
-    if ($archiveBtnText) {
-      $archiveBtnText.textContent = isArchived ? 'Archive' : 'Unarchive';
+    closeModal('msgModal');
+    renderMessages();
+  });
+
+  $('msgTabInbox').addEventListener('click', () => {
+    if (isShowingArchived()) {
+      setShowArchived(false);
+      _lastMsgIds = '';
+      renderMessages();
     }
-    const $archiveBtn = $('archiveMsgBtn');
-    if ($archiveBtn) {
-      $archiveBtn.style.background = isArchived ? '' : 'hsl(var(--text2))';
-      $archiveBtn.style.borderColor = isArchived ? '' : 'hsl(var(--text2))';
+  });
+
+  $('msgTabArchived').addEventListener('click', () => {
+    if (!isShowingArchived()) {
+      setShowArchived(true);
+      _lastMsgIds = '';
+      renderMessages();
     }
   });
 
@@ -819,7 +833,9 @@ function wireEvents() {
     }
     const item = e.target.closest('.msg-item');
     if (item) {
-      showMessageModal(stateMessages[parseInt(item.dataset.idx)]);
+      const idx = parseInt(item.dataset.idx);
+      const source = isShowingArchived() ? getArchivedMessages() : stateMessages;
+      showMessageModal(source[idx]);
     }
   });
 

@@ -309,23 +309,40 @@ let _lastMsgIds = '';
 
 const _verifyCache = new Map();
 let _currentMessage = null;
+let _showingArchived = false;
 
-export function renderMessages() {
+export function isShowingArchived() {
+  return _showingArchived;
+}
+
+export function setShowArchived(val) {
+  _showingArchived = val;
+  const $inboxTab = $('msgTabInbox');
+  const $archTab = $('msgTabArchived');
+  if ($inboxTab) {
+    $inboxTab.classList.toggle('active', !val);
+    $inboxTab.style.opacity = val ? '0.5' : '1';
+  }
+  if ($archTab) {
+    $archTab.classList.toggle('active', val);
+    $archTab.style.opacity = val ? '1' : '0.5';
+  }
+}
+
+function _renderMessageList(msgArray) {
   const $msgList = $('msgList');
   const $msgCount = $('msgCount');
 
-  $msgCount.textContent = messages.length;
+  $msgCount.textContent = msgArray.length;
 
-  const currentIds = messages.map((m) => m.id).join(',');
-  if (currentIds === _lastMsgIds && messages.length > 0) return;
-  _lastMsgIds = currentIds;
-
-  if (messages.length === 0) {
-    $msgList.innerHTML = `<div class="msg-empty">${ICONS.empty}<div>No messages yet</div><div style="font-size:0.8rem;margin-top:0.3rem;">Send an email to your temp address</div></div>`;
+  if (msgArray.length === 0) {
+    const label = _showingArchived ? 'No archived messages' : 'No messages yet';
+    const sub = _showingArchived ? 'Archive an email to save it here' : 'Send an email to your temp address';
+    $msgList.innerHTML = `<div class="msg-empty">${ICONS.empty}<div>${label}</div><div style="font-size:0.8rem;margin-top:0.3rem;">${sub}</div></div>`;
     return;
   }
 
-  $msgList.innerHTML = messages
+  $msgList.innerHTML = msgArray
     .map((m, i) => {
       let otp = null;
       let link = null;
@@ -352,6 +369,17 @@ export function renderMessages() {
       return `<div class="msg-item" data-idx="${i}"><div class="from">${escapeHtml(m.from_address || m.sender_address) || 'Unknown'}</div><div class="subj">${otpBadge}${linkBadge}${escapeHtml(m.subject) || '(no subject)'}</div><div class="preview">${preview || '—'}</div><div class="time">${fmtTime(m.received_at)}</div></div>`;
     })
     .join('');
+}
+
+export function renderMessages() {
+  if (_showingArchived) {
+    _renderMessageList(archivedMessages);
+  } else {
+    const currentIds = messages.map((m) => m.id).join(',');
+    if (currentIds === _lastMsgIds && messages.length > 0) return;
+    _lastMsgIds = currentIds;
+    _renderMessageList(messages);
+  }
 }
 
 // ── Render: Inbox history ──
