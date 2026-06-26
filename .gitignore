@@ -10,3 +10,5 @@ node_modules/
 output/
 preview-*.png
 preview-test.mjs
+.claude/
+.fastcontext/
