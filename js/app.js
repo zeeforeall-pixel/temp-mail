@@ -23,6 +23,7 @@ import {
   initSelectedDomain,
   initDarkMode,
   initSeenMessages,
+  initArchivedMessages,
   addHistoryEntry,
   clearHistory,
   saveHistory,
@@ -31,6 +32,9 @@ import {
   setMessages,
   setDomains,
   setMessageCounts,
+  archiveMessage,
+  unarchiveMessage,
+  isMessageArchived,
 } from './state.js?v=1782180800';
 
 import {
@@ -755,6 +759,29 @@ function wireEvents() {
     if (e.key === 'Enter') $('bulkVipModalGo').click();
   });
 
+  $('archiveMsgBtn').addEventListener('click', () => {
+    const msg = stateMessages.find(m => m.id === _currentMessage?.id);
+    if (!msg) return;
+    const isArchived = isMessageArchived(msg.id);
+    if (isArchived) {
+      unarchiveMessage(msg.id);
+      toast(ICONS.check + ' Message unarchived');
+    } else {
+      archiveMessage(msg);
+      toast(ICONS.check + ' Message archived');
+    }
+    // Update button text
+    const $archiveBtnText = $('archiveBtnText');
+    if ($archiveBtnText) {
+      $archiveBtnText.textContent = isArchived ? 'Archive' : 'Unarchive';
+    }
+    const $archiveBtn = $('archiveMsgBtn');
+    if ($archiveBtn) {
+      $archiveBtn.style.background = isArchived ? '' : 'hsl(var(--text2))';
+      $archiveBtn.style.borderColor = isArchived ? '' : 'hsl(var(--text2))';
+    }
+  });
+
   $('msgModalClose').addEventListener('click', () =>
     closeModal('msgModal')
   );
@@ -1052,6 +1079,7 @@ async function init() {
   initHistory();
   initSelectedDomain();
   initSeenMessages();
+  initArchivedMessages();
 
   if (await handleUrlApi()) return;
 

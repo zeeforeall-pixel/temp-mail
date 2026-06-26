@@ -17,6 +17,10 @@ import {
   setSelectedDomain,
   isMessageSeen,
   messageCounts,
+  archivedMessages,
+  archiveMessage,
+  unarchiveMessage,
+  isMessageArchived,
 } from './state.js?v=1782180800';
 import { extractOTP, extractVerifyLink, extractVerification } from './otp.js?v=1782180800';
 import { sanitizeEmailHtml } from './sanitizer.js?v=1782180800';
@@ -304,6 +308,7 @@ function renderDomainSelector(id) {
 let _lastMsgIds = '';
 
 const _verifyCache = new Map();
+let _currentMessage = null;
 
 export function renderMessages() {
   const $msgList = $('msgList');
@@ -485,6 +490,7 @@ export function initKeyboardShortcuts() {
 // ── Message modal ──
 
 export function showMessageModal(message) {
+  _currentMessage = message;
   const $msgModalSubj = $('msgModalSubj');
   const $msgModalFrom = $('msgModalFrom');
   const $msgModalTo = $('msgModalTo');
@@ -492,6 +498,8 @@ export function showMessageModal(message) {
   const $msgModalContent = $('msgModalContent');
   const $otpRow = $('otpRow');
   const $otpCode = $('otpCode');
+  const $archiveBtn = $('archiveMsgBtn');
+  const $archiveBtnText = $('archiveBtnText');
 
   $msgModalSubj.textContent = message.subject || '(no subject)';
   $msgModalFrom.textContent = 'From: ' + (message.from_address || message.sender_address || '—');
@@ -501,6 +509,14 @@ export function showMessageModal(message) {
     (message.received_at
       ? new Date(message.received_at).toLocaleString()
       : '—');
+
+  // Update archive button state
+  if ($archiveBtn && $archiveBtnText) {
+    const isArchived = isMessageArchived(message.id);
+    $archiveBtnText.textContent = isArchived ? 'Unarchive' : 'Archive';
+    $archiveBtn.style.background = isArchived ? 'hsl(var(--text2))' : '';
+    $archiveBtn.style.borderColor = isArchived ? 'hsl(var(--text2))' : '';
+  }
 
   // OTP + verification link detection
   $otpCode.textContent = '';

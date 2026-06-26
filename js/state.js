@@ -13,6 +13,7 @@ import {
   LS_DARK_MODE,
   LS_TOKEN_POOL,
   LS_SEEN_MESSAGES,
+  LS_ARCHIVED_MESSAGES,
   MAX_INBOX_HISTORY,
   TOKEN_POOL_SIZE,
 } from './config.js?v=1782180800';
@@ -28,6 +29,7 @@ export let ownerToken = '';
 export let tokenPool = [];
 export let seenMessages = {};
 export let messageCounts = new Map();
+export let archivedMessages = [];
 
 // ── Setters for external modules (ES module exports are read-only imports) ──
 
@@ -160,6 +162,47 @@ export function getUnreadCount(inboxAddress) {
 export function isMessageSeen(inboxAddress, messageId) {
   const seen = seenMessages[inboxAddress] || [];
   return seen.includes(messageId);
+}
+
+// ── Archived messages ──
+
+export function initArchivedMessages() {
+  try {
+    archivedMessages = JSON.parse(localStorage.getItem(LS_ARCHIVED_MESSAGES) || '[]');
+  } catch (e) {
+    archivedMessages = [];
+  }
+}
+
+export function archiveMessage(message) {
+  const exists = archivedMessages.some(m => m.id === message.id);
+  if (!exists) {
+    archivedMessages.unshift({
+      ...message,
+      archived_at: new Date().toISOString(),
+      inbox_address: currentInbox?.address
+    });
+    localStorage.setItem(LS_ARCHIVED_MESSAGES, JSON.stringify(archivedMessages));
+  }
+  return !exists;
+}
+
+export function unarchiveMessage(messageId) {
+  const idx = archivedMessages.findIndex(m => m.id === messageId);
+  if (idx !== -1) {
+    archivedMessages.splice(idx, 1);
+    localStorage.setItem(LS_ARCHIVED_MESSAGES, JSON.stringify(archivedMessages));
+    return true;
+  }
+  return false;
+}
+
+export function isMessageArchived(messageId) {
+  return archivedMessages.some(m => m.id === messageId);
+}
+
+export function getArchivedMessages() {
+  return archivedMessages;
 }
 
 // ── Selected domain ──
